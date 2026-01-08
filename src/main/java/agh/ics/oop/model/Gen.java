@@ -3,21 +3,29 @@ package agh.ics.oop.model;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.Random;
 
 public class Gen implements Iterable<Integer>{
-    private final List<Integer> gen = new ArrayList<>();;
+    private List<Integer> genList = new ArrayList<>();;
     private final int lenOfGen;
+    private final Random random = new Random();
 
     public Gen(int lenOfGen) {
         if (lenOfGen<=0){
             throw new IllegalArgumentException("lenOfGen must be > 0");
         }
         this.lenOfGen = lenOfGen;
-        Random random = new Random();
         for (int i= 0;i<lenOfGen;i++)
-            gen.add(random.nextInt(8));
+            genList.add(random.nextInt(8));
+    }
+
+
+    public Gen(List<Integer> gen) {
+        this.lenOfGen = gen.size();
+        if (lenOfGen==0){
+            throw new IllegalArgumentException("lenOfGen must be > 0");
+        }
+        this.genList = gen;
     }
 
     @Override
@@ -40,9 +48,16 @@ public class Gen implements Iterable<Integer>{
         @Override
         public Integer next() {
             currIndex = (currIndex+1) % lenOfGen;
-            return gen.get(currIndex);
+            return genList.get(currIndex);
         }
 
     }
 
+    public List<Integer> getGenList() {
+        return genList;
+    }
+
+    public void setRandomElementInGenList(){
+        genList.set(random.nextInt(lenOfGen), random.nextInt(8));
+    }
 }

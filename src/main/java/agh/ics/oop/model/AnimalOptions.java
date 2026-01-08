@@ -14,4 +14,8 @@ public record AnimalOptions(EnergyOptions energyOptions, int mutationNum, int le
             );
         }
     }
+
+    public AnimalOptions withEnergyOptions(EnergyOptions newEnergyOptions) {
+        return new AnimalOptions(newEnergyOptions, mutationNum, lenOfGen);
+    }
 }

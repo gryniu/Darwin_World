@@ -19,9 +19,9 @@ public enum MapDirection {
     }
 
 
-    public MapDirection previous() {
+    public MapDirection opposite() {
         MapDirection[] directions = MapDirection.values();
-        return directions[(this.ordinal() - 1 + directions.length) % directions.length];
+        return directions[(this.ordinal() + directions.length/2) % directions.length];
     }
 
     public Vector2d toUnitVector() {
