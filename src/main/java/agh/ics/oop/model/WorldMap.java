@@ -29,7 +29,7 @@ public interface WorldMap{
 
     Optional<List<Animal>> getAnimals(Vector2d position);
 
-    List<WorldElement> getAllAnimals();
+    List<Animal> getAllAnimals();
 
     void addSubscriber(MapChangeListener observer);
     void removeSubscriber(MapChangeListener observer);

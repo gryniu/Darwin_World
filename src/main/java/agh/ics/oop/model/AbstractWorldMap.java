@@ -17,16 +17,6 @@ public abstract class AbstractWorldMap implements WorldMap {
     }
 
     @Override
-    public void move(Animal animal) {
-        Vector2d oldPosition = animal.position();
-        animals.removeAnimal(animal);
-        Vector2d newPosition = oldPosition.add(animal.getOrientation().toUnitVector());
-        animal.setPosition(newPosition);
-        animals.addAnimal(animal);
-        mapChanged("Animal moved from %s to %s".formatted(oldPosition, newPosition));
-    }
-
-    @Override
     public String toString(){
         Boundary bounds = getCurrentBounds();
         return mapVisualizer.draw(bounds.lowerLeft(), bounds.upperRight());
@@ -38,7 +28,7 @@ public abstract class AbstractWorldMap implements WorldMap {
     }
 
     @Override
-    public List<WorldElement> getAllAnimals() {
+    public List<Animal> getAllAnimals() {
         return new ArrayList<>(animals.getAll());
     }
 
