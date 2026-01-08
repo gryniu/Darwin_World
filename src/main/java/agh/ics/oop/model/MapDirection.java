@@ -1,6 +1,7 @@
 package agh.ics.oop.model;
 
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 public enum MapDirection {
     // UWAGA, pola muszą być ustawione zgodnie z ruchem wskazówek zegara
@@ -14,10 +15,16 @@ public enum MapDirection {
     EAST_NORTH;
 
     public MapDirection next(int steps) {
-        MapDirection[] direction = MapDirection.values();
-        return direction[(this.ordinal() + steps) % direction.length];
+        MapDirection[] directions = MapDirection.values();
+        return directions[(this.ordinal() + steps) % directions.length];
     }
 
+    public static MapDirection getRandomDirection(){
+        MapDirection[] directions = MapDirection.values();
+        return directions[
+                ThreadLocalRandom.current().nextInt(directions.length)
+                ];
+    }
 
     public MapDirection opposite() {
         MapDirection[] directions = MapDirection.values();

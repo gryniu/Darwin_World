@@ -1,23 +1,24 @@
 package agh.ics.oop.model;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.*;
 
 public class Animal implements WorldElement{
     private Vector2d position;
-    private MapDirection orientation = MapDirection.NORTH;
+    private MapDirection orientation;
     private double energy;
     private final Gen gen;
     private final int mutationNum;
     private final int lenOfGen;
     private final Iterator<Integer> genIterator;
     private final EnergyOptions energyOptions;
-    private final Random random = new Random();
     private final AnimalOptions animalOptions;
 
     public Animal(Vector2d position, AnimalOptions animalOptions) {
         this(position,new Gen(animalOptions.lenOfGen()),animalOptions);
     }
     public Animal(Vector2d position, Gen gen, AnimalOptions animalOptions) {
+        this.orientation = MapDirection.getRandomDirection();
         this.position = position;
         this.gen = gen;
         this.genIterator = gen.iterator();
@@ -36,9 +37,9 @@ public class Animal implements WorldElement{
 
     public Optional<Animal> sex(Animal partner){
         if (!(this.isFeed() && partner.isFeed())){
-            Optional.empty();
+            return Optional.empty();
         }
-        boolean isSideLeft = random.nextBoolean();
+        boolean isSideLeft = ThreadLocalRandom.current().nextBoolean();
         Animal strongestAnimal = getEnergy()>partner.getEnergy() ? this : partner;
         Animal weekerAnimal = getEnergy()>partner.getEnergy() ? partner : this;
         double kidStartingEnergy = giveEnergyToKid() + partner.giveEnergyToKid();

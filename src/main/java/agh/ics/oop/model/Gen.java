@@ -3,12 +3,11 @@ package agh.ics.oop.model;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Gen implements Iterable<Integer>{
     private List<Integer> genList = new ArrayList<>();;
     private final int lenOfGen;
-    private final Random random = new Random();
 
     public Gen(int lenOfGen) {
         if (lenOfGen<=0){
@@ -16,7 +15,7 @@ public class Gen implements Iterable<Integer>{
         }
         this.lenOfGen = lenOfGen;
         for (int i= 0;i<lenOfGen;i++)
-            genList.add(random.nextInt(8));
+            genList.add(ThreadLocalRandom.current().nextInt(8));
     }
 
 
@@ -58,6 +57,6 @@ public class Gen implements Iterable<Integer>{
     }
 
     public void setRandomElementInGenList(){
-        genList.set(random.nextInt(lenOfGen), random.nextInt(8));
+        genList.set(ThreadLocalRandom.current().nextInt(lenOfGen), ThreadLocalRandom.current().nextInt(8));
     }
 }
