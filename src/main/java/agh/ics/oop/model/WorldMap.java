@@ -1,5 +1,6 @@
 package agh.ics.oop.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,25 +27,9 @@ public interface WorldMap{
      */
     void move(Animal animal);
 
-    /**
-     * Return true if given position on the map is occupied. Should not be
-     * confused with canMoveTo since there might be empty positions where the animal
-     * cannot move.
-     *
-     * @param position Position to check.
-     * @return True if the position is occupied.
-     */
-    boolean isOccupied(Vector2d position);
+    Optional<List<Animal>> getAnimals(Vector2d position);
 
-    /**
-     * Return an animal at a given position.
-     *
-     * @param position The position of the animal.
-     * @return animal or null if the position is not occupied.
-     */
-    Optional<WorldElement> objectAt(Vector2d position);
-
-    List<WorldElement> getElements();
+    List<Animal> getAllAnimals();
 
     void addSubscriber(MapChangeListener observer);
     void removeSubscriber(MapChangeListener observer);
@@ -53,5 +38,4 @@ public interface WorldMap{
     UUID getId();
 
     Boundary getCurrentBounds();
-    List<Animal> getAnimals();
 }
