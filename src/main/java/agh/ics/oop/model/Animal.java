@@ -44,6 +44,7 @@ public class Animal implements WorldElement{
         Animal weekerAnimal = getEnergy()>partner.getEnergy() ? partner : this;
         double kidStartingEnergy = giveEnergyToKid() + partner.giveEnergyToKid();
         List<Integer> kidGenList = new ArrayList<>();
+
         if (isSideLeft){
             int participationIdx = (int)(strongestAnimal.getEnergy()/(strongestAnimal.getEnergy()+weekerAnimal.getEnergy())) + 1;
             kidGenList.addAll(strongestAnimal.getGen().getGenList().
@@ -70,7 +71,7 @@ public class Animal implements WorldElement{
     }
 
     public void decreaseDailyEnergy(){
-        energy = Math.max(0,energy - energyOptions.energyLoss());
+        energy = Math.max(0,energy - energyOptions.dailyEnergyLoss());
     }
 
     public Gen getGen() {
@@ -90,11 +91,11 @@ public class Animal implements WorldElement{
     }
 
     public void eat(){
-        energy += energyOptions.energyAfterPlant();
+        energy += energyOptions.energyFromPlant();
     }
 
     public boolean isFeed(){
-        return energy>= energyOptions.energyFeed();
+        return energy >= energyOptions.energyToReproduce();
     }
 
 
@@ -136,4 +137,5 @@ public class Animal implements WorldElement{
     public void rotate180(){
         orientation = orientation.opposite();
     }
+
 }
