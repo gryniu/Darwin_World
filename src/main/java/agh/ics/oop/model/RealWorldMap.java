@@ -21,7 +21,7 @@ public class RealWorldMap extends AbstractWorldMap{
 
         for(int i = 0; i < mapOptions.startingNumOfAnimals(); i++){
             Vector2d position = new Vector2d(random.nextInt(width), random.nextInt(height));
-            Animal animal = new Animal(position, animalOptions);
+            Animal animal = new Animal(position, animalOptions, mapOptions.energyStart());
             animals.addAnimal(animal);
         }
     }
