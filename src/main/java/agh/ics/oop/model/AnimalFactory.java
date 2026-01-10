@@ -7,11 +7,11 @@ public class AnimalFactory {
         this.animalOptions = animalOptions;
     }
 
-    public Animal createInitial(Vector2d position, double startEnergy){
+    public Animal createInitial(Vector2d position, int startEnergy){
         return new Animal(position, animalOptions, startEnergy);
     }
 
-    public Animal createChild(Vector2d position, double startEnergy, Gen gen){
+    public Animal createChild(Vector2d position, int startEnergy, Gen gen){
         return new Animal(position, animalOptions, startEnergy,gen);
     }
 }

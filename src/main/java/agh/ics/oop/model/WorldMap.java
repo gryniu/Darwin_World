@@ -28,8 +28,10 @@ public interface WorldMap{
     void move(Animal animal);
 
     Optional<List<Animal>> getAnimals(Vector2d position);
+    Optional<List<Animal>> getAnimalsOrdered(Vector2d position);
 
     List<Animal> getAllAnimals();
+    List<Animal> getAllAnimalsOrdered();
 
     void addSubscriber(MapChangeListener observer);
     void removeSubscriber(MapChangeListener observer);

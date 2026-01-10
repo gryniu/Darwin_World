@@ -1,28 +1,31 @@
 package agh.ics.oop.model;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RealWorldMap extends AbstractWorldMap{
     private final Map<Vector2d, Plant> plants = new HashMap<>();
+    private final PlantsGenerator plantsGenerator;
+    private final Iterator<Vector2d> plantsGeneratorIterator;
+
     public final int width;
     public final int height;
     public final int plantNumEveryDay;
 
-    public RealWorldMap(AnimalOptions animalOptions, MapOptions mapOptions){
+    public RealWorldMap(MapOptions mapOptions, List<Animal> animals){
         width = mapOptions.mapWidth();
         height = mapOptions.mapHeight();
         plantNumEveryDay = mapOptions.plantNumEveryDay();
 
-        Random random = new Random();
+        plantsGenerator = new PlantsGenerator(width, height);
+        plantsGeneratorIterator = plantsGenerator.iterator();
 
         for(int i = 0; i < mapOptions.startingNumOfPlants(); i++){
             createPlant();
         }
 
-        for(int i = 0; i < mapOptions.startingNumOfAnimals(); i++){
-            Vector2d position = new Vector2d(random.nextInt(width), random.nextInt(height));
-            Animal animal = new Animal(position, animalOptions, mapOptions.energyStart());
-            animals.addAnimal(animal);
+        for(var animal: animals){
+            this.animals.addAnimal(animal);
         }
     }
 
@@ -37,7 +40,7 @@ public class RealWorldMap extends AbstractWorldMap{
             newPosition = oldPosition.add(animal.getOrientation().toUnitVector());
         }
         if (newPosition.getX() < 0 || newPosition.getX() >= width){
-            newPosition = new Vector2d(newPosition.getX() % width, newPosition.getY());
+            newPosition = new Vector2d(Math.floorMod(newPosition.getX(), width), newPosition.getY());
         }
 
         animal.setPosition(newPosition);
@@ -53,23 +56,6 @@ public class RealWorldMap extends AbstractWorldMap{
         return new Boundary(lowerLeft, upperRight);
     }
 
-    private void createPlant(){
-        Random random = new Random();
-        Vector2d position;
-        do {
-            int x = random.nextInt(width);
-            int y;
-            if(random.nextInt(10) < 8){
-                y = random.nextInt(height/5)+(2*height/5);
-            }
-            else{
-                y = random.nextInt(2*height/5) + random.nextInt(2)*(3*height/5);
-            }
-            position = new Vector2d(x, y);
-        } while (plants.containsKey(position));
-        plants.put(position, new Plant(position));
-    }
-
     public void removeDeadAnimals(){
         for (var animal: getAllAnimals()){
             if(animal.getEnergy() == 0){
@@ -78,7 +64,14 @@ public class RealWorldMap extends AbstractWorldMap{
         }
     }
 
+    private void createPlant(){
+        if(!plantsGeneratorIterator.hasNext()) return;
+        Vector2d position = plantsGeneratorIterator.next();
+        plants.put(position, new Plant(position));
+    }
+
     public void createNewPlants(){
+        plantsGenerator.reShuffle();
         for(int i = 0; i < plantNumEveryDay; i++){
             createPlant();
         }
@@ -86,5 +79,18 @@ public class RealWorldMap extends AbstractWorldMap{
 
     public List<Plant> getPlants(){
         return  new ArrayList<>(plants.values());
+    }
+
+    public void eatPlant(Vector2d position){
+        getAnimalsOrdered(position).ifPresent(items -> {
+            items.getFirst().eat();
+            plantsGenerator.returnPlant(plants.remove(position));
+        });
+    }
+
+    public void eatAllPlants(){
+        for(var plant: getPlants()){
+            eatPlant(plant.position());
+        }
     }
 }
