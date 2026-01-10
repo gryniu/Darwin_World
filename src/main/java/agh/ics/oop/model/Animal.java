@@ -9,15 +9,16 @@ public class Animal implements WorldElement{
     private double energy;
     private final Gen gen;
     private final int mutationNum;
+
     private final int lenOfGen;
     private final Iterator<Integer> genIterator;
     private final EnergyOptions energyOptions;
     private final AnimalOptions animalOptions;
 
-    public Animal(Vector2d position, AnimalOptions animalOptions) {
-        this(position,new Gen(animalOptions.lenOfGen()),animalOptions);
+    public Animal(Vector2d position, AnimalOptions animalOptions, double energyStart) {
+        this(position,animalOptions, energyStart, new Gen(animalOptions.lenOfGen()));
     }
-    public Animal(Vector2d position, Gen gen, AnimalOptions animalOptions) {
+    public Animal(Vector2d position, AnimalOptions animalOptions, double energyStart, Gen gen) {
         this.orientation = MapDirection.getRandomDirection();
         this.position = position;
         this.gen = gen;
@@ -26,7 +27,7 @@ public class Animal implements WorldElement{
         this.lenOfGen = animalOptions.lenOfGen();
         this.animalOptions = animalOptions;
         this.energyOptions = animalOptions.energyOptions();
-        this.energy = this.energyOptions.energyStart();
+        this.energy = energyStart;
     }
 
 
@@ -35,39 +36,40 @@ public class Animal implements WorldElement{
         return energyOptions.energyToKid();
     }
 
-    public Optional<Animal> sex(Animal partner){
+    public Optional<AnimalData> sex(Animal partner){
         if (!(this.isFeed() && partner.isFeed())){
             return Optional.empty();
         }
+        double kidStartingEnergy = giveEnergyToKid() + partner.giveEnergyToKid();
+        Gen kidGen = mixGens(partner);
+        for (int i = 0; i<mutationNum; i++){
+            kidGen.setRandomElementInGenList();
+        }
+        return Optional.of(new AnimalData(kidGen, kidStartingEnergy));
+    }
+
+    private Gen mixGens(Animal partner){ // Animal must have same lenght of Gen
         boolean isSideLeft = ThreadLocalRandom.current().nextBoolean();
         Animal strongestAnimal = getEnergy()>partner.getEnergy() ? this : partner;
         Animal weekerAnimal = getEnergy()>partner.getEnergy() ? partner : this;
-        double kidStartingEnergy = giveEnergyToKid() + partner.giveEnergyToKid();
         List<Integer> kidGenList = new ArrayList<>();
+        int kidGenLen = this.getGen().getLenOfGen();
 
         if (isSideLeft){
             int participationIdx = (int)(strongestAnimal.getEnergy()/(strongestAnimal.getEnergy()+weekerAnimal.getEnergy())) + 1;
             kidGenList.addAll(strongestAnimal.getGen().getGenList().
                     subList(0,participationIdx));
             kidGenList.addAll(weekerAnimal.getGen().getGenList()
-                    .subList(participationIdx,lenOfGen));
+                    .subList(participationIdx, kidGenLen));
         }
         else {
             int participationIdx = (int)(weekerAnimal.getEnergy()/(strongestAnimal.getEnergy()+weekerAnimal.getEnergy())) + 1;
             kidGenList.addAll(weekerAnimal.getGen().getGenList()
                     .subList(0,participationIdx));
             kidGenList.addAll(strongestAnimal.getGen().getGenList().
-                    subList(participationIdx,lenOfGen));
+                    subList(participationIdx, kidGenLen));
         }
-        Gen kidGen = new Gen(kidGenList);
-        for (int i = 0; i<mutationNum; i++){
-            kidGen.setRandomElementInGenList();
-        }
-
-        EnergyOptions kidEnergyOptions = energyOptions.withEnergyStart(kidStartingEnergy);
-        AnimalOptions kidAnimalOptions = animalOptions.withEnergyOptions(kidEnergyOptions);
-
-        return Optional.of(new Animal(position,kidGen,kidAnimalOptions));
+        return new Gen(kidGenList);
     }
 
     public void decreaseDailyEnergy(){

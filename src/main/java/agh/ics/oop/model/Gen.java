@@ -18,7 +18,6 @@ public class Gen implements Iterable<Integer>{
             genList.add(ThreadLocalRandom.current().nextInt(8));
     }
 
-
     public Gen(List<Integer> gen) {
         this.lenOfGen = gen.size();
         if (lenOfGen==0){
@@ -58,5 +57,9 @@ public class Gen implements Iterable<Integer>{
 
     public void setRandomElementInGenList(){
         genList.set(ThreadLocalRandom.current().nextInt(lenOfGen), ThreadLocalRandom.current().nextInt(8));
+    }
+
+    public int getLenOfGen() {
+        return lenOfGen;
     }
 }
