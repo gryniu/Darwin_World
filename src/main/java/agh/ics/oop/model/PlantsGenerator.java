@@ -27,13 +27,8 @@ public class PlantsGenerator implements Iterable<Vector2d>{
 
 
     @Override
-    public Iterator iterator() {
+    public Iterator<Vector2d> iterator() {
         return new PlantsGeneratorIterator();
-    }
-
-    @Override
-    public void forEach(Consumer action) {
-        Iterable.super.forEach(action);
     }
 
     public void returnPlant(Plant plant){
@@ -57,7 +52,7 @@ public class PlantsGenerator implements Iterable<Vector2d>{
         Collections.shuffle(list);
         jungleArea = new ArrayDeque<>(list);
 
-        list = new ArrayList<>(jungleArea);
+        list = new ArrayList<>(normalArea);
         Collections.shuffle(list);
         normalArea = new ArrayDeque<>(list);
     }
