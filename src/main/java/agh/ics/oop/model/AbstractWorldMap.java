@@ -1,6 +1,7 @@
 package agh.ics.oop.model;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class AbstractWorldMap implements WorldMap {
     protected final UUID id = UUID.randomUUID();
@@ -28,8 +29,35 @@ public abstract class AbstractWorldMap implements WorldMap {
     }
 
     @Override
+    public Optional<List<Animal>> getAnimalsOrdered(Vector2d position) {
+        return getAnimals(position)
+                .map(items -> items
+                        .stream()
+                        .sorted(Comparator
+                                .comparingInt(Animal::getEnergy).reversed()
+                                .thenComparingInt(Animal::getDayOfBirth)
+                                .thenComparingInt(Animal::getNumOfKids).reversed()
+                                .thenComparingDouble(animal -> ThreadLocalRandom.current().nextDouble())
+                        )
+                        .toList());
+    }
+
+    @Override
     public List<Animal> getAllAnimals() {
         return new ArrayList<>(animals.getAll());
+    }
+
+    @Override
+    public List<Animal> getAllAnimalsOrdered() {
+        return getAllAnimals()
+                .stream()
+                .sorted(Comparator
+                            .comparingInt(Animal::getEnergy).reversed()
+                            .thenComparing(Animal::getDayOfBirth)
+                            .thenComparing(Animal::getNumOfKids).reversed()
+                            .thenComparingDouble(animal -> ThreadLocalRandom.current().nextDouble())
+                    )
+                    .toList();
     }
 
     @Override

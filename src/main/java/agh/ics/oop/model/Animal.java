@@ -6,19 +6,22 @@ import java.util.*;
 public class Animal implements WorldElement{
     private Vector2d position;
     private MapDirection orientation;
-    private double energy;
+    private int energy;
     private final Gen gen;
     private final int mutationNum;
+    private final int dayOfBirth;
+    private int numOfKids = 0;
 
     private final int lenOfGen;
     private final Iterator<Integer> genIterator;
     private final EnergyOptions energyOptions;
     private final AnimalOptions animalOptions;
 
-    public Animal(Vector2d position, AnimalOptions animalOptions, double energyStart) {
+    public Animal(Vector2d position, AnimalOptions animalOptions, int energyStart) {
         this(position,animalOptions, energyStart, new Gen(animalOptions.lenOfGen()));
     }
-    public Animal(Vector2d position, AnimalOptions animalOptions, double energyStart, Gen gen) {
+    public Animal(Vector2d position, AnimalOptions animalOptions, int energyStart, Gen gen) {
+        this.dayOfBirth = 0; //todo: tymczasowe - zmienic facotry, po stworzeniu simuation
         this.orientation = MapDirection.getRandomDirection();
         this.position = position;
         this.gen = gen;
@@ -31,7 +34,7 @@ public class Animal implements WorldElement{
     }
 
 
-    public double giveEnergyToKid(){
+    public int giveEnergyToKid(){
         energy -= energyOptions.energyToKid();
         return energyOptions.energyToKid();
     }
@@ -40,11 +43,15 @@ public class Animal implements WorldElement{
         if (!(this.isFeed() && partner.isFeed())){
             return Optional.empty();
         }
-        double kidStartingEnergy = giveEnergyToKid() + partner.giveEnergyToKid();
+        int kidStartingEnergy = giveEnergyToKid() + partner.giveEnergyToKid();
         Gen kidGen = mixGens(partner);
         for (int i = 0; i<mutationNum; i++){
             kidGen.setRandomElementInGenList();
         }
+
+        this.increaseNumOfKids();
+        partner.increaseNumOfKids();
+
         return Optional.of(new AnimalData(kidGen, kidStartingEnergy));
     }
 
@@ -88,7 +95,7 @@ public class Animal implements WorldElement{
         return animalOptions;
     }
 
-    public double getEnergy() {
+    public int getEnergy() {
         return energy;
     }
 
@@ -140,4 +147,15 @@ public class Animal implements WorldElement{
         orientation = orientation.opposite();
     }
 
+    public int getDayOfBirth() {
+        return dayOfBirth;
+    }
+
+    public int getNumOfKids() {
+        return numOfKids;
+    }
+
+    public void increaseNumOfKids(){
+        numOfKids++;
+    }
 }
