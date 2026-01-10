@@ -31,9 +31,9 @@ public class PlantsGenerator implements Iterable<Vector2d>{
         return new PlantsGeneratorIterator();
     }
 
-    public void returnPlant(Plant plant){
-        int x = plant.position().getX();
-        int y = plant.position().getY();
+    public void returnPlant(Vector2d position){
+        int x = position.getX();
+        int y = position.getY();
 
         if(y >= jungleStarts && y < jungleEnds){
             jungleArea.addLast(new Vector2d(x, y));

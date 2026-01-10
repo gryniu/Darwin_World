@@ -1,7 +1,6 @@
 package agh.ics.oop.model;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class RealWorldMap extends AbstractWorldMap{
     private final Map<Vector2d, Plant> plants = new HashMap<>();
@@ -35,7 +34,7 @@ public class RealWorldMap extends AbstractWorldMap{
         animals.removeAnimal(animal);
         Vector2d newPosition = oldPosition.add(animal.getOrientation().toUnitVector());
 
-        if (newPosition.getY() < 0 || newPosition.getX() >= height){
+        if (newPosition.getY() < 0 || newPosition.getY() >= height){
             animal.rotate180();
             newPosition = oldPosition.add(animal.getOrientation().toUnitVector());
         }
@@ -77,18 +76,19 @@ public class RealWorldMap extends AbstractWorldMap{
         }
     }
 
-    public List<Plant> getPlants(){
+    private List<Plant> getPlants(){
         return  new ArrayList<>(plants.values());
     }
 
-    public void eatPlant(Vector2d position){
+    private void eatPlant(Vector2d position){
         getAnimalsOrdered(position).ifPresent(items -> {
             items.getFirst().eat();
-            plantsGenerator.returnPlant(plants.remove(position));
+            plants.remove(position);
+            plantsGenerator.returnPlant(position);
         });
     }
 
-    public void eatAllPlants(){
+    public void eatAllPossiblePlants(){
         for(var plant: getPlants()){
             eatPlant(plant.position());
         }
