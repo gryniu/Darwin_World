@@ -5,7 +5,7 @@ import java.util.*;
 public class RealWorldMap extends AbstractWorldMap{
     private final Map<Vector2d, Plant> plants = new HashMap<>();
     private final PlantsGenerator plantsGenerator;
-    private final Iterator<Vector2d> plantsGeneratorIterator;
+    private Iterator<Vector2d> plantsGeneratorIterator;
 
     public final int width;
     public final int height;
@@ -52,13 +52,6 @@ public class RealWorldMap extends AbstractWorldMap{
         return new Boundary(lowerLeft, upperRight);
     }
 
-    public void removeDeadAnimals(){
-        animals.getAnimalsMap().values().forEach(animalList -> animalList.removeIf(Animal::isDead));
-
-        animals.getAnimalsMap().entrySet().removeIf(entry -> entry.getValue().isEmpty());
-        }
-    }
-
     private void createPlant(){
         if(!plantsGeneratorIterator.hasNext()) return;
         Vector2d position = plantsGeneratorIterator.next();
@@ -67,8 +60,13 @@ public class RealWorldMap extends AbstractWorldMap{
 
     public void createNewPlants(){
         plantsGenerator.reShuffle();
-        for(int i = 0; i < plantNumEveryDay; i++){
+
+        plantsGeneratorIterator = plantsGenerator.iterator(); // reset iteratora, wczesniej wskazywal na starego planta
+
+        int created = 0;
+        while (created < plantNumEveryDay && plantsGeneratorIterator.hasNext()) {
             createPlant();
+            created++;
         }
     }
 
@@ -90,7 +88,48 @@ public class RealWorldMap extends AbstractWorldMap{
         }
     }
 
-    public void reproducePopulation(){
-        animals.entrySet().forEach
+    public void removeDeadAnimals(){
+        animals.getAnimalsHashMap().values().forEach(animalList -> {
+            Iterator<Animal> iterator = animalList.iterator();
+            while (iterator.hasNext()) {
+                Animal animal = iterator.next();
+                if (animal.isDead()) {
+                    Vector2d position = animal.position();
+                    iterator.remove();
+                    mapChanged("Animal dead at " + position);
+                }
+            }
+        });
+
+        animals.getAnimalsHashMap().entrySet().removeIf(entry -> entry.getValue().isEmpty());
+
     }
+
+    public void reproducePopulation(){
+        List<Animal> newborns = new ArrayList<>();
+
+        getAnimalsMap().getPositions().forEach(position ->
+                getAnimalsOrdered(position).filter(items->items.size()>=2).ifPresent(items -> {
+                    for (int i = 0; i<items.size()-1; i+=2){
+                        Animal firstPartner = items.get(i);
+                        Animal secondPartner = items.get(i+1);
+                        if (!Animal.canReproduce(firstPartner, secondPartner))
+                            continue;
+                        firstPartner.sex(secondPartner).ifPresent(kidAnimalData -> {
+                            Animal child = new Animal(
+                                    position,
+                                    firstPartner.animalOptions(),
+                                    kidAnimalData
+                            );
+                            newborns.add(child);
+                        });
+                    }
+                }));
+
+        for (Animal child : newborns) {
+            place(child);
+            mapChanged("New animal born at " + child.position());
+        }
+    }
+
 }

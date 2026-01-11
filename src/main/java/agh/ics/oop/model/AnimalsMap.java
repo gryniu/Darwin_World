@@ -29,4 +29,8 @@ public class AnimalsMap {
     public Set<Vector2d> getPositions(){
         return animals.keySet();
     }
+
+    public Map<Vector2d, List<Animal>> getAnimalsHashMap() {
+        return animals;
+    }
 }
