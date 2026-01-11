@@ -1,8 +1,7 @@
-package agh.ics.oop.presenter;
+package agh.ics.oop;
 
 import agh.ics.oop.model.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Simulation implements Runnable{
@@ -10,14 +9,11 @@ public class Simulation implements Runnable{
     private final int startEnergy;
     private int day = 0;
 
-    public Simulation(RealWorldMap worldMap, AnimalOptions animalOptions, List<Vector2d> animalsPositions, int startEnergy) {
+    public Simulation(RealWorldMap worldMap, AnimalOptions defaultAnimalOptions) {
         this.worldMap = worldMap;
-        this.startEnergy = startEnergy;
+        this.startEnergy = worldMap.getMapOptions().energyStart();
 
-        for (Vector2d animalPosition : animalsPositions) {
-            Animal animalToAdd = new Animal(animalPosition,animalOptions, startEnergy, day);
-            this.worldMap.place(animalToAdd);
-        }
+        worldMap.createAnimalsOnRandomPositions(worldMap.getMapOptions().startingNumOfAnimals(), day);
     }
 
     @Override

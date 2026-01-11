@@ -1,20 +1,27 @@
 package agh.ics.oop.model;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+
 
 public class RealWorldMap extends AbstractWorldMap{
     private final Map<Vector2d, Plant> plants = new HashMap<>();
     private final PlantsGenerator plantsGenerator;
     private Iterator<Vector2d> plantsGeneratorIterator;
+    private final MapVisualizer mapVisualizer = new MapVisualizer(this);
 
-    public final int width;
-    public final int height;
-    public final int plantNumEveryDay;
+    private final int width;
+    private final int height;
+    private final int plantNumEveryDay;
+    private final AnimalOptions defaultAnimalOptions;
+    private final MapOptions mapOptions;
 
-    public RealWorldMap(MapOptions mapOptions){
+    public RealWorldMap(MapOptions mapOptions, AnimalOptions defaultAnimalOptions){
         width = mapOptions.mapWidth();
         height = mapOptions.mapHeight();
         plantNumEveryDay = mapOptions.plantNumEveryDay();
+        this.defaultAnimalOptions = defaultAnimalOptions;
+        this.mapOptions = mapOptions;
 
         plantsGenerator = new PlantsGenerator(width, height);
         plantsGeneratorIterator = plantsGenerator.iterator();
@@ -22,7 +29,6 @@ public class RealWorldMap extends AbstractWorldMap{
         for(int i = 0; i < mapOptions.startingNumOfPlants(); i++){
             createPlant();
         }
-
     }
 
     @Override
@@ -70,16 +76,20 @@ public class RealWorldMap extends AbstractWorldMap{
         }
     }
 
-    private List<Plant> getPlants(){
+    public List<Plant> getPlants(){
         return  new ArrayList<>(plants.values());
     }
 
-    private void eatPlant(Vector2d position){
-        getAnimalsOrdered(position).ifPresent(items -> {
-            items.getFirst().eat();
-            plants.remove(position);
-            plantsGenerator.returnPlant(position);
-        });
+    private void eatPlant(Vector2d position) {
+        getAnimalsOrdered(position)
+                .filter(items -> !items.isEmpty())
+                .map(items -> items.getFirst())
+                .ifPresent(strongestAnimal -> {
+                    strongestAnimal.eat();
+                    plants.remove(position);
+                    plantsGenerator.returnPlant(position);
+                    mapChanged("Animal ate plant at " + position);
+                });
     }
 
     public void eatAllPossiblePlants(){
@@ -130,6 +140,29 @@ public class RealWorldMap extends AbstractWorldMap{
             place(child);
             mapChanged("New animal born at " + child.position());
         }
+    }
+
+    public void createAnimalsOnRandomPositions(int numOfAnimals, int dayOfBirth){
+        Boundary boundary = getCurrentBounds();
+        for (int i = 0 ;i<numOfAnimals; i++)
+            animals.addAnimal(new Animal(boundary.getRandomPosition(), defaultAnimalOptions, mapOptions.energyStart(), dayOfBirth));
+    }
+
+    public MapOptions getMapOptions() {
+        return mapOptions;
+    }
+
+    @Override
+    public Optional<WorldElement> objectAt(Vector2d position) {
+
+        Optional<Animal> animal = getAnimalsOrdered(position)
+                .flatMap(list -> list.stream().findFirst());
+
+        if (animal.isPresent()) {
+            return animal.map(a -> (Animal) a);
+        }
+
+        return Optional.ofNullable(plants.get(position));
     }
 
 }

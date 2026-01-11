@@ -94,4 +94,7 @@ public abstract class AbstractWorldMap implements WorldMap {
     public AnimalsMap getAnimalsMap(){
         return animals;
     }
+
+    public abstract Optional<WorldElement> objectAt(Vector2d position);
+
 }

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="agh.ics.oop.presenter.SimulationPresenter"
+            prefWidth="1200" prefHeight="800">
+
+    <!-- TOP: Kontrolki symulacji -->
+    <top>
+        <VBox spacing="10">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="startButton" text="Start" onAction="#onStartClicked"/>
+                <Button fx:id="pauseButton" text="Pause" onAction="#onPauseClicked"/>
+                <Button fx:id="stopButton" text="Stop" onAction="#onStopClicked"/>
+                <Label fx:id="dayLabel" text="Day: 0"/>
+            </HBox>
+
+            <!-- Statystyki -->
+
+        </VBox>
+    </top>
+
+    <!-- CENTER: Mapa -->
+    <center>
+        <VBox spacing="10">
+            <Label text="World Map"/>
+            <Pane fx:id="mapPane">
+                <!-- Tu będzie rysowana mapa -->
+            </Pane>
+        </VBox>
+    </center>
+
+    <!-- BOTTOM: Konfiguracja -->
+    <bottom>
+        <Accordion>
+            <TitledPane text="Simulation Configuration">
+                <GridPane hgap="10" vgap="10">
+                    <!-- Rząd 1 -->
+                    <Label text="Map Width:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="widthField" text="30" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                    <Label text="Map Height:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                    <TextField fx:id="heightField" text="20" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+                    <!-- Rząd 2 -->
+                    <Label text="Initial Animals:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="initialAnimalsField" text="10" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                    <Label text="Initial Plants:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                    <TextField fx:id="initialPlantsField" text="20" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+
+                    <!-- Rząd 3 -->
+                    <Label text="Start Energy:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <TextField fx:id="startEnergyField" text="100" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                    <Label text="Energy from Plant:" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+                    <TextField fx:id="plantEnergyField" text="50" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+
+                    <!-- Rząd 4 -->
+                    <Label text="Daily Energy Loss:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                    <TextField fx:id="dailyLossField" text="1" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                    <Label text="Reproduce Energy:" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+                    <TextField fx:id="reproduceEnergyField" text="30" GridPane.rowIndex="3" GridPane.columnIndex="3"/>
+
+                    <!-- Rząd 5 -->
+                    <Label text="Genome Length:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                    <TextField fx:id="genomeLengthField" text="10" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                    <Label text="Mutation Count:" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
+                    <TextField fx:id="mutationCountField" text="2" GridPane.rowIndex="4" GridPane.columnIndex="3"/>
+
+                    <!-- Rząd 6: Variant selection -->
+                    <Label text="Map Variant:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                    <ChoiceBox fx:id="variantChoiceBox" GridPane.rowIndex="5" GridPane.columnIndex="1"
+                               GridPane.columnSpan="3" prefWidth="300"/>
+                </GridPane>
+            </TitledPane>
+        </Accordion>
+    </bottom>
+</BorderPane>

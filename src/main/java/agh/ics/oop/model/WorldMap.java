@@ -27,6 +27,7 @@ public interface WorldMap{
      */
     void move(Animal animal);
 
+
     Optional<List<Animal>> getAnimals(Vector2d position);
     Optional<List<Animal>> getAnimalsOrdered(Vector2d position);
 
@@ -40,4 +41,5 @@ public interface WorldMap{
     UUID getId();
 
     Boundary getCurrentBounds();
+    Optional<WorldElement> objectAt(Vector2d position);
 }

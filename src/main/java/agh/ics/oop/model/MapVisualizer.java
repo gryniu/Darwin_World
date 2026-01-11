@@ -1,6 +1,7 @@
 package agh.ics.oop.model;
 
-import java.util.Optional;
+import agh.ics.oop.model.Vector2d;
+import agh.ics.oop.model.WorldMap;
 
 /**
  * The map visualizer converts the {@link WorldMap} map into a string
@@ -73,9 +74,9 @@ public class MapVisualizer {
     }
 
     private String drawObject(Vector2d currentPosition) {
-        return map.getAnimalsOrdered(currentPosition)
-                .flatMap(list -> list.stream().findFirst())
+        return map.objectAt(currentPosition)
                 .map(Object::toString)
                 .orElse(EMPTY_CELL);
     }
+
 }
