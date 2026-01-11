@@ -11,7 +11,7 @@ public class RealWorldMap extends AbstractWorldMap{
     public final int height;
     public final int plantNumEveryDay;
 
-    public RealWorldMap(MapOptions mapOptions, List<Animal> animals){
+    public RealWorldMap(MapOptions mapOptions){
         width = mapOptions.mapWidth();
         height = mapOptions.mapHeight();
         plantNumEveryDay = mapOptions.plantNumEveryDay();
@@ -23,9 +23,6 @@ public class RealWorldMap extends AbstractWorldMap{
             createPlant();
         }
 
-        for(var animal: animals){
-            this.animals.addAnimal(animal);
-        }
     }
 
     @Override
@@ -49,17 +46,16 @@ public class RealWorldMap extends AbstractWorldMap{
     }
 
     @Override
-    public Boundary getCurrentBounds() {
+    public Boundary getCurrentBounds() { // todo: Bounds sie nie zmieniaja bo to nie GrassField do wyjebania
         Vector2d lowerLeft = new Vector2d(0,  0);
         Vector2d upperRight = new Vector2d(width-1, height-1);
         return new Boundary(lowerLeft, upperRight);
     }
 
     public void removeDeadAnimals(){
-        for (var animal: getAllAnimals()){
-            if(animal.getEnergy() == 0){
-                animals.removeAnimal(animal);
-            }
+        animals.getAnimalsMap().values().forEach(animalList -> animalList.removeIf(Animal::isDead));
+
+        animals.getAnimalsMap().entrySet().removeIf(entry -> entry.getValue().isEmpty());
         }
     }
 
@@ -92,5 +88,9 @@ public class RealWorldMap extends AbstractWorldMap{
         for(var plant: getPlants()){
             eatPlant(plant.position());
         }
+    }
+
+    public void reproducePopulation(){
+        animals.entrySet().forEach
     }
 }
