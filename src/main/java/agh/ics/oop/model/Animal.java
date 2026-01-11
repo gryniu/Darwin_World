@@ -44,10 +44,9 @@ public class Animal implements WorldElement{
             return Optional.empty();
         }
         int kidStartingEnergy = giveEnergyToKid() + partner.giveEnergyToKid();
+
         Gen kidGen = mixGens(partner);
-        for (int i = 0; i<mutationNum; i++){
-            kidGen.setRandomElementInGenList();
-        }
+        kidGen.mixGen(mutationNum);
 
         this.increaseNumOfKids();
         partner.increaseNumOfKids();
