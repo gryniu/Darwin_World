@@ -112,7 +112,6 @@ public class RealWorldMap extends AbstractWorldMap{
         });
 
         animals.getAnimalsHashMap().entrySet().removeIf(entry -> entry.getValue().isEmpty());
-
     }
 
     public void reproducePopulation(int day){

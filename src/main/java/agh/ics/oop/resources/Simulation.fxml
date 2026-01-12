@@ -17,22 +17,27 @@
     </center>
 
     <right>
-        <VBox spacing="10" padding="10">
-            <Label text="Statystyki" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
-            <Label text="Liczba zwierzaków:"/>
-            <Label fx:id="animalCountLabel" text="0"/>
-            <Label text="Liczba roślin:"/>
-            <Label fx:id="plantCountLabel" text="0"/>
-            <Label text="Liczba wolnych pól:"/>
-            <Label fx:id="freeFieldsLabel" text="0"/>
-            <Label text="Najpopularniejszy genotyp:"/>
-            <Label fx:id="popularGenotypeLabel" text="-"/>
-            <Label text="Średni poziom energii:"/>
-            <Label fx:id="averageEnergyLabel" text="0"/>
-            <Label text="Średnia długość życia (martwe zwierzaki):"/>
-            <Label fx:id="averageLifespanLabel" text="0"/>
-            <Label text="Średnia liczba dzieci (żywe zwierzaki):"/>
-            <Label fx:id="averageChildrenLabel" text="0"/>
-        </VBox>
+        <GridPane hgap="10" vgap="5">
+            <Label text="Liczba zwierzaków:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <Label fx:id="animalCountLabel" text="0" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Liczba roślin:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <Label fx:id="plantCountLabel" text="0" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Liczba wolnych pól:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <Label fx:id="freeFieldsLabel" text="0" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Najpopularniejszy genotyp:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <Label fx:id="popularGenotypeLabel" text="-" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+            <Label text="Średni poziom energii:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <Label fx:id="averageEnergyLabel" text="0" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+            <Label text="Średnia długość życia:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <Label fx:id="averageLifespanLabel" text="0" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+            <Label text="Średnia liczba dzieci:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+            <Label fx:id="averageChildrenLabel" text="0" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+        </GridPane>
     </right>
 </BorderPane>
