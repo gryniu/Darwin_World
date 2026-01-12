@@ -43,8 +43,8 @@ public class PlantsGenerator implements Iterable<Vector2d>{
         returnedCounter++;
     }
 
-    public void reShuffle(){
-        if (returnedCounter == 0) return;
+    public Iterator<Vector2d> reShuffle(){
+        if (returnedCounter == 0) return iterator();
 
         returnedCounter = 0;
 
@@ -55,6 +55,7 @@ public class PlantsGenerator implements Iterable<Vector2d>{
         list = new ArrayList<>(normalArea);
         Collections.shuffle(list);
         normalArea = new ArrayDeque<>(list);
+        return iterator();
     }
 
     public class PlantsGeneratorIterator implements Iterator<Vector2d>{

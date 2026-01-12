@@ -1,14 +1,12 @@
 package agh.ics.oop.model;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 
 public class RealWorldMap extends AbstractWorldMap{
     private final Map<Vector2d, Plant> plants = new HashMap<>();
     private final PlantsGenerator plantsGenerator;
-    private Iterator<Vector2d> plantsGeneratorIterator;
-    private final MapVisualizer mapVisualizer = new MapVisualizer(this);
+    private Iterator<Vector2d> plantsGeneratorIterator;;
 
     private final int width;
     private final int height;
@@ -65,9 +63,7 @@ public class RealWorldMap extends AbstractWorldMap{
     }
 
     public void createNewPlants(){
-        plantsGenerator.reShuffle();
-
-        plantsGeneratorIterator = plantsGenerator.iterator(); // reset iteratora, wczesniej wskazywal na starego planta
+        plantsGeneratorIterator = plantsGenerator.reShuffle();
 
         int created = 0;
         while (created < plantNumEveryDay && plantsGeneratorIterator.hasNext()) {
@@ -77,15 +73,14 @@ public class RealWorldMap extends AbstractWorldMap{
     }
 
     public List<Plant> getPlants(){
-        return  new ArrayList<>(plants.values());
+        return new ArrayList<>(plants.values());
     }
 
     private void eatPlant(Vector2d position) {
         getAnimalsOrdered(position)
                 .filter(items -> !items.isEmpty())
-                .map(items -> items.getFirst())
-                .ifPresent(strongestAnimal -> {
-                    strongestAnimal.eat();
+                .ifPresent(items -> {
+                    items.getFirst().eat();
                     plants.remove(position);
                     plantsGenerator.returnPlant(position);
                     mapChanged("Animal ate plant at " + position);
@@ -99,40 +94,35 @@ public class RealWorldMap extends AbstractWorldMap{
     }
 
     public void removeDeadAnimals(){
-        animals.getAnimalsHashMap().values().forEach(animalList -> {
-            Iterator<Animal> iterator = animalList.iterator();
-            while (iterator.hasNext()) {
-                Animal animal = iterator.next();
-                if (animal.isDead()) {
-                    Vector2d position = animal.position();
-                    iterator.remove();
-                    mapChanged("Animal dead at " + position);
-                }
+        for (var animal: animals.getAll()){
+            if(animal.isDead()){
+                animals.removeAnimal(animal);
+                mapChanged("animal died on %s".formatted(animal.position()));
             }
-        });
-
-        animals.getAnimalsHashMap().entrySet().removeIf(entry -> entry.getValue().isEmpty());
+        }
     }
 
     public void reproducePopulation(int day){
         List<Animal> newborns = new ArrayList<>();
 
         animals.getPositions().forEach(position ->
-                getAnimalsOrdered(position).filter(items->items.size()>=2).ifPresent(items -> {
-                    for (int i = 0; i<items.size()-1; i+=2){
-                        Animal firstPartner = items.get(i);
-                        Animal secondPartner = items.get(i+1);
-                        if (!Animal.canReproduce(firstPartner, secondPartner))
-                            continue;
-                        firstPartner.sex(secondPartner, day).ifPresent(kidAnimalData -> {
-                            Animal child = new Animal(
-                                    position,
-                                    firstPartner.animalOptions(),
-                                    kidAnimalData
-                            );
-                            newborns.add(child);
-                        });
-                    }
+                getAnimalsOrdered(position)
+                        .filter(items->items.size()>=2)
+                        .ifPresent(items -> {
+                            for (int i = 0; i<items.size()-1; i+=2){
+                                Animal firstPartner = items.get(i);
+                                Animal secondPartner = items.get(i+1);
+                                if (!Animal.canReproduce(firstPartner, secondPartner))
+                                    continue;
+                                firstPartner.sex(secondPartner, day).ifPresent(kidAnimalData -> {
+                                    Animal child = new Animal(
+                                            position,
+                                            firstPartner.animalOptions(),
+                                            kidAnimalData
+                                    );
+                                    newborns.add(child);
+                                });
+                            }
                 }));
 
         for (Animal child : newborns) {
@@ -141,9 +131,17 @@ public class RealWorldMap extends AbstractWorldMap{
         }
     }
 
-    public void createAnimalsOnRandomPositions(int numOfAnimals, int dayOfBirth){
+    public void moveAllAnimals(){
+        for (Animal animal: getAllAnimals()){
+            animal.decreaseDailyEnergy();
+            animal.rotate();
+            move(animal);
+        }
+    }
+
+    public void createAnimalsOnRandomPositions(int dayOfBirth){
         Boundary boundary = getCurrentBounds();
-        for (int i = 0 ;i<numOfAnimals; i++)
+        for (int i = 0 ;i< mapOptions.startingNumOfAnimals(); i++)
             animals.addAnimal(new Animal(boundary.getRandomPosition(), defaultAnimalOptions, mapOptions.energyStart(), dayOfBirth));
     }
 
@@ -153,15 +151,15 @@ public class RealWorldMap extends AbstractWorldMap{
 
     @Override
     public Optional<WorldElement> objectAt(Vector2d position) {
-
-        Optional<Animal> animal = getAnimalsOrdered(position)
-                .flatMap(list -> list.stream().findFirst());
-
-        if (animal.isPresent()) {
-            return animal.map(a -> (Animal) a);
+        var items = getAnimalsOrdered(position);
+        if(items.isEmpty()){
+            return Optional.ofNullable(plants.get(position));
+        }else{
+            return items.map(List::getFirst);
         }
-
-        return Optional.ofNullable(plants.get(position));
     }
 
+    public int getAnimalsCount(){
+        return animals.getAnimalsCount();
+    }
 }
