@@ -68,10 +68,10 @@ public class Gen implements Iterable<Integer>{
         return lenOfGen;
     }
 
-    public static Gen mixGens(Animal firstPartner, Animal secoundPartner) {
+    public static Gen mixGens(Animal firstPartner, Animal secondPartner) {
         boolean isSideLeft = ThreadLocalRandom.current().nextBoolean();
-        Animal strongerAnimal = firstPartner.getEnergy() > secoundPartner.getEnergy() ? firstPartner : secoundPartner;
-        Animal weakerAnimal = firstPartner.getEnergy() > secoundPartner.getEnergy() ? secoundPartner : firstPartner;
+        Animal strongerAnimal = firstPartner.getEnergy() > secondPartner.getEnergy() ? firstPartner : secondPartner;
+        Animal weakerAnimal = firstPartner.getEnergy() > secondPartner.getEnergy() ? secondPartner : firstPartner;
 
         List<Integer> kidGenList = new ArrayList<>();
         int kidGenLen = firstPartner.getGen().getLenOfGen();

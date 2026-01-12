@@ -9,8 +9,6 @@ public abstract class AbstractWorldMap implements WorldMap {
     private final ArrayList<MapChangeListener> subscribers = new ArrayList<>();
     protected final MapVisualizer mapVisualizer = new MapVisualizer(this);
 
-
-
     @Override
     public void place(Animal animal) {
         Vector2d position = animal.position();
@@ -48,7 +46,7 @@ public abstract class AbstractWorldMap implements WorldMap {
 
     @Override
     public List<Animal> getAllAnimals() {
-        return new ArrayList<>(animals.getAll());
+        return animals.getAll();
     }
 
     @Override
@@ -89,10 +87,6 @@ public abstract class AbstractWorldMap implements WorldMap {
     public boolean inBounds(Vector2d position){
         Boundary boundary = getCurrentBounds();
         return position.follows(boundary.lowerLeft()) && position.precedes(boundary.upperRight());
-    }
-
-    public AnimalsMap getAnimalsMap(){
-        return animals;
     }
 
     public abstract Optional<WorldElement> objectAt(Vector2d position);
