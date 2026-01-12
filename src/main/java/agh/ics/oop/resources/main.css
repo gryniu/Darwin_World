@@ -1,0 +1,36 @@
+/* Główne VBox */
+.root {
+    -fx-background-color: #f0f0f0;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* Nagłówek */
+.label {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+/* TextField */
+.text-field {
+    -fx-pref-width: 80px;
+}
+
+/* GridPane etykiety */
+.grid-pane .label {
+    -fx-font-weight: normal;
+    -fx-font-size: 13px;
+}
+
+/* Przycisk Start nowej symulacji */
+#startSimulationButton {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 15px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+#startSimulationButton:hover {
+    -fx-background-color: #45a049;
+}

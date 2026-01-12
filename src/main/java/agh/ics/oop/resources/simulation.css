@@ -1,0 +1,51 @@
+/* Tło okna symulacji */
+.root {
+    -fx-background-color: #ffffff;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* Canvas */
+#simulationCanvas {
+    -fx-border-color: #333;
+    -fx-border-width: 2;
+    -fx-background-color: #e8e8e8;
+}
+
+/* Przycisk Start/Pauza */
+#startButton {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 6px 12px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+#startButton:hover {
+    -fx-background-color: #45a049;
+}
+
+#pauseButton {
+    -fx-background-color: #f44336;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 6px 12px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+#pauseButton:hover {
+    -fx-background-color: #e53935;
+}
+
+/* GridPane statystyk */
+.grid-pane {
+    -fx-background-color: #f9f9f9;
+    -fx-padding: 10;
+    -fx-border-color: #ccc;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.grid-pane .label {
+    -fx-font-size: 13px;
+}
