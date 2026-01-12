@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" padding="20" xmlns:fx="http://javafx.com/fxml" fx:controller="agh.ics.oop.presenter.SimulationPresenter">
+    <Label text="Konfiguracja symulacji" style="-fx-font-weight: bold; -fx-font-size: 16px;" />
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="Szerokość mapy:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="mapWidthField" text="20" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Wysokość mapy:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="mapHeightField" text="20" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Liczba zwierzaków:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="animalCountField" text="10" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Startowa liczba roślin:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="startPlantCountField" text="20" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Energia zapewniania przez zjedzenie 1 rośliny:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="energyFromPlantField" text="20" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <Label text="Startowa energia początkowa zwierzaków:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="initialEnergyField" text="100" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Button text="Uruchom nową symulację" fx:id="startSimulationButton" maxWidth="Infinity"/>
+</VBox>

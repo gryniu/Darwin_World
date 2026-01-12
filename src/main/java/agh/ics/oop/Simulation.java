@@ -18,17 +18,28 @@ public class Simulation implements Runnable{
 
     @Override
     public void run() {
-        worldMap.removeDeadAnimals();
-        for (Animal animal: worldMap.getAllAnimals()){
-            animal.decreaseDailyEnergy();
-            animal.rotate();
-            worldMap.move(animal);
-        }
-        worldMap.eatAllPossiblePlants();
-        worldMap.reproducePopulation();
-        worldMap.createNewPlants();
+        int animalsCount;
+        while (true){
+            worldMap.removeDeadAnimals();
+            animalsCount = 0;
+            for (Animal animal: worldMap.getAllAnimals()){
+                animal.decreaseDailyEnergy();
+                animal.rotate();
+                worldMap.move(animal);
+                animalsCount++;
+            }
+            if (animalsCount==0) {
+                break;
+            }
 
-        day++;
+            worldMap.eatAllPossiblePlants();
+            worldMap.reproducePopulation(day);
+            worldMap.createNewPlants();
+
+            day++;
+            System.out.println("Day " + day + " completed"); // todo: do wyejabania sout
+            System.out.println(worldMap);
+        }
     }
 
 }

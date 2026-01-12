@@ -1,6 +1,5 @@
 package agh.ics.oop.model;
 
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.*;
 
 public class Animal implements WorldElement{
@@ -40,65 +39,17 @@ public class Animal implements WorldElement{
         return energyGiven;
     }
 
-    public Optional<AnimalData> sex(Animal partner){
+    public Optional<AnimalData> sex(Animal partner, int day){
         if (!canReproduce(this,partner))
             return Optional.empty();
         int kidStartingEnergy = giveEnergyToKid() + partner.giveEnergyToKid();
 
-        Gen kidGen = mixGens(partner);
-        kidGen.mixGen(mutationNum);
+        Gen kidGen = Gen.mixGens(this, partner);
+        kidGen.randomize(mutationNum);
 
         increaseNumOfKids();
         partner.increaseNumOfKids();
-
-        return Optional.of(new AnimalData(kidGen, kidStartingEnergy, dayOfBirth+1));
-    }
-
-    private Gen mixGens(Animal partner) {
-        boolean isSideLeft = ThreadLocalRandom.current().nextBoolean();
-        Animal strongerAnimal = getEnergy() > partner.getEnergy() ? this : partner;
-        Animal weakerAnimal = getEnergy() > partner.getEnergy() ? partner : this;
-
-        List<Integer> kidGenList = new ArrayList<>();
-        int kidGenLen = this.getGen().getLenOfGen();
-
-        double strongerEnergy = strongerAnimal.getEnergy();
-        double weakerEnergy = weakerAnimal.getEnergy();
-        double totalEnergy = strongerEnergy + weakerEnergy;
-
-        if (totalEnergy == 0) {
-            totalEnergy = 1;
-            strongerEnergy = 0.5;
-            weakerEnergy = 0.5;
-        }
-
-
-        if (isSideLeft) {
-            double strongerRatio = strongerEnergy / totalEnergy;
-            int splitPoint = (int)(strongerRatio * kidGenLen); // we want to have at least one of each
-
-            splitPoint = Math.max(1, Math.min(splitPoint, kidGenLen - 1));
-
-            kidGenList.addAll(strongerAnimal.getGen().getGenList()
-                    .subList(0, splitPoint));
-
-            kidGenList.addAll(weakerAnimal.getGen().getGenList()
-                    .subList(splitPoint, kidGenLen));
-
-        } else {
-            double weakerRatio = weakerEnergy / totalEnergy;
-            int splitPoint = (int)(weakerRatio * kidGenLen); // same
-
-            splitPoint = Math.max(1, Math.min(splitPoint, kidGenLen - 1));
-
-            kidGenList.addAll(weakerAnimal.getGen().getGenList()
-                    .subList(0, splitPoint));
-
-            kidGenList.addAll(strongerAnimal.getGen().getGenList()
-                    .subList(splitPoint, kidGenLen));
-        }
-
-        return new Gen(kidGenList);
+        return Optional.of(new AnimalData(kidGen, kidStartingEnergy, day));
     }
 
     public void decreaseDailyEnergy(){

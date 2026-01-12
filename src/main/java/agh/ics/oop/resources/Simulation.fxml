@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="your.package.SimulationController">
+    <center>
+        <VBox spacing="10" padding="10">
+            <Canvas fx:id="simulationCanvas" width="600" height="600" style="-fx-border-color: black;"/>
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="Start" fx:id="startButton"/>
+                <Button text="Pauza" fx:id="pauseButton"/>
+            </HBox>
+        </VBox>
+    </center>
+
+    <right>
+        <VBox spacing="10" padding="10">
+            <Label text="Statystyki" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+            <Label text="Liczba zwierzaków:"/>
+            <Label fx:id="animalCountLabel" text="0"/>
+            <Label text="Liczba roślin:"/>
+            <Label fx:id="plantCountLabel" text="0"/>
+            <Label text="Liczba wolnych pól:"/>
+            <Label fx:id="freeFieldsLabel" text="0"/>
+            <Label text="Najpopularniejszy genotyp:"/>
+            <Label fx:id="popularGenotypeLabel" text="-"/>
+            <Label text="Średni poziom energii:"/>
+            <Label fx:id="averageEnergyLabel" text="0"/>
+            <Label text="Średnia długość życia (martwe zwierzaki):"/>
+            <Label fx:id="averageLifespanLabel" text="0"/>
+            <Label text="Średnia liczba dzieci (żywe zwierzaki):"/>
+            <Label fx:id="averageChildrenLabel" text="0"/>
+        </VBox>
+    </right>
+</BorderPane>

@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 public class SimulationApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/simulation.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/Main.fxml"));
         primaryStage.setTitle("Animal Simulation");
         primaryStage.setScene(new Scene(root, 1200, 800));
         primaryStage.show();

@@ -115,17 +115,17 @@ public class RealWorldMap extends AbstractWorldMap{
 
     }
 
-    public void reproducePopulation(){
+    public void reproducePopulation(int day){
         List<Animal> newborns = new ArrayList<>();
 
-        getAnimalsMap().getPositions().forEach(position ->
+        animals.getPositions().forEach(position ->
                 getAnimalsOrdered(position).filter(items->items.size()>=2).ifPresent(items -> {
                     for (int i = 0; i<items.size()-1; i+=2){
                         Animal firstPartner = items.get(i);
                         Animal secondPartner = items.get(i+1);
                         if (!Animal.canReproduce(firstPartner, secondPartner))
                             continue;
-                        firstPartner.sex(secondPartner).ifPresent(kidAnimalData -> {
+                        firstPartner.sex(secondPartner, day).ifPresent(kidAnimalData -> {
                             Animal child = new Animal(
                                     position,
                                     firstPartner.animalOptions(),

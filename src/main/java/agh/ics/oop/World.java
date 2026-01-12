@@ -11,10 +11,6 @@ public class World {
         MapVisualizer mapVisualizer = new MapVisualizer(map);
 
         Simulation simulation = new Simulation(map, animalOptions);
-        for (int i = 0; i < 500; i++) {
-            System.out.println(map);
-            simulation.run();
-            System.out.println("Day " + i+1 + " completed");
-        }
+        simulation.run();
     }
 }

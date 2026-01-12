@@ -59,12 +59,59 @@ public class Gen implements Iterable<Integer>{
         genList.set(ThreadLocalRandom.current().nextInt(lenOfGen), ThreadLocalRandom.current().nextInt(8));
     }
 
-    public void mixGen(int mutationNum){
+    public void randomize(int mutationNum){
         for (int i = 0; i<mutationNum; i++)
             setRandomElementInGenList();
     }
 
     public int getLenOfGen() {
         return lenOfGen;
+    }
+
+    public static Gen mixGens(Animal firstPartner, Animal secoundPartner) {
+        boolean isSideLeft = ThreadLocalRandom.current().nextBoolean();
+        Animal strongerAnimal = firstPartner.getEnergy() > secoundPartner.getEnergy() ? firstPartner : secoundPartner;
+        Animal weakerAnimal = firstPartner.getEnergy() > secoundPartner.getEnergy() ? secoundPartner : firstPartner;
+
+        List<Integer> kidGenList = new ArrayList<>();
+        int kidGenLen = firstPartner.getGen().getLenOfGen();
+
+        double strongerEnergy = strongerAnimal.getEnergy();
+        double weakerEnergy = weakerAnimal.getEnergy();
+        double totalEnergy = strongerEnergy + weakerEnergy;
+
+        if (totalEnergy == 0) {
+            totalEnergy = 1;
+            strongerEnergy = 0.5;
+            weakerEnergy = 0.5;
+        }
+
+
+        if (isSideLeft) {
+            double strongerRatio = strongerEnergy / totalEnergy;
+            int splitPoint = (int)(strongerRatio * kidGenLen); // we want to have at least one of each
+
+            splitPoint = Math.max(1, Math.min(splitPoint, kidGenLen - 1));
+
+            kidGenList.addAll(strongerAnimal.getGen().getGenList()
+                    .subList(0, splitPoint));
+
+            kidGenList.addAll(weakerAnimal.getGen().getGenList()
+                    .subList(splitPoint, kidGenLen));
+
+        } else {
+            double weakerRatio = weakerEnergy / totalEnergy;
+            int splitPoint = (int)(weakerRatio * kidGenLen); // same
+
+            splitPoint = Math.max(1, Math.min(splitPoint, kidGenLen - 1));
+
+            kidGenList.addAll(weakerAnimal.getGen().getGenList()
+                    .subList(0, splitPoint));
+
+            kidGenList.addAll(strongerAnimal.getGen().getGenList()
+                    .subList(splitPoint, kidGenLen));
+        }
+
+        return new Gen(kidGenList);
     }
 }
