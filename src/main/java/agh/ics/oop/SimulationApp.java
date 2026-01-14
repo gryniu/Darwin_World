@@ -1,21 +1,39 @@
 package agh.ics.oop;
 // todo: kod wygenerowany, pozmieniac, tak samo jak presenter i simulation
+import agh.ics.oop.presenter.MainWindowPresenter;
+import agh.ics.oop.presenter.SimulationPresenter;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class SimulationApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/Main.fxml"));
-        primaryStage.setTitle("Animal Simulation");
-        primaryStage.setScene(new Scene(root, 1200, 800));
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getClassLoader().getResource("Main.fxml"));
+
+        VBox viewRoot = loader.load();
+        MainWindowPresenter presenter = loader.getController();
+        // Konfiguracja
+        configureStage(primaryStage, viewRoot);
+
+        // Wyświetlanie
         primaryStage.show();
     }
 
-    public static void main(String[] args) {
-        launch(args);
+    private void configureStage(Stage primaryStage, VBox viewRoot) {
+        // stworzenie sceny (panelu do wyświetlania wraz zawartoscia z FXML)
+        var scene = new Scene(viewRoot);
+
+        // ustawienie sceny w oknie
+        primaryStage.setScene(scene);
+
+        // konfiguracja okna
+        primaryStage.setTitle("Darwin World");
+        primaryStage.setMinWidth(800);
+        primaryStage.setMinHeight(600);
     }
 }

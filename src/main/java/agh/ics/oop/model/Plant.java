@@ -6,7 +6,7 @@ public record Plant(Vector2d position) implements WorldElement {
 
     @Override
     public String toString() {
-        return "*";
+        return "\uD83C\uDF31";
     }
 
     @Override

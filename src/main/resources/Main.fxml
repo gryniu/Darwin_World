@@ -3,45 +3,46 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="10" padding="20" xmlns:fx="http://javafx.com/fxml" fx:controller="agh.ics.oop.presenter.SimulationPresenter" stylesheets="@main.css">
+
+<VBox spacing="10" xmlns:fx="http://javafx.com/fxml" fx:controller="agh.ics.oop.presenter.MainWindowPresenter" stylesheets="@main.css">
     <Label text="Konfiguracja symulacji" style="-fx-font-weight: bold; -fx-font-size: 16px;" />
 
     <GridPane hgap="10" vgap="10">
         <Label text="Szerokość mapy:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="mapWidthField" text="20" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <TextField fx:id="mapWidthField" text="10" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
         <Label text="Wysokość mapy:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <TextField fx:id="mapHeightField" text="20" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <TextField fx:id="mapHeightField" text="10" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
         <Label text="Startowa liczba roślin:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <TextField fx:id="startPlantCountField" text="10" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <TextField fx:id="startPlantCountField" text="5" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
         <Label text="Energia zapewniana przez zjedzenie 1 rośliny:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-        <TextField fx:id="energyFromPlantField" text="10" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+        <TextField fx:id="energyFromPlantField" text="50" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
         <Label text="Liczba roślin wyrastająca każdego dnia" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-        <TextField fx:id="plantEveryDayField" text="10" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+        <TextField fx:id="plantEveryDayField" text="5" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
         <Label text="Startowa liczba zwierzaków:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-        <TextField fx:id="startAnimalCountField" text="10" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+        <TextField fx:id="startAnimalCountField" text="23" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
         <Label text="Startowa energia zwierzaków:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-        <TextField fx:id="startAnimalEnergyField" text="10" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+        <TextField fx:id="startAnimalEnergyField" text="100" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 
         <Label text="Energia tracona każdego dnia przez zwierzaka:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
         <TextField fx:id="energyLossEverydayField" text="10" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
 
         <Label text="Energia konieczna, by uznać zwierzaka za najedzonego:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
-        <TextField fx:id="energyFeedField" text="10" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+        <TextField fx:id="energyToReproduce" text="30" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
 
         <Label text="Energia rodziców zużywana by stworzyć potomka:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
-        <TextField fx:id="energyToKidField" text="10" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+        <TextField fx:id="energyToKidField" text="25" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
 
         <Label text="Minimalna liczba mutacji genu:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
-        <TextField fx:id="minMutationNumField" text="10" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
+        <TextField fx:id="minMutationNumField" text="1" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
 
         <Label text="Maksymalna liczba mutacji genu:" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
-        <TextField fx:id="maxMutationNumField" text="10" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
+        <TextField fx:id="maxMutationNumField" text="3" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
 
         <Label text="Długość genomu zwierzaków" GridPane.rowIndex="12" GridPane.columnIndex="0"/>
         <TextField fx:id="genLenghtField" text="10" GridPane.rowIndex="12" GridPane.columnIndex="1"/>

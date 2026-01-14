@@ -5,10 +5,10 @@
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.geometry.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="your.package.SimulationController" stylesheets="@simulation.css">
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.ics.oop.presenter.SimulationPresenter" stylesheets="@simulation.css">
     <center>
-        <VBox spacing="10" padding="10">
-            <Canvas fx:id="simulationCanvas" width="600" height="600" style="-fx-border-color: black;"/>
+        <VBox spacing="10">
+            <Canvas fx:id="mapCanvas" width="600" height="600" style="-fx-border-color: black;"/>
             <HBox spacing="10" alignment="CENTER">
                 <Button text="Start" fx:id="startButton"/>
                 <Button text="Pauza" fx:id="pauseButton"/>
