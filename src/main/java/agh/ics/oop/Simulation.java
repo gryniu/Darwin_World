@@ -5,11 +5,11 @@ import agh.ics.oop.model.*;
 import java.util.List;
 
 public class Simulation implements Runnable{
-    private final RealWorldMap worldMap;
+    private final AbstractWorldMap worldMap;
     private int day = 0;
 
-    public Simulation(MapOptions mapOptions, AnimalOptions defaultAnimalOptions) {
-        this.worldMap = new RealWorldMap(mapOptions, defaultAnimalOptions);
+    public Simulation(MapOptions mapOptions, AnimalOptions defaultAnimalOptions, SeasonsOptions seasonsOptions) {
+        this.worldMap = new SeasonalWorldMap(mapOptions, defaultAnimalOptions, seasonsOptions);
         worldMap.createAnimalsOnRandomPositions(day);
     }
 
@@ -18,6 +18,7 @@ public class Simulation implements Runnable{
         while (nextDay()){
             System.out.println("Day " + day + " completed"); // todo: do wyejabania sout
             System.out.println(worldMap);
+            if(day==21) break;
         };
     }
 
@@ -28,6 +29,7 @@ public class Simulation implements Runnable{
         worldMap.moveAllAnimals();
         worldMap.eatAllPossiblePlants();
         worldMap.reproducePopulation(day);
+        worldMap.decreaseEnergyAllAnimals();
         worldMap.createNewPlants();
 
         day++;
