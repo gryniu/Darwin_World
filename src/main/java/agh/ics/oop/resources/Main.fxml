@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="10" padding="20" xmlns:fx="http://javafx.com/fxml" fx:controller="agh.ics.oop.presenter.SimulationPresenter" stylesheets="@main.css">
+<VBox spacing="10" padding="20" xmlns:fx="http://javafx.com/fxml" fx:controller="agh.ics.oop.presenter.MainWindowController" stylesheets="@main.css">
     <Label text="Konfiguracja symulacji" style="-fx-font-weight: bold; -fx-font-size: 16px;" />
 
     <GridPane hgap="10" vgap="10">
