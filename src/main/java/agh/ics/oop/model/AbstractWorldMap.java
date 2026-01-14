@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public abstract class AbstractWorldMap implements WorldMap {
     protected final UUID id = UUID.randomUUID();
     protected final AnimalsMap animals = new AnimalsMap();
-    private final ArrayList<MapChangeListener> subscribers = new ArrayList<>();
+    private final ArrayList<Listener> subscribers = new ArrayList<>();
     protected final MapVisualizer mapVisualizer = new MapVisualizer(this);
 
     @Override
@@ -63,19 +63,19 @@ public abstract class AbstractWorldMap implements WorldMap {
     }
 
     @Override
-    public void addSubscriber(MapChangeListener subscriber){
+    public void addSubscriber(Listener subscriber){
         subscribers.add(subscriber);
     }
 
     @Override
-    public void removeSubscriber(MapChangeListener subscriber){
+    public void removeSubscriber(Listener subscriber){
         subscribers.remove(subscriber);
     }
 
     @Override
     public void mapChanged(String message){
-        for(MapChangeListener subscriber: subscribers){
-            subscriber.mapChanged(this, message);
+        for(Listener subscriber: subscribers){
+            subscriber.change(this, message);
         }
     }
 

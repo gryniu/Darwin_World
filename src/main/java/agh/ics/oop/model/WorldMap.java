@@ -1,6 +1,5 @@
 package agh.ics.oop.model;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,12 +33,20 @@ public interface WorldMap{
     List<Animal> getAllAnimals();
     List<Animal> getAllAnimalsOrdered();
 
-    void addSubscriber(MapChangeListener observer);
-    void removeSubscriber(MapChangeListener observer);
+    void addSubscriber(Listener observer);
+    void removeSubscriber(Listener observer);
     void mapChanged(String message);
 
     UUID getId();
 
     Boundary getCurrentBounds();
     Optional<WorldElement> objectAt(Vector2d position);
+    int getAnimalsCount();
+    void createAnimalsOnRandomPositions(int day);
+    void removeDeadAnimals();
+    void eatAllPossiblePlants();
+    void moveAllAnimals();
+    void reproducePopulation(int day);
+    void createNewPlants();
+
 }

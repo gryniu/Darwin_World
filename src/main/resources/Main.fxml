@@ -3,7 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="10" padding="20" xmlns:fx="http://javafx.com/fxml" fx:controller="agh.ics.oop.presenter.SimulationPresenter" stylesheets="@main.css">
+
+<VBox spacing="10" xmlns:fx="http://javafx.com/fxml" fx:controller="agh.ics.oop.presenter.MainWindowPresenter" stylesheets="@main.css">
     <Label text="Konfiguracja symulacji" style="-fx-font-weight: bold; -fx-font-size: 16px;" />
 
     <GridPane hgap="10" vgap="10">
@@ -32,7 +33,7 @@
         <TextField fx:id="energyLossEverydayField" text="10" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
 
         <Label text="Energia konieczna, by uznać zwierzaka za najedzonego:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
-        <TextField fx:id="energyFeedField" text="10" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+        <TextField fx:id="energyToReproduce" text="10" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
 
         <Label text="Energia rodziców zużywana by stworzyć potomka:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
         <TextField fx:id="energyToKidField" text="10" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
