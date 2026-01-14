@@ -51,9 +51,11 @@ public class SimulationPresenter implements Initializable {
     private final static int CELL_SIZE = 40; // every cell is square
     private final static double BORDER_WIDTH = 1.67;
     private final static double BORDER_OFFSET = BORDER_WIDTH/2;
-    private final static int GRID_OFFSET = 30;
+    private final static int GRID_OFFSET = 60;
+    private final static int BOTTOM_MARGIN = 25;
     private final static int COORDS_FONT_SIZE = 20;
     private GraphicsContext gc;
+    private int fontSize = (int)(CELL_SIZE*0.5);
 
 
     @Override
@@ -74,8 +76,8 @@ public class SimulationPresenter implements Initializable {
     }
     public void startSimulation(SimulationConfig config){
         MapOptions mapOptions = new MapOptions(
-                config.mapWidth,
                 config.mapHeight,
+                config.mapWidth,
                 config.startPlantCount,
                 config.startPlantCount,
                 config.plantsPerDay,
@@ -100,8 +102,8 @@ public class SimulationPresenter implements Initializable {
         gridWidth = boundary.upperRight().getX() - boundary.lowerLeft().getX() + 1;
         gridHeight = boundary.upperRight().getY() - boundary.lowerLeft().getY() + 1;
 
-        mapCanvas.setWidth(gridWidth*CELL_SIZE+BORDER_WIDTH + GRID_OFFSET);
-        mapCanvas.setHeight(gridHeight*CELL_SIZE+BORDER_WIDTH + GRID_OFFSET);
+        mapCanvas.setWidth(gridWidth*CELL_SIZE + 2*GRID_OFFSET);
+        mapCanvas.setHeight(gridHeight*CELL_SIZE + 2*GRID_OFFSET);
 
         simulation = new Simulation(worldMap, 200);
 
@@ -120,9 +122,6 @@ public class SimulationPresenter implements Initializable {
     }
 
 
-
-
-
     private void updateLabels(RealWorldMap worldMap){
     }
 
@@ -136,7 +135,7 @@ public class SimulationPresenter implements Initializable {
     private void drawWorldElements(RealWorldMap worldMap){
         gc.save();
         gc.setStroke(Color.BLACK);
-        configureFont(gc, (int)(CELL_SIZE*0.8), Color.BLACK);
+        configureFont(gc, fontSize, Color.BLACK);
 
         Boundary boundary = worldMap.getCurrentBounds();
         int offsetX = boundary.lowerLeft().getX();
@@ -157,13 +156,13 @@ public class SimulationPresenter implements Initializable {
             }
             Vector2d pos = worldElement.position();
 
-            double centerX = (pos.getX() - offsetX) * CELL_SIZE + CELL_SIZE/2 + GRID_OFFSET;
+            double centerX = GRID_OFFSET + (pos.getX() - offsetX) * CELL_SIZE + CELL_SIZE/2 ;
 
             // W JAVIEFX Y JEST NA GORZE!!11!11!
             int worldY = pos.getY() - offsetY;
             int flippedY = gridHeight - 1 - worldY;
 
-            double centerY = flippedY * CELL_SIZE + CELL_SIZE/2;
+            double centerY = GRID_OFFSET + flippedY * CELL_SIZE + CELL_SIZE/2 ;
 
             gc.fillText(worldElement.toString(), centerX, centerY);
         }
@@ -175,27 +174,37 @@ public class SimulationPresenter implements Initializable {
 
         gc.setFill(Color.BLACK);
         gc.setLineWidth(BORDER_WIDTH);
-        // linie pionowe
-        for (int x = GRID_OFFSET; x <=mapCanvas.getWidth(); x+=CELL_SIZE){
-            gc.strokeLine(x+BORDER_OFFSET, 0, x + BORDER_OFFSET , mapCanvas.getHeight()-GRID_OFFSET);
+        // poziome
+        for (int row = 0; row <= gridHeight; row++) {
+            double y = GRID_OFFSET + row * CELL_SIZE;
+            gc.strokeLine(GRID_OFFSET, y, GRID_OFFSET + gridWidth*CELL_SIZE, y);
         }
 
-        // linie poziome
-        for (int y = GRID_OFFSET; y <= mapCanvas.getHeight(); y+=CELL_SIZE){
-            gc.strokeLine(GRID_OFFSET, y+BORDER_OFFSET, mapCanvas.getWidth(), y+BORDER_OFFSET);
+        // pionowe
+        for (int col = 0; col <= gridWidth; col++) {
+            double x = GRID_OFFSET + col * CELL_SIZE;
+            gc.strokeLine(x, GRID_OFFSET, x, GRID_OFFSET + gridHeight*CELL_SIZE);
         }
+
 
         //coords
         gc.setFont(new Font("Arial", COORDS_FONT_SIZE));
 
         //yCoords
-        for (int y = CELL_SIZE/2;y<=mapCanvas.getHeight()-GRID_OFFSET;y+=CELL_SIZE){
-            gc.fillText(String.valueOf((int)(mapCanvas.getHeight()-GRID_OFFSET-y)/CELL_SIZE),(GRID_OFFSET-COORDS_FONT_SIZE/2)/2,y+BORDER_WIDTH+COORDS_FONT_SIZE/4);
+        for (int y = GRID_OFFSET;y<mapCanvas.getHeight() - GRID_OFFSET;y+=CELL_SIZE){
+            gc.fillText(String.valueOf((int)(mapCanvas.getHeight()-GRID_OFFSET-y)/CELL_SIZE -1),
+                    GRID_OFFSET / 2,
+                    y + CELL_SIZE/2 + BORDER_WIDTH + fontSize/4
+            );
         }
 
         //xCoords
-        for (int x = GRID_OFFSET;x<=mapCanvas.getWidth();x+=CELL_SIZE){
-            gc.fillText(String.valueOf((int) x/CELL_SIZE),x+CELL_SIZE/2-COORDS_FONT_SIZE/4+BORDER_WIDTH,mapCanvas.getHeight()-(GRID_OFFSET-COORDS_FONT_SIZE/2)/2);
+        for (int x = GRID_OFFSET;x<mapCanvas.getWidth() - GRID_OFFSET;x+=CELL_SIZE){
+            gc.fillText(
+                    String.valueOf((int)(x-GRID_OFFSET)/CELL_SIZE),
+                    x + CELL_SIZE/2 + BORDER_WIDTH - fontSize/4,
+                    mapCanvas.getHeight() - GRID_OFFSET/2
+            );
         }
 
         gc.restore();
