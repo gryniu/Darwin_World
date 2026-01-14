@@ -52,8 +52,8 @@ public class Animal implements WorldElement{
         return Optional.of(new AnimalData(kidGen, kidStartingEnergy, day));
     }
 
-    public void decreaseDailyEnergy(){
-        energy = Math.max(0,energy - energyOptions.dailyEnergyLoss());
+    public void decreaseDailyEnergy(double energyDecreaseMultiplier){
+        energy = Math.max(0,energy - (int)(energyOptions.dailyEnergyLoss()*energyDecreaseMultiplier));
     }
 
     public Gen getGen() {
@@ -72,8 +72,8 @@ public class Animal implements WorldElement{
         return energy;
     }
 
-    public void eat(){
-        energy += energyOptions.energyFromPlant();
+    public void eat(double energyFromPlantMultiplier){
+        energy += (int)(energyOptions.energyFromPlant()*energyFromPlantMultiplier);
     }
 
     public boolean isFeed(){

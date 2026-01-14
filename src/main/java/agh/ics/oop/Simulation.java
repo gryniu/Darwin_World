@@ -7,8 +7,8 @@ import javafx.collections.MapChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Simulation implements Runnable {
-    private final RealWorldMap worldMap;
+public class Simulation implements Runnable{
+    private final AbstractWorldMap worldMap;
     private int day = 0;
     private final int simulationSpeed;
     private final List<Listener> mapChangeListeners = new ArrayList<>();
@@ -69,6 +69,7 @@ public class Simulation implements Runnable {
         worldMap.moveAllAnimals();
         worldMap.eatAllPossiblePlants();
         worldMap.reproducePopulation(day);
+        worldMap.decreaseEnergyAllAnimals();
         worldMap.createNewPlants();
 
         day++;
