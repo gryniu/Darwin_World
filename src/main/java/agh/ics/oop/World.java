@@ -9,7 +9,7 @@ public class World {
         AnimalOptions animalOptions = new AnimalOptions(energyOptions, 2, 5);
         SeasonsOptions seasonsOptions = new SeasonsOptions(3, -10, 3);
 
-        Simulation simulation = new Simulation(mapOptions, animalOptions, seasonsOptions);
+        Simulation simulation = new Simulation(new SeasonalWorldMap(mapOptions,animalOptions,seasonsOptions),200);
         simulation.run();
     }
 }

@@ -1,6 +1,8 @@
 package agh.ics.oop;
 
 import agh.ics.oop.model.WrongFieldStateException;
+import javafx.fxml.FXML;
+import javafx.scene.control.TextField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,9 @@ public class SimulationConfig {
     public final int minMutations;
     public final int maxMutations;
     public final int genomeLength;
+    public final int seasonLength;
+    public final int minTemperature;
+    public final int distanceRequiredToHeat;
 
     private SimulationConfig(Builder b) {
         this.mapWidth = b.mapWidth;
@@ -35,6 +40,9 @@ public class SimulationConfig {
         this.minMutations = b.minMutations;
         this.maxMutations = b.maxMutations;
         this.genomeLength = b.genomeLength;
+        this.seasonLength = b.seasonLength;
+        this.minTemperature = b.minTemperature;
+        this.distanceRequiredToHeat = b.distanceRequiredToHeat;
     }
 
     public static Builder builder() {
@@ -55,6 +63,9 @@ public class SimulationConfig {
         private int minMutations;
         private int maxMutations;
         private int genomeLength;
+        private int seasonLength;
+        private int minTemperature;
+        private int distanceRequiredToHeat;
 
         public Builder mapWidth(int v) { mapWidth = v; return this; }
         public Builder mapHeight(int v) { mapHeight = v; return this; }
@@ -69,6 +80,9 @@ public class SimulationConfig {
         public Builder minMutations(int v) { minMutations = v; return this; }
         public Builder maxMutations(int v) { maxMutations = v; return this; }
         public Builder genomeLength(int v) { genomeLength = v; return this; }
+        public Builder seasonLength(int v){ seasonLength = v; return this; }
+        public Builder minTemperature(int v){ minTemperature = v; return this; }
+        public Builder distanceRequiredToHeat(int v){ distanceRequiredToHeat = v; return this; }
 
         public SimulationConfig build() throws WrongFieldStateException {
             validate();
@@ -92,6 +106,9 @@ public class SimulationConfig {
             if (minMutations < 0) missingFields.add("minMutations");
             if (maxMutations < minMutations) missingFields.add("maxMutations");
             if (genomeLength <= 0) missingFields.add("genomeLength");
+            if (seasonLength < 0) missingFields.add("seasonLength");
+            if (minTemperature > 30) missingFields.add("minTemperature"); // todo: maxTemperatura to 30, zrobic lepsze errory
+            if (distanceRequiredToHeat < 0) missingFields.add("distanceRequiredToHeat");
 
             if (!missingFields.isEmpty()) {
                 throw new WrongFieldStateException(missingFields);

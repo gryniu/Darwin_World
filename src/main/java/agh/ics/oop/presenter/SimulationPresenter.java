@@ -45,7 +45,7 @@ public class SimulationPresenter implements Initializable {
 
     private Simulation simulation;
     private Thread simulationThread;
-    private RealWorldMap worldMap;
+    private AbstractWorldMap worldMap;
     private int gridWidth;
     private int gridHeight;
     private final static int CELL_SIZE = 40; // every cell is square
@@ -96,7 +96,8 @@ public class SimulationPresenter implements Initializable {
                 config.genomeLength
         );
 
-        this.worldMap = new RealWorldMap(mapOptions,animalOptions);
+        SeasonsOptions seasonsOptions = new SeasonsOptions(100,-5,3);
+        this.worldMap = new SeasonalWorldMap(mapOptions,animalOptions,seasonsOptions);
 
         Boundary boundary = worldMap.getCurrentBounds();
         gridWidth = boundary.upperRight().getX() - boundary.lowerLeft().getX() + 1;
@@ -109,8 +110,8 @@ public class SimulationPresenter implements Initializable {
 
         simulation.addMapChangeListener((worldMap, message) -> {
             javafx.application.Platform.runLater(() -> {
-                updateLabels((RealWorldMap) worldMap);
-                drawMap((RealWorldMap) worldMap);
+                updateLabels(worldMap);
+                drawMap(worldMap);
                 //todo : logi
             });
         });
@@ -122,17 +123,17 @@ public class SimulationPresenter implements Initializable {
     }
 
 
-    private void updateLabels(RealWorldMap worldMap){
+    private void updateLabels(AbstractWorldMap worldMap){
     }
 
-    private void drawMap(RealWorldMap worldMap) {
+    private void drawMap(AbstractWorldMap worldMap) {
 
         clearGrid();
         drawGrid(worldMap);
         drawWorldElements(worldMap);
     }
 
-    private void drawWorldElements(RealWorldMap worldMap){
+    private void drawWorldElements(AbstractWorldMap worldMap){
         gc.save();
         gc.setStroke(Color.BLACK);
         configureFont(gc, fontSize, Color.BLACK);
@@ -169,7 +170,7 @@ public class SimulationPresenter implements Initializable {
         gc.restore();
     }
 
-    private void drawGrid(RealWorldMap worldMap){
+    private void drawGrid(AbstractWorldMap worldMap){
         gc.save();
 
         gc.setFill(Color.BLACK);

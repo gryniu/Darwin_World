@@ -9,7 +9,6 @@ public abstract class AbstractWorldMap implements WorldMap {
     private final ArrayList<Listener> subscribers = new ArrayList<>();
     protected final MapVisualizer mapVisualizer = new MapVisualizer(this);
 
-    private final ArrayList<MapChangeListener> subscribers = new ArrayList<>();
 
     private final Map<Vector2d, Plant> plants = new HashMap<>();
     private final PlantsGenerator plantsGenerator;

@@ -16,7 +16,7 @@ public class Simulation implements Runnable{
     private boolean running = true;
     private final Object lock = new Object();
 
-    public Simulation(RealWorldMap worldMap, int simulationSpeed) {
+    public Simulation(AbstractWorldMap worldMap, int simulationSpeed) {
         this.worldMap = worldMap;
         this.simulationSpeed = simulationSpeed;
         worldMap.createAnimalsOnRandomPositions(day);

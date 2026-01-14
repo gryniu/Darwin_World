@@ -44,6 +44,12 @@ public class MainWindowPresenter implements Initializable {
     private TextField maxMutationNumField;
     @FXML
     private TextField genLenghtField;
+    @FXML
+    private TextField seasonLengthField;
+    @FXML
+    private TextField minTemperatureField;
+    @FXML
+    private TextField distanceRequiredToHeatField;
 
     @FXML
     private Button startSimulationButton;
@@ -94,6 +100,9 @@ public class MainWindowPresenter implements Initializable {
                 .minMutations(parse(minMutationNumField))
                 .maxMutations(parse(maxMutationNumField))
                 .genomeLength(parse(genLenghtField))
+                .seasonLength(parse(seasonLengthField))
+                .minTemperature(parse(minTemperatureField))
+                .distanceRequiredToHeat(parse(distanceRequiredToHeatField))
                 .build();
     }
 
