@@ -28,39 +28,34 @@ public class Simulation implements Runnable {
 
         try {
             while (isRunning()) {
-                // 1. Czekaj jeśli jest zapauzowane
                 waitIfPaused();
 
-                // 2. Sprawdź czy nadal running (może stop podczas pauzy)
                 if (!isRunning()) break;
 
-                // 3. Wykonaj dzień symulacji
                 boolean canContinue = nextDay();
                 if (!canContinue) {
-                    System.out.println("💀 Brak zwierząt - koniec symulacji");
+                    System.out.println("Brak zwierząt - koniec symulacji");
                     stopSimulation();
                     break;
                 }
 
-                System.out.println("📅 Dzień " + day + " zakończony");
+                System.out.println("Dzień " + day + " zakończony");
 
-                // 4. Opóźnienie między dniami
                 Thread.sleep(simulationSpeed);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            System.out.println("⏹️ Symulacja przerwana");
+            System.out.println("Symulacja przerwana");
         }
 
-        System.out.println("🏁 Wątek symulacji zakończony");
+        System.out.println("Wątek symulacji zakończony");
     }
 
     private void waitIfPaused() throws InterruptedException {
         synchronized (lock) {
             while (paused && running) {
-                System.out.println("⏸️ Wątek czeka na pauzie...");
-                lock.wait();  // 👈 UWALNIA lock i CZEKA na notify()
-                System.out.println("▶️ Wątek obudzony");
+                lock.wait();
+                System.out.println("Wątek obudzony");
             }
         }
     }
@@ -78,7 +73,6 @@ public class Simulation implements Runnable {
 
         day++;
 
-        // Powiadom obserwatorów przez JavaFX thread
         Platform.runLater(() -> {
             notifyListeners("Dzień " + day + " zakończony");
         });
@@ -104,13 +98,12 @@ public class Simulation implements Runnable {
         }
     }
 
-    // ⭐ KLUCZOWA METODA - używa notify() żeby obudzić wątek ⭐
     public void setPausedSimulation(boolean isPaused) {
         synchronized (lock) {
             boolean wasPaused = this.paused;
             this.paused = isPaused;
 
-            System.out.println("🔄 Zmiana pauzy: " + wasPaused + " -> " + isPaused);
+            System.out.println("Zmiana pauzy: " + wasPaused + " -> " + isPaused);
 
 
             if (wasPaused && !isPaused) {
