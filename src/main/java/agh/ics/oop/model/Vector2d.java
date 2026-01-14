@@ -51,6 +51,10 @@ public class Vector2d {
         return new Vector2d(-x, -y);
     }
 
+    public static int getDistance(Vector2d v1, Vector2d v2){
+        return Math.max(Math.abs(v1.getX() - v2.getX()), Math.abs(v1.getY()- v2.getY()));
+    }
+
     @Override
     public boolean equals(Object other){
         if (other == this) return true;
