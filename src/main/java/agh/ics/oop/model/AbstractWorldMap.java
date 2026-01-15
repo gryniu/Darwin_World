@@ -2,17 +2,21 @@ package agh.ics.oop.model;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public abstract class AbstractWorldMap implements LivingWorldMap {
     protected final UUID id;
     protected final AnimalsMap<Animal> animals = new AnimalsMap<>();
     private final ArrayList<Listener> subscribers = new ArrayList<>();
     protected final MapVisualizer mapVisualizer = new MapVisualizer(this);
-
+    protected final Map<String, Integer> genotypeCounter = new HashMap<>();
 
     private final Map<Vector2d, Plant> plants = new HashMap<>();
     private final PlantsGenerator plantsGenerator;
     private Iterator<Vector2d> plantsGeneratorIterator;;
+
+    private long deadAnimalsCounter = 0L;
+    private long totalLifespanYears = 0L;
 
     private final int width;
     private final int height;
@@ -23,6 +27,8 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     protected double energyFromPlantMultiplier = 1;
     protected double energyDecreaseMultiplier = 1;
     protected double plantNumMultiplier = 1;
+
+
 
     public AbstractWorldMap(MapOptions mapOptions, AnimalOptions defaultAnimalOptions){
         id = UUID.randomUUID();
@@ -48,6 +54,7 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
             throw new IncorrectPositionException(position,getCurrentBounds());
         }
         animals.addAnimal(animal);
+        increaseGenotypeCounter(animal);
         mapChanged("animal placed on %s".formatted(position));
     }
 
@@ -186,11 +193,14 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
         }
     }
 
-    public void removeDeadAnimals(){
+    public void removeDeadAnimals(int day){
         for (var animal: animals.getAll()){
             if(animal.isDead()){
                 animals.removeAnimal(animal);
                 mapChanged("animal died on %s".formatted(animal.position()));
+                decreaseGenotypeCounter(animal);
+                deadAnimalsCounter++;
+                totalLifespanYears += day - animal.getDayOfBirth();
             }
         }
     }
@@ -214,6 +224,7 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
                                             firstPartner.animalOptions(),
                                             kidAnimalData
                                     );
+                                    increaseGenotypeCounter(child);
                                     newborns.add(child);
                                 });
                             }
@@ -267,4 +278,53 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     public int getHeight() {
         return height;
     }
+
+    public int getPlantsCount(){
+        return plants.size();
+    }
+
+    public int getFreeFieldsCount(){
+        Set<Vector2d> takenFields = new HashSet<>(animals.getPositions());
+        takenFields.addAll(plants.keySet());
+        return width*height - takenFields.size();
+    }
+
+
+    public String getMostPopularGenotype(){
+        String currentMostPopularGenotype = animals.getAll().getFirst().getGen().toString();
+        for (var entry: genotypeCounter.entrySet()){
+            if (entry.getValue() > genotypeCounter.get(currentMostPopularGenotype)){
+                currentMostPopularGenotype = entry.getKey();
+            }
+        }
+        return currentMostPopularGenotype;
+    }
+    public Double getAverageEnergy(){
+        return animals.getAll()
+                .stream()
+                .collect(Collectors.averagingInt(Animal::getEnergy));
+    }
+
+    public void increaseGenotypeCounter(Animal animal){
+        String genotyp = animal.getGen().toString();
+        genotypeCounter.put(genotyp, genotypeCounter.getOrDefault(genotyp, 0) + 1);
+    }
+
+    public void decreaseGenotypeCounter(Animal animal){
+        String genotyp = animal.getGen().toString();
+        if (!genotypeCounter.containsKey(genotyp)) return;
+        genotypeCounter.put(genotyp, genotypeCounter.get(genotyp) - 1);
+    }
+
+    public double getAverageLifespan(){
+        if (deadAnimalsCounter == 0) return 0.0;
+        return (double) totalLifespanYears / deadAnimalsCounter;
+    }
+
+    public double getAverageChildren(){
+        return animals.getAll()
+                .stream()
+                .collect(Collectors.averagingInt(Animal::getNumOfKids));
+    }
+
 }

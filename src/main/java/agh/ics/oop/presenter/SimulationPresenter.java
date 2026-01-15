@@ -5,12 +5,17 @@ import agh.ics.oop.SimulationConfig;
 import agh.ics.oop.model.*;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -22,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class SimulationPresenter implements Initializable {
     @FXML
@@ -67,9 +73,28 @@ public class SimulationPresenter implements Initializable {
     private int fontSize = (int)(CELL_SIZE*0.5);
 
     BooleanProperty canRewind = new SimpleBooleanProperty(false);
+  
+    @FXML private LineChart<Number, Number> statisticsChart;
+    @FXML private NumberAxis dayAxis;
+    @FXML private NumberAxis valueAxis;
+
+    @FXML private CheckBox animalsChartCheckBox;
+    @FXML private CheckBox plantsChartCheckBox;
+    @FXML private CheckBox energyChartCheckBox;
+    @FXML private CheckBox lifespanChartCheckBox;
+    @FXML private CheckBox childrenChartCheckBox;
+    private XYChart.Series<Number, Number> animalsSeries = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> plantsSeries = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> energySeries = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> lifespanSeries = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> childrenSeries = new XYChart.Series<>();
+
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        dayAxis.setAutoRanging(true);
+        valueAxis.setAutoRanging(true);
         gc = mapCanvas.getGraphicsContext2D();
 
         startButton.setOnAction(e -> {
@@ -135,27 +160,119 @@ public class SimulationPresenter implements Initializable {
         mapCanvas.setHeight(gridHeight*CELL_SIZE + 2*GRID_OFFSET);
 
         simulation = new Simulation(worldMap, 200);
+      
+        Platform.runLater(this::updateCheckboxes);;
+
+        // poczatkowe rysowanie mapy
+        javafx.application.Platform.runLater(() -> {
+            updateLineChart();
+            updateLabels(worldMap);
+            drawMap(worldMap);
+            //todo : logi
+        });
         simulation.addMapChangeListener((worldMap, message) -> {
             javafx.application.Platform.runLater(() -> {
+                updateLineChart();
                 updateLabels(worldMap);
                 drawMap(worldMap);
                 //todo : logi
             });
         });
+      
         simulation.addMapChangeListener(new SimulationLogger());
         simulation.setPausedSimulation(false);
 
         simulationThread = new Thread(simulation);
         simulationThread.setDaemon(true);
         simulationThread.start();
+
+
+        animalsSeries.setName("Ilość zwierząt");
+        plantsSeries.setName("Ilość roślin");
+        energySeries.setName("Średnia Energia");
+        lifespanSeries.setName("Średnia długość życia");
+        childrenSeries.setName("Średnia liczba dzieci");
+
+
+
+
+    }
+
+    private void updateCheckboxes() {
+        animalsChartCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                if (!statisticsChart.getData().contains(animalsSeries))
+                    statisticsChart.getData().add(animalsSeries);
+            } else {
+                statisticsChart.getData().remove(animalsSeries);
+            }
+        });
+
+        plantsChartCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                if (!statisticsChart.getData().contains(plantsSeries))
+                    statisticsChart.getData().add(plantsSeries);
+            } else {
+                statisticsChart.getData().remove(plantsSeries);
+            }
+        });
+
+        energyChartCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                if (!statisticsChart.getData().contains(energySeries))
+                    statisticsChart.getData().add(energySeries);
+            } else {
+                statisticsChart.getData().remove(energySeries);
+            }
+        });
+
+        lifespanChartCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                if (!statisticsChart.getData().contains(lifespanSeries))
+                    statisticsChart.getData().add(lifespanSeries);
+            } else {
+                statisticsChart.getData().remove(lifespanSeries);
+            }
+        });
+
+        childrenChartCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                if (!statisticsChart.getData().contains(childrenSeries))
+                    statisticsChart.getData().add(childrenSeries);
+            } else {
+                statisticsChart.getData().remove(childrenSeries);
+            }
+        });
     }
 
 
-    private void updateLabels(WorldMap worldMap){
+    private void updateLineChart() {
+        int day = simulation.getCurrentDay();
+
+        animalsSeries.getData().add(new XYChart.Data<>(day, worldMap.getAnimalsCount()));
+
+        plantsSeries.getData().add(new XYChart.Data<>(day, worldMap.getPlantsCount()));
+
+        energySeries.getData().add(new XYChart.Data<>(day, worldMap.getAverageEnergy()));
+
+        lifespanSeries.getData().add(new XYChart.Data<>(day, worldMap.getAverageLifespan()));
+
+        childrenSeries.getData().add(new XYChart.Data<>(day, worldMap.getAverageChildren()));
+
     }
 
-    private void drawMap(WorldMap worldMap) {
 
+    private void updateLabels(AbstractWorldMap worldMap){
+        animalCountLabel.setText(String.valueOf(worldMap.getAnimalsCount()));
+        plantCountLabel.setText(String.valueOf(worldMap.getPlantsCount()));
+        freeFieldsLabel.setText(String.valueOf(worldMap.getFreeFieldsCount()));
+        popularGenotypeLabel.setText(String.valueOf(worldMap.getMostPopularGenotype()));
+        averageEnergyLabel.setText(String.format("%.2f", worldMap.getAverageEnergy()));
+        averageLifespanLabel.setText(String.format("%.2f", worldMap.getAverageLifespan()));
+        averageChildrenLabel.setText(String.format("%.2f", worldMap.getAverageChildren()));
+    }
+
+    private void drawMap(AbstractWorldMap worldMap) {
         clearGrid();
         drawGrid(worldMap);
         drawWorldElements(worldMap);
@@ -246,7 +363,13 @@ public class SimulationPresenter implements Initializable {
         graphics.fillRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
     }
 
-    public void endSimulation(){
-        simulation.stopSimulation();
+    public void stopSimulation() {
+        if (simulation != null) {
+            simulation.setPausedSimulation(true);
+            if (simulationThread != null && simulationThread.isAlive()) {
+                simulationThread.interrupt();
+            }
+        }
     }
+
 }

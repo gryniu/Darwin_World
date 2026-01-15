@@ -68,6 +68,9 @@ public class MainWindowPresenter implements Initializable {
             SimulationPresenter presenter = loader.getController();
 
             Stage stage = new Stage();
+            stage.setOnCloseRequest(event -> {
+                presenter.stopSimulation();
+            });
             configureStage(stage, viewRoot);
             stage.setOnCloseRequest(windowEvent -> {
                 presenter.endSimulation();
