@@ -14,6 +14,9 @@ public class SimulationLogger implements Listener {
 
             //zapisywanie roslin
             HistoryFileHandler.writeToFile("/%s-%s-plants.txt".formatted(worldMap1.getId(), message), worldMap.getPlants());
+
+            //zapisywanie statystyk
+            HistoryFileHandler.writeToFile("/%s-%s-stats.txt".formatted(worldMap1.getId(), message), worldMap.getMapStats().toString());
         }
     }
 }

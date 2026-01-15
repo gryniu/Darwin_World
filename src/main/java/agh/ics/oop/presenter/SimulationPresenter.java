@@ -44,6 +44,8 @@ public class SimulationPresenter implements Initializable {
     private Button pauseButton;
 
     @FXML
+    private Label dayLabel;
+    @FXML
     private Label animalCountLabel;
     @FXML
     private Label plantCountLabel;
@@ -83,8 +85,11 @@ public class SimulationPresenter implements Initializable {
     @FXML private CheckBox energyChartCheckBox;
     @FXML private CheckBox lifespanChartCheckBox;
     @FXML private CheckBox childrenChartCheckBox;
+    @FXML private CheckBox freeFieldsChartCheckBox;
+
     private XYChart.Series<Number, Number> animalsSeries = new XYChart.Series<>();
     private XYChart.Series<Number, Number> plantsSeries = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> freeFieldsSeries = new XYChart.Series<>();
     private XYChart.Series<Number, Number> energySeries = new XYChart.Series<>();
     private XYChart.Series<Number, Number> lifespanSeries = new XYChart.Series<>();
     private XYChart.Series<Number, Number> childrenSeries = new XYChart.Series<>();
@@ -164,20 +169,8 @@ public class SimulationPresenter implements Initializable {
         Platform.runLater(this::updateCheckboxes);;
 
         // poczatkowe rysowanie mapy
-        javafx.application.Platform.runLater(() -> {
-            updateLineChart();
-            updateLabels(worldMap);
-            drawMap(worldMap);
-            //todo : logi
-        });
-        simulation.addMapChangeListener((worldMap, message) -> {
-            javafx.application.Platform.runLater(() -> {
-                updateLineChart();
-                updateLabels(worldMap);
-                drawMap(worldMap);
-                //todo : logi
-            });
-        });
+        handleSimulationChange(this.worldMap, "starting state");
+        simulation.addMapChangeListener(this::handleSimulationChange);
       
         simulation.addMapChangeListener(new SimulationLogger());
         simulation.setPausedSimulation(false);
@@ -192,10 +185,16 @@ public class SimulationPresenter implements Initializable {
         energySeries.setName("Średnia Energia");
         lifespanSeries.setName("Średnia długość życia");
         childrenSeries.setName("Średnia liczba dzieci");
+    }
 
-
-
-
+    public void handleSimulationChange(WorldMap worldMap, String message){
+        javafx.application.Platform.runLater(() -> {
+            MapStats mapStats = worldMap.getMapStats();
+            updateLineChart(mapStats);
+            updateLabels(mapStats, message);
+            drawMap(worldMap);
+            //todo : logi
+        });
     }
 
     private void updateCheckboxes() {
@@ -243,36 +242,48 @@ public class SimulationPresenter implements Initializable {
                 statisticsChart.getData().remove(childrenSeries);
             }
         });
+
+        freeFieldsChartCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                if (!statisticsChart.getData().contains(freeFieldsSeries))
+                    statisticsChart.getData().add(freeFieldsSeries);
+            } else {
+                statisticsChart.getData().remove(freeFieldsSeries);
+            }
+        });
     }
 
 
-    private void updateLineChart() {
+    private void updateLineChart(MapStats mapStats) {
         int day = simulation.getCurrentDay();
 
-        animalsSeries.getData().add(new XYChart.Data<>(day, worldMap.getAnimalsCount()));
+        animalsSeries.getData().add(new XYChart.Data<>(day, mapStats.animalsCount()));
 
-        plantsSeries.getData().add(new XYChart.Data<>(day, worldMap.getPlantsCount()));
+        plantsSeries.getData().add(new XYChart.Data<>(day, mapStats.plantsCount()));
 
-        energySeries.getData().add(new XYChart.Data<>(day, worldMap.getAverageEnergy()));
+        freeFieldsSeries.getData().add(new XYChart.Data<>(day, mapStats.freeFieldsCount()));
 
-        lifespanSeries.getData().add(new XYChart.Data<>(day, worldMap.getAverageLifespan()));
+        energySeries.getData().add(new XYChart.Data<>(day, mapStats.averageEnergy()));
 
-        childrenSeries.getData().add(new XYChart.Data<>(day, worldMap.getAverageChildren()));
+        lifespanSeries.getData().add(new XYChart.Data<>(day, mapStats.averageLifespan()));
+
+        childrenSeries.getData().add(new XYChart.Data<>(day, mapStats.averageChildren()));
 
     }
 
 
-    private void updateLabels(AbstractWorldMap worldMap){
-        animalCountLabel.setText(String.valueOf(worldMap.getAnimalsCount()));
-        plantCountLabel.setText(String.valueOf(worldMap.getPlantsCount()));
-        freeFieldsLabel.setText(String.valueOf(worldMap.getFreeFieldsCount()));
-        popularGenotypeLabel.setText(String.valueOf(worldMap.getMostPopularGenotype()));
-        averageEnergyLabel.setText(String.format("%.2f", worldMap.getAverageEnergy()));
-        averageLifespanLabel.setText(String.format("%.2f", worldMap.getAverageLifespan()));
-        averageChildrenLabel.setText(String.format("%.2f", worldMap.getAverageChildren()));
+    private void updateLabels(MapStats mapStats, String day){
+        dayLabel.setText(day);
+        animalCountLabel.setText(mapStats.animalsCountStr());
+        plantCountLabel.setText(mapStats.plantsCountStr());
+        freeFieldsLabel.setText(mapStats.freeFieldsCountStr());
+        averageEnergyLabel.setText(mapStats.averageEnergyStr());
+        averageLifespanLabel.setText(mapStats.averageLifespanStr());
+        averageChildrenLabel.setText(mapStats.averageChildrenStr());
+        popularGenotypeLabel.setText(mapStats.mostPopularGenotype());
     }
 
-    private void drawMap(AbstractWorldMap worldMap) {
+    private void drawMap(WorldMap worldMap) {
         clearGrid();
         drawGrid(worldMap);
         drawWorldElements(worldMap);
@@ -287,12 +298,7 @@ public class SimulationPresenter implements Initializable {
         int offsetX = boundary.lowerLeft().getX();
         int offsetY = boundary.lowerLeft().getY();
 
-        // todo: w RealWorldMap dodac metodę getAllMapElements()
-        List<WorldElement> elements = new ArrayList<>();
-        elements.addAll(worldMap.getPlants());
-        elements.addAll(worldMap.getAllAnimals());
-
-        for (WorldElement worldElement: elements){
+        for (WorldElement worldElement: worldMap.getAllMapElements()){
             Vector2d pos = worldElement.position();
 
             double centerX = GRID_OFFSET + (pos.getX() - offsetX) * CELL_SIZE + CELL_SIZE/2 ;
@@ -365,7 +371,7 @@ public class SimulationPresenter implements Initializable {
 
     public void stopSimulation() {
         if (simulation != null) {
-            simulation.setPausedSimulation(true);
+            simulation.stopSimulation();
             if (simulationThread != null && simulationThread.isAlive()) {
                 simulationThread.interrupt();
             }

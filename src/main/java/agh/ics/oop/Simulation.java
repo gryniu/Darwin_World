@@ -8,14 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Simulation implements Runnable{
+    //symulacja
     private final AbstractWorldMap worldMap;
     private int day = 0;
     private final int simulationSpeed;
+
+    //logika asynchroniczna
     private final List<Listener> mapChangeListeners = new ArrayList<>();
     private boolean paused = true;
     private boolean running = true;
     private final Object lock = new Object();
 
+    //cofanie
     private boolean rewinded = false;
     private int rewindedDays = 0;
     private FakeWorldMap fakeWorldMap = null;
@@ -157,5 +161,4 @@ public class Simulation implements Runnable{
         fakeWorldMap = new FakeWorldMap(worldMap.getId(), day - rewindedDays,  worldMap.getWidth(), worldMap.getHeight());
         notifyListeners(String.valueOf(day - rewindedDays), fakeWorldMap);
     }
-
 }

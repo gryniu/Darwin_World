@@ -1,12 +1,11 @@
 package agh.ics.oop.model;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public interface LivingWorldMap extends WorldMap{
-    void removeDeadAnimals();
 
+    void removeDeadAnimals(int day);
     void eatAllPossiblePlants();
     void moveAllAnimals();
     void reproducePopulation(int day);
@@ -18,11 +17,22 @@ public interface LivingWorldMap extends WorldMap{
 
     void decreaseEnergyAllAnimals();
 
-    String mapDataToString();
-
     Optional<List<Animal>> getAnimalsOrdered(Vector2d position);
     List<Animal> getAllAnimalsOrdered();
 
-
     UUID getId();
+
+    int getFreeFieldsCount();
+
+    String getMostPopularGenotype();
+
+    Double getAverageEnergy();
+
+    void increaseGenotypeCounter(Animal animal);
+
+    void decreaseGenotypeCounter(Animal animal);
+
+    double getAverageLifespan();
+
+    double getAverageChildren();
 }

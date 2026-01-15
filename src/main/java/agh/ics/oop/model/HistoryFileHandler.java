@@ -1,6 +1,8 @@
 package agh.ics.oop.model;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 public class HistoryFileHandler {
@@ -15,6 +17,18 @@ public class HistoryFileHandler {
             for (var item : items) {
                 bw.write(item.dataToString() + '\n');
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void writeToFile(String fileName, String item){
+        File dir = new File(DIR_PATH);
+        if (!dir.exists()) dir.mkdirs();
+
+        try {
+            Path path = Path.of(DIR_PATH, fileName);
+            Files.writeString(path, item);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -61,6 +75,45 @@ public class HistoryFileHandler {
         }
 
         return positions;
+    }
+
+    public static MapStats importStats(UUID id, int day){
+        String fileName = DIR_PATH + "/%s-%s-stats.txt".formatted(id, day);
+
+        MapStats mapStats = null;
+        List<String> values = new ArrayList<>();
+        String[] expected = {
+                "animalsCount",
+                "plantsCount",
+                "freeFieldsCount",
+                "averageEnergy",
+                "averageLifespan",
+                "averageChildren",
+                "mostPopularGenotype"};
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] pairs = line.split(" ");
+                if(!expected[values.size()].equals(pairs[0])) throw new CorruptedFileException(fileName);
+                values.add(pairs[1]);
+            }
+
+            mapStats = new MapStats(
+                    Integer.parseInt(values.get(0)),
+                    Integer.parseInt(values.get(1)),
+                    Integer.parseInt(values.get(2)),
+                    Double.parseDouble(values.get(3)),
+                    Double.parseDouble(values.get(4)),
+                    Double.parseDouble(values.get(5)),
+                    values.get(6)
+            );
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return mapStats;
     }
 
     public static void deleteHistory(UUID id){

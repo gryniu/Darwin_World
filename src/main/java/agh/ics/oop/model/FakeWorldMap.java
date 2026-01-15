@@ -8,6 +8,7 @@ import java.util.*;
 public class FakeWorldMap implements WorldMap{
     private final AnimalsMap<FakeAnimal> animals = new AnimalsMap<>();
     private final HashMap<Vector2d, Plant> plants = new HashMap<>();
+    private final MapStats mapStats;
     private final int width;
     private final int heigh;
 
@@ -23,6 +24,8 @@ public class FakeWorldMap implements WorldMap{
         for(var position: HistoryFileHandler.importPlants(id, day)){
             createPlant(position);
         }
+
+        mapStats = HistoryFileHandler.importStats(id, day);
     }
 
     private  void createPlant(Vector2d position){
@@ -37,6 +40,14 @@ public class FakeWorldMap implements WorldMap{
     @Override
     public List<Plant> getPlants() {
         return new ArrayList<>(plants.values());
+    }
+
+    @Override
+    public List<WorldElement> getAllMapElements() {
+        List<WorldElement> elements = new ArrayList<>();
+        elements.addAll(getPlants());
+        elements.addAll(getAllAnimals());
+        return elements;
     }
 
     @Override
@@ -62,5 +73,14 @@ public class FakeWorldMap implements WorldMap{
     @Override
     public int getHeight() {
         return heigh;
+    }
+
+    @Override
+    public MapStats getMapStats() {
+        return mapStats;
+    }
+
+    public int getPlantsCount(){
+        return plants.size();
     }
 }

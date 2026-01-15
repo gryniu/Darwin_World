@@ -12,10 +12,15 @@ public interface WorldMap{
     List<Plant> getPlants();
     <T extends AbstractAnimal>
     List<T> getAllAnimals();
+    List<WorldElement> getAllMapElements();
 
     Boundary getCurrentBounds();
+
     int getAnimalsCount();
+    int getPlantsCount();
 
     int getWidth();
     int getHeight();
+
+    MapStats getMapStats();
 }
