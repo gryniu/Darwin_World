@@ -2,10 +2,7 @@ package agh.ics.oop.model;
 
 import java.util.*;
 
-public class Animal implements WorldElement{
-    private Vector2d position;
-    private MapDirection orientation;
-    private int energy;
+public class Animal extends AbstractAnimal{
     private final Gen gen;
     private final int dayOfBirth;
     private int numOfKids = 0;
@@ -93,28 +90,6 @@ public class Animal implements WorldElement{
         this.position = position;
     }
 
-    @Override
-    public Vector2d position() {
-        return position;
-    }
-
-    public MapDirection getOrientation() {
-        return orientation;
-    }
-
-    @Override
-    public String toString() {
-        return switch (orientation) {
-            case NORTH -> "↑";
-            case EAST -> "→";
-            case SOUTH -> "↓";
-            case WEST -> "←";
-            case EAST_NORTH -> "↗";
-            case EAST_SOUTH -> "↘";
-            case WEST_SOUTH -> "↙";
-            case WEST_NORTH -> "↖";
-        };
-    }
 
     public boolean isAt(Vector2d position){
         return this.position.equals(position);
@@ -146,9 +121,5 @@ public class Animal implements WorldElement{
 
     public boolean isDead(){
         return energy<=0;
-    }
-
-    public String animalDataToString(){
-        return gen + "," + position + "," + orientation + "," + energy + "," + dayOfBirth + "," + numOfKids;
     }
 }

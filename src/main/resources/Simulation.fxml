@@ -10,10 +10,10 @@
         <VBox spacing="10">
             <Canvas fx:id="mapCanvas" width="600" height="600" style="-fx-border-color: black;"/>
             <HBox spacing="10" alignment="CENTER">
-                <Button text="<" fx:id="backButton"/>
+                <Button text="&lt;" fx:id="backButton"/>
                 <Button text="Start" fx:id="startButton"/>
                 <Button text="Pauza" fx:id="pauseButton"/>
-                <Button text=">" fx:id="forwardButton"/>
+                <Button text="&gt;" fx:id="forwardButton"/>
             </HBox>
         </VBox>
     </center>

@@ -3,6 +3,8 @@ package agh.ics.oop.presenter;
 import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationConfig;
 import agh.ics.oop.model.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.VPos;
@@ -64,6 +66,7 @@ public class SimulationPresenter implements Initializable {
     private GraphicsContext gc;
     private int fontSize = (int)(CELL_SIZE*0.5);
 
+    BooleanProperty canRewind = new SimpleBooleanProperty(false);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -72,14 +75,32 @@ public class SimulationPresenter implements Initializable {
         startButton.setOnAction(e -> {
             if (simulation != null) {
                 simulation.setPausedSimulation(false);
+                canRewind.set(false);
             }
         });
 
         pauseButton.setOnAction(e -> {
             if (simulation != null) {
                 simulation.setPausedSimulation(true);
+                canRewind.set(true);
             }
         });
+
+        backButton.disableProperty().bind(canRewind.not());
+        forwardButton.disableProperty().bind(canRewind.not());
+
+        backButton.setOnAction(e -> {
+            if (simulation != null) {
+                simulation.rewind(true);
+            }
+        });
+
+        forwardButton.setOnAction(e -> {
+            if (simulation != null) {
+                simulation.rewind(false);
+            }
+        });
+
     }
     public void startSimulation(SimulationConfig config){
         MapOptions mapOptions = new MapOptions(
@@ -155,13 +176,6 @@ public class SimulationPresenter implements Initializable {
         elements.addAll(worldMap.getAllAnimals());
 
         for (WorldElement worldElement: elements){
-            if (!(worldElement instanceof Animal)) { //  w pierwszej kolejnosci wyswietlamy Animala
-                Optional<WorldElement> elementAtPos = worldMap.objectAt(worldElement.position());
-
-                if (elementAtPos.isPresent() && elementAtPos.get() instanceof Animal) {
-                    continue;
-                }
-            }
             Vector2d pos = worldElement.position();
 
             double centerX = GRID_OFFSET + (pos.getX() - offsetX) * CELL_SIZE + CELL_SIZE/2 ;
@@ -233,32 +247,6 @@ public class SimulationPresenter implements Initializable {
     }
 
     public void endSimulation(){
-        simulationThread.interrupt();
-    }
-
-    public void deleteHistory(){
-        String folderPath = "history";
-        String prefix = worldMap.getId().toString();
-
-        File folder = new File(folderPath);
-        if (!folder.exists() || !folder.isDirectory()) {
-            System.out.println("Folder nie istnieje!");
-            return;
-        }
-
-        File[] filesToDelete = folder.listFiles((dir, name) -> name.startsWith(prefix));
-
-        if (filesToDelete == null || filesToDelete.length == 0) {
-            System.out.println("Nie znaleziono plików do usunięcia.");
-            return;
-        }
-
-        for (File file : filesToDelete) {
-            if (file.delete()) {
-                System.out.println("Usunięto plik: " + file.getName());
-            } else {
-                System.out.println("Nie udało się usunąć pliku: " + file.getName());
-            }
-        }
+        simulation.stopSimulation();
     }
 }

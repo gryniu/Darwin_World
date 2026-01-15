@@ -45,7 +45,22 @@ public enum MapDirection {
     }
 
     @Override
-    public String toString() {
+    public String toString(){
+        return switch(this){
+            case EAST -> "E";
+            case NORTH -> "N";
+            case WEST ->"W";
+            case EAST_SOUTH -> "ES";
+            case SOUTH -> "S";
+            case WEST_SOUTH -> "WS";
+            case WEST_NORTH -> "WN";
+            case EAST_NORTH -> "EN";
+        };
+    }
+
+    public String dataToString() {
         return String.valueOf(ordinal());
     }
+
+
 }

@@ -16,6 +16,10 @@ public class Simulation implements Runnable{
     private boolean running = true;
     private final Object lock = new Object();
 
+    private boolean rewinded = false;
+    private int rewindedDays = 0;
+    private FakeWorldMap fakeWorldMap = null;
+
     public Simulation(AbstractWorldMap worldMap, int simulationSpeed) {
         this.worldMap = worldMap;
         this.simulationSpeed = simulationSpeed;
@@ -79,14 +83,18 @@ public class Simulation implements Runnable{
     }
 
     private void notifyListeners(String message) {
-        // Użyj kopii listy dla bezpieczeństwa
-        List<Listener> listenersCopy;
         synchronized (lock) {
-            listenersCopy = new ArrayList<Listener>(mapChangeListeners);
+            for (Listener listener : mapChangeListeners) {
+                listener.change(worldMap, message);
+            }
         }
+    }
 
-        for (Listener listener : listenersCopy) {
-            listener.change(worldMap, message);
+    private void notifyListeners(String message, FakeWorldMap otherWorldMap) {
+        synchronized (lock) {
+            for (Listener listener : mapChangeListeners) {
+                listener.change(otherWorldMap, message);
+            }
         }
     }
 
@@ -98,13 +106,15 @@ public class Simulation implements Runnable{
 
     public void setPausedSimulation(boolean isPaused) {
         synchronized (lock) {
-            boolean wasPaused = this.paused;
-            this.paused = isPaused;
+            boolean wasPaused = paused;
+            paused = isPaused;
 
             System.out.println("Zmiana pauzy: " + wasPaused + " -> " + isPaused);
 
 
             if (wasPaused && !isPaused) {
+                rewinded = false;
+                rewindedDays = 0;
                 lock.notify();
             }
         }
@@ -133,6 +143,7 @@ public class Simulation implements Runnable{
             this.running = false;
             this.paused = false;
             lock.notifyAll();
+            HistoryFileHandler.deleteHistory(worldMap.getId());
         }
     }
 
@@ -140,6 +151,16 @@ public class Simulation implements Runnable{
         return day;
     }
 
-    public void back(){
+    public void rewind(boolean back) {
+        if(!isPaused()) throw new RuntimeException("Can't rewind on play!");
+        rewinded = true;
+        if(back)
+            rewindedDays = Math.min(day-1, rewindedDays + 1);
+        else
+            rewindedDays = Math.max(0, rewindedDays - 1);
+
+        fakeWorldMap = new FakeWorldMap(worldMap.getId(), day - rewindedDays,  worldMap.getWidth(), worldMap.getHeight());
+        notifyListeners(String.valueOf(day - rewindedDays), fakeWorldMap);
     }
+
 }

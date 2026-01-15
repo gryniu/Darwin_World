@@ -3,60 +3,34 @@ package agh.ics.oop.model;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class FakeWorldMap implements WorldMap{
-    private final AnimalsMap animals = new AnimalsMap();
+    private final AnimalsMap<FakeAnimal> animals = new AnimalsMap<>();
     private final HashMap<Vector2d, Plant> plants = new HashMap<>();
     private final int width;
     private final int heigh;
 
     public FakeWorldMap(UUID id, int day, int width, int height) {
+        this.width = width;
+        this.heigh = height;
         //importowanie animali
-        String filename = "history/%s-%s-animals".formatted(id, day);
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] animalData = line.split(",");
-                if (animalData.length != 6) throw new CorruptedFileException(filename);
-
-                Gen gen = new Gen(animalData[0]
-                        .chars()
-                        .map(c -> c - '0')
-                        .boxed()
-                        .toList());
-
-                int[] coords = Arrays.stream(animalData[1].split(";")).mapToInt(Integer::parseInt).toArray();
-                Vector2d position = new Vector2d(coords[0], coords[1]);
-                MapDirection orientation = MapDirection.values()[Integer.parseInt(animalData[2])];
-                int energy = Integer.parseInt(animalData[3]);
-                int dayOfBirth = Integer.parseInt(animalData[3]);
-                int numOfKids = Integer.parseInt(animalData[3]);
-                Animal animal = new Animal(position, orientation, energy);
-                animals.addAnimal(animal);
-            }
-        } catch (IOException e) {
-            throw new CorruptedFileException(filename);
+        for(var animal: HistoryFileHandler.importAnimals(id, day)){
+            animals.addAnimal(animal);
         }
 
         //importowanie roslin
-        filename = "history/%s-%s-plants".formatted(id, day);
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                int[] coords = Arrays.stream(line.split(";")).mapToInt(Integer::parseInt).toArray();
-                if (coords.length != 2) throw new CorruptedFileException(filename);
-                createPlant(new Vector2d(coords[0], coords[1]));
-            }
-        } catch (IOException e) {
-            throw new CorruptedFileException(filename);
+        for(var position: HistoryFileHandler.importPlants(id, day)){
+            createPlant(position);
         }
     }
 
+    private  void createPlant(Vector2d position){
+        plants.put(position, new Plant(position));
+    }
+
     @Override
-    public Optional<List<Animal>> getAnimals(Vector2d position) {
+    public Optional<List<FakeAnimal>> getAnimals(Vector2d position) {
         return animals.getFrom(position);
     }
 
@@ -66,22 +40,27 @@ public class FakeWorldMap implements WorldMap{
     }
 
     @Override
-    public List<Animal> getAllAnimals() {
+    public List<FakeAnimal> getAllAnimals() {
         return animals.getAll();
     }
 
     @Override
     public Boundary getCurrentBounds() {
-        return null;
-    }
-
-    @Override
-    public Optional<WorldElement> objectAt(Vector2d position) {
-        return Optional.empty();
+        return new Boundary(new Vector2d(0, 0), new Vector2d(width-1, heigh-1));
     }
 
     @Override
     public int getAnimalsCount() {
-        return 0;
+        return animals.getAnimalsCount();
+    }
+
+    @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return heigh;
     }
 }

@@ -10,6 +10,11 @@ public record Plant(Vector2d position) implements WorldElement {
     }
 
     @Override
+    public String dataToString() {
+        return position().dataToString();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Plant grass = (Plant) o;

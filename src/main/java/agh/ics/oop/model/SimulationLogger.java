@@ -7,35 +7,13 @@ import java.io.IOException;
 
 public class SimulationLogger implements Listener {
     @Override
-    public void change(AbstractWorldMap worldMap, String message) {
-        String dirPath = "history";
-        File dir = new File(dirPath);
-        if (!dir.exists()) dir.mkdirs();
+    public void change(WorldMap worldMap, String message) {
+        if (worldMap instanceof LivingWorldMap worldMap1) {
+            //zapisywanie animali
+            HistoryFileHandler.writeToFile("/%s-%s-animals.txt".formatted(worldMap1.getId(), message), worldMap.getAllAnimals());
 
-        //zapisywanie animali
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(dirPath + "/%s-%s-animals.txt".formatted(worldMap.getId(), message)))) {
-            for (var item : worldMap.getAllAnimals()) {
-                bw.write(item.animalDataToString() + '\n');
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        //zapisywanie roslin
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(dirPath + "/%s-%s-plants.txt".formatted(worldMap.getId(), message)))) {
-            for (var item : worldMap.getPlants()) {
-                bw.write(item.position().toString() + '\n');
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        //zapisywanie danych mapy
-        try(FileWriter fileWriter = new FileWriter(dirPath + "/%s-%s-map.txt".formatted(worldMap.getId(), message))){
-            fileWriter.write(worldMap.mapDataToString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            //zapisywanie roslin
+            HistoryFileHandler.writeToFile("/%s-%s-plants.txt".formatted(worldMap1.getId(), message), worldMap.getPlants());
         }
     }
-
 }

@@ -5,7 +5,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class AbstractWorldMap implements LivingWorldMap {
     protected final UUID id;
-    protected final AnimalsMap animals = new AnimalsMap();
+    protected final AnimalsMap<Animal> animals = new AnimalsMap<>();
     private final ArrayList<Listener> subscribers = new ArrayList<>();
     protected final MapVisualizer mapVisualizer = new MapVisualizer(this);
 
@@ -153,10 +153,6 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
         plants.put(position, new Plant(position));
     }
 
-    private  void createPlant(Vector2d position){
-        plants.put(position, new Plant(position));
-    }
-
     @Override
     public void createNewPlants(){
         plantsGeneratorIterator = plantsGenerator.reShuffle();
@@ -232,8 +228,8 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     @Override
     public void moveAllAnimals(){
         for (Animal animal: getAllAnimals()){
-            animal.rotate();
             move(animal);
+            animal.rotate();
         }
     }
 
@@ -253,16 +249,6 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     }
 
     @Override
-    public Optional<WorldElement> objectAt(Vector2d position) {
-        var items = getAnimalsOrdered(position);
-        if(items.isEmpty()){
-            return Optional.ofNullable(plants.get(position));
-        }else{
-            return items.map(List::getFirst);
-        }
-    }
-
-    @Override
     public int getAnimalsCount(){
         return animals.getAnimalsCount();
     }
@@ -270,5 +256,15 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     @Override
     public String mapDataToString(){
         return plantNumEveryDay + "," + energyFromPlantMultiplier + "," + energyDecreaseMultiplier + "," + plantNumMultiplier;
+    }
+
+    @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
     }
 }

@@ -71,12 +71,10 @@ public class MainWindowPresenter implements Initializable {
             configureStage(stage, viewRoot);
             stage.setOnCloseRequest(windowEvent -> {
                 presenter.endSimulation();
-                presenter.deleteHistory();
             });
             stage.show();
 
             presenter.startSimulation(simulationConfig);
-
         }
         catch (NumberFormatException e){
             showNumberFormatExceptionAlert(e);
@@ -85,6 +83,7 @@ public class MainWindowPresenter implements Initializable {
             showValidationErrorAlert(e);
         }
         catch (IOException e) {
+            e.printStackTrace();
             showIOExceptionAlert(e);
         }
     }

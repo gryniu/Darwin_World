@@ -21,7 +21,7 @@ public interface LivingWorldMap extends WorldMap{
     String mapDataToString();
 
     Optional<List<Animal>> getAnimalsOrdered(Vector2d position);
-    Optional<List<Animal>> getAllAnimalsOrdered(Vector2d position);
+    List<Animal> getAllAnimalsOrdered();
 
 
     UUID getId();
