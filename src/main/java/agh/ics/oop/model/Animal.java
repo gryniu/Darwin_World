@@ -2,16 +2,11 @@ package agh.ics.oop.model;
 
 import java.util.*;
 
-public class Animal implements WorldElement{
-    private Vector2d position;
-    private MapDirection orientation;
-    private int energy;
+public class Animal extends AbstractAnimal{
     private final Gen gen;
-    private final int mutationNum;
     private final int dayOfBirth;
     private int numOfKids = 0;
 
-    private final int lenOfGen;
     private final Iterator<Integer> genIterator;
     private final EnergyOptions energyOptions;
     private final AnimalOptions animalOptions;
@@ -25,11 +20,21 @@ public class Animal implements WorldElement{
         this.position = position;
         this.gen = animalData.gen();
         this.genIterator = gen.iterator();
-        this.mutationNum = animalOptions.mutationNum();
-        this.lenOfGen = animalOptions.lenOfGen();
         this.animalOptions = animalOptions;
         this.energyOptions = animalOptions.energyOptions();
         this.energy = animalData.energyStart();
+    }
+
+    Animal(Gen gen, Vector2d position, MapDirection orientation, int energy, int dayOfBirth, int numOfKids, AnimalOptions animalOptions){
+        this.gen = gen;
+        this.genIterator = gen.iterator();
+        this.dayOfBirth = dayOfBirth;
+        this.orientation = orientation;
+        this.position = position;
+        this.energy = energy;
+        this.numOfKids = numOfKids;
+        this.animalOptions = animalOptions;
+        this.energyOptions = animalOptions.energyOptions();
     }
 
 
@@ -45,7 +50,7 @@ public class Animal implements WorldElement{
         int kidStartingEnergy = giveEnergyToKid() + partner.giveEnergyToKid();
 
         Gen kidGen = Gen.mixGens(this, partner);
-        kidGen.randomize(mutationNum);
+        kidGen.randomize(animalOptions.mutationNum());
 
         increaseNumOfKids();
         partner.increaseNumOfKids();
@@ -85,28 +90,6 @@ public class Animal implements WorldElement{
         this.position = position;
     }
 
-    @Override
-    public Vector2d position() {
-        return position;
-    }
-
-    public MapDirection getOrientation() {
-        return orientation;
-    }
-
-    @Override
-    public String toString() {
-        return switch (orientation) {
-            case NORTH -> "↑";
-            case EAST -> "→";
-            case SOUTH -> "↓";
-            case WEST -> "←";
-            case EAST_NORTH -> "↗";
-            case EAST_SOUTH -> "↘";
-            case WEST_SOUTH -> "↙";
-            case WEST_NORTH -> "↖";
-        };
-    }
 
     public boolean isAt(Vector2d position){
         return this.position.equals(position);

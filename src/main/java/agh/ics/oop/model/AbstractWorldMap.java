@@ -4,9 +4,9 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-public abstract class AbstractWorldMap implements WorldMap {
-    protected final UUID id = UUID.randomUUID();
-    protected final AnimalsMap animals = new AnimalsMap();
+public abstract class AbstractWorldMap implements LivingWorldMap {
+    protected final UUID id;
+    protected final AnimalsMap<Animal> animals = new AnimalsMap<>();
     private final ArrayList<Listener> subscribers = new ArrayList<>();
     protected final MapVisualizer mapVisualizer = new MapVisualizer(this);
     protected final Map<String, Integer> genotypeCounter = new HashMap<>();
@@ -31,6 +31,7 @@ public abstract class AbstractWorldMap implements WorldMap {
 
 
     public AbstractWorldMap(MapOptions mapOptions, AnimalOptions defaultAnimalOptions){
+        id = UUID.randomUUID();
         width = mapOptions.mapWidth();
         height = mapOptions.mapHeight();
         plantNumEveryDay = mapOptions.plantNumEveryDay();
@@ -40,12 +41,13 @@ public abstract class AbstractWorldMap implements WorldMap {
         plantsGenerator = new PlantsGenerator(width, height);
         plantsGeneratorIterator = plantsGenerator.iterator();
 
+        createAnimalsOnRandomPositions(0);
+
         for(int i = 0; i < mapOptions.startingNumOfPlants(); i++){
             createPlant();
         }
     }
 
-    @Override
     public void place(Animal animal) {
         Vector2d position = animal.position();
         if (!inBounds(animal.position())){
@@ -126,7 +128,6 @@ public abstract class AbstractWorldMap implements WorldMap {
         return position.follows(boundary.lowerLeft()) && position.precedes(boundary.upperRight());
     }
 
-    @Override
     public void move(Animal animal) {
         Vector2d oldPosition = animal.position();
         animals.removeAnimal(animal);
@@ -159,6 +160,7 @@ public abstract class AbstractWorldMap implements WorldMap {
         plants.put(position, new Plant(position));
     }
 
+    @Override
     public void createNewPlants(){
         plantsGeneratorIterator = plantsGenerator.reShuffle();
 
@@ -169,6 +171,7 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
+    @Override
     public List<Plant> getPlants(){
         return new ArrayList<>(plants.values());
     }
@@ -202,6 +205,7 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
+    @Override
     public void reproducePopulation(int day){
         List<Animal> newborns = new ArrayList<>();
 
@@ -232,13 +236,15 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
+    @Override
     public void moveAllAnimals(){
         for (Animal animal: getAllAnimals()){
-            animal.rotate();
             move(animal);
+            animal.rotate();
         }
     }
 
+    @Override
     public void decreaseEnergyAllAnimals(){
         List<Animal> currentAnimals = getAllAnimals();
 
@@ -247,28 +253,30 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
-    public void createAnimalsOnRandomPositions(int dayOfBirth){
+    private void createAnimalsOnRandomPositions(int dayOfBirth){
         Boundary boundary = getCurrentBounds();
         for (int i = 0 ;i< mapOptions.startingNumOfAnimals(); i++)
-            animals.addAnimal(new Animal(boundary.getRandomPosition(), defaultAnimalOptions, mapOptions.energyStart(), dayOfBirth));
-    }
-
-    public MapOptions getMapOptions() {
-        return mapOptions;
+            place(new Animal(boundary.getRandomPosition(), defaultAnimalOptions, mapOptions.energyStart(), dayOfBirth));
     }
 
     @Override
-    public Optional<WorldElement> objectAt(Vector2d position) {
-        var items = getAnimalsOrdered(position);
-        if(items.isEmpty()){
-            return Optional.ofNullable(plants.get(position));
-        }else{
-            return items.map(List::getFirst);
-        }
-    }
-
     public int getAnimalsCount(){
         return animals.getAnimalsCount();
+    }
+
+    @Override
+    public String mapDataToString(){
+        return plantNumEveryDay + "," + energyFromPlantMultiplier + "," + energyDecreaseMultiplier + "," + plantNumMultiplier;
+    }
+
+    @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
     }
 
     public int getPlantsCount(){

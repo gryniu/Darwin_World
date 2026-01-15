@@ -3,6 +3,8 @@ package agh.ics.oop.presenter;
 import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationConfig;
 import agh.ics.oop.model.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -19,6 +21,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +30,12 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class SimulationPresenter implements Initializable {
+    @FXML
+    private Button forwardButton;
+
+    @FXML
+    private Button backButton;
+
     @FXML
     private Canvas mapCanvas;
     @FXML
@@ -63,6 +72,8 @@ public class SimulationPresenter implements Initializable {
     private GraphicsContext gc;
     private int fontSize = (int)(CELL_SIZE*0.5);
 
+    BooleanProperty canRewind = new SimpleBooleanProperty(false);
+  
     @FXML private LineChart<Number, Number> statisticsChart;
     @FXML private NumberAxis dayAxis;
     @FXML private NumberAxis valueAxis;
@@ -89,14 +100,32 @@ public class SimulationPresenter implements Initializable {
         startButton.setOnAction(e -> {
             if (simulation != null) {
                 simulation.setPausedSimulation(false);
+                canRewind.set(false);
             }
         });
 
         pauseButton.setOnAction(e -> {
             if (simulation != null) {
                 simulation.setPausedSimulation(true);
+                canRewind.set(true);
             }
         });
+
+        backButton.disableProperty().bind(canRewind.not());
+        forwardButton.disableProperty().bind(canRewind.not());
+
+        backButton.setOnAction(e -> {
+            if (simulation != null) {
+                simulation.rewind(true);
+            }
+        });
+
+        forwardButton.setOnAction(e -> {
+            if (simulation != null) {
+                simulation.rewind(false);
+            }
+        });
+
     }
     public void startSimulation(SimulationConfig config){
         MapOptions mapOptions = new MapOptions(
@@ -131,6 +160,7 @@ public class SimulationPresenter implements Initializable {
         mapCanvas.setHeight(gridHeight*CELL_SIZE + 2*GRID_OFFSET);
 
         simulation = new Simulation(worldMap, 200);
+      
         Platform.runLater(this::updateCheckboxes);;
 
         // poczatkowe rysowanie mapy
@@ -148,6 +178,9 @@ public class SimulationPresenter implements Initializable {
                 //todo : logi
             });
         });
+      
+        simulation.addMapChangeListener(new SimulationLogger());
+        simulation.setPausedSimulation(false);
 
         simulationThread = new Thread(simulation);
         simulationThread.setDaemon(true);
@@ -245,7 +278,7 @@ public class SimulationPresenter implements Initializable {
         drawWorldElements(worldMap);
     }
 
-    private void drawWorldElements(AbstractWorldMap worldMap){
+    private void drawWorldElements(WorldMap worldMap){
         gc.save();
         gc.setStroke(Color.BLACK);
         configureFont(gc, fontSize, Color.BLACK);
@@ -260,13 +293,6 @@ public class SimulationPresenter implements Initializable {
         elements.addAll(worldMap.getAllAnimals());
 
         for (WorldElement worldElement: elements){
-            if (!(worldElement instanceof Animal)) { //  w pierwszej kolejnosci wyswietlamy Animala
-                Optional<WorldElement> elementAtPos = worldMap.objectAt(worldElement.position());
-
-                if (elementAtPos.isPresent() && elementAtPos.get() instanceof Animal) {
-                    continue;
-                }
-            }
             Vector2d pos = worldElement.position();
 
             double centerX = GRID_OFFSET + (pos.getX() - offsetX) * CELL_SIZE + CELL_SIZE/2 ;
@@ -282,7 +308,7 @@ public class SimulationPresenter implements Initializable {
         gc.restore();
     }
 
-    private void drawGrid(AbstractWorldMap worldMap){
+    private void drawGrid(WorldMap worldMap){
         gc.save();
 
         gc.setFill(Color.BLACK);

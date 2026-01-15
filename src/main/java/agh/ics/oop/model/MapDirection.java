@@ -5,14 +5,14 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public enum MapDirection {
     // UWAGA, pola muszą być ustawione zgodnie z ruchem wskazówek zegara
+    NORTH,
+    EAST_NORTH,
     EAST,
     EAST_SOUTH,
     SOUTH,
     WEST_SOUTH,
     WEST,
-    WEST_NORTH,
-    NORTH,
-    EAST_NORTH;
+    WEST_NORTH;
 
     public MapDirection next(int steps) {
         MapDirection[] directions = MapDirection.values();
@@ -45,16 +45,22 @@ public enum MapDirection {
     }
 
     @Override
-    public String toString() {
-        return switch (this) {
-            case EAST -> "Wschod";
-            case NORTH -> "Polnoc";
-            case WEST -> "Zachod";
-            case EAST_SOUTH -> "Wschód - Południe";
-            case SOUTH -> "Wschod";
-            case WEST_SOUTH -> "Zachód - Południe";
-            case WEST_NORTH -> "Zachód - Północ";
-            case EAST_NORTH -> "Wschód - Północ";
+    public String toString(){
+        return switch(this){
+            case EAST -> "E";
+            case NORTH -> "N";
+            case WEST ->"W";
+            case EAST_SOUTH -> "ES";
+            case SOUTH -> "S";
+            case WEST_SOUTH -> "WS";
+            case WEST_NORTH -> "WN";
+            case EAST_NORTH -> "EN";
         };
     }
+
+    public String dataToString() {
+        return String.valueOf(ordinal());
+    }
+
+
 }

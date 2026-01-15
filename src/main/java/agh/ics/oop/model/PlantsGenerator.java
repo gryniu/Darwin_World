@@ -23,6 +23,7 @@ public class PlantsGenerator implements Iterable<Vector2d>{
                     normalArea.addLast(new Vector2d(i, j));
             }
         }
+        shuffle();
     }
 
 
@@ -42,10 +43,7 @@ public class PlantsGenerator implements Iterable<Vector2d>{
         }
         returnedCounter++;
     }
-
-    public Iterator<Vector2d> reShuffle(){
-        if (returnedCounter == 0) return iterator();
-
+    private void shuffle(){
         returnedCounter = 0;
 
         var list = new ArrayList<>(jungleArea);
@@ -55,6 +53,11 @@ public class PlantsGenerator implements Iterable<Vector2d>{
         list = new ArrayList<>(normalArea);
         Collections.shuffle(list);
         normalArea = new ArrayDeque<>(list);
+    }
+
+    public Iterator<Vector2d> reShuffle(){
+        if (returnedCounter == 0) return iterator();
+        shuffle();
         return iterator();
     }
 
