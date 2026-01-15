@@ -173,6 +173,7 @@ public class SimulationPresenter implements Initializable {
 
         simulation.startSimulation();
 
+        freeFieldsSeries.setName("Ilość wolnych pól");
         animalsSeries.setName("Ilość zwierząt");
         plantsSeries.setName("Ilość roślin");
         energySeries.setName("Średnia Energia");
