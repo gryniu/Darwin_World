@@ -1,14 +1,10 @@
 package agh.ics.oop.model;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-public abstract class AbstractWorldMap implements WorldMap {
-    protected final UUID id = UUID.randomUUID();
+public abstract class AbstractWorldMap implements LivingWorldMap {
+    protected final UUID id;
     protected final AnimalsMap animals = new AnimalsMap();
     private final ArrayList<Listener> subscribers = new ArrayList<>();
     protected final MapVisualizer mapVisualizer = new MapVisualizer(this);
@@ -29,6 +25,7 @@ public abstract class AbstractWorldMap implements WorldMap {
     protected double plantNumMultiplier = 1;
 
     public AbstractWorldMap(MapOptions mapOptions, AnimalOptions defaultAnimalOptions){
+        id = UUID.randomUUID();
         width = mapOptions.mapWidth();
         height = mapOptions.mapHeight();
         plantNumEveryDay = mapOptions.plantNumEveryDay();
@@ -45,19 +42,6 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
-    public AbstractWorldMap(UUID id, int day, MapOptions mapOptions){
-            try (BufferedReader br = new BufferedReader(new FileReader("history/%s-%s-animals".formatted(id, day)))) {
-                String line;
-                List<Animal> animals1 = new ArrayList<>();
-                while ((line = br.readLine()) != null) {
-
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-    }
-
-    @Override
     public void place(Animal animal) {
         Vector2d position = animal.position();
         if (!inBounds(animal.position())){
@@ -137,7 +121,6 @@ public abstract class AbstractWorldMap implements WorldMap {
         return position.follows(boundary.lowerLeft()) && position.precedes(boundary.upperRight());
     }
 
-    @Override
     public void move(Animal animal) {
         Vector2d oldPosition = animal.position();
         animals.removeAnimal(animal);
@@ -170,6 +153,11 @@ public abstract class AbstractWorldMap implements WorldMap {
         plants.put(position, new Plant(position));
     }
 
+    private  void createPlant(Vector2d position){
+        plants.put(position, new Plant(position));
+    }
+
+    @Override
     public void createNewPlants(){
         plantsGeneratorIterator = plantsGenerator.reShuffle();
 
@@ -180,6 +168,7 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
+    @Override
     public List<Plant> getPlants(){
         return new ArrayList<>(plants.values());
     }
@@ -210,6 +199,7 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
+    @Override
     public void reproducePopulation(int day){
         List<Animal> newborns = new ArrayList<>();
 
@@ -239,6 +229,7 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
+    @Override
     public void moveAllAnimals(){
         for (Animal animal: getAllAnimals()){
             animal.rotate();
@@ -246,6 +237,7 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
+    @Override
     public void decreaseEnergyAllAnimals(){
         List<Animal> currentAnimals = getAllAnimals();
 
@@ -254,14 +246,10 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
-    public void createAnimalsOnRandomPositions(int dayOfBirth){
+    private void createAnimalsOnRandomPositions(int dayOfBirth){
         Boundary boundary = getCurrentBounds();
         for (int i = 0 ;i< mapOptions.startingNumOfAnimals(); i++)
-            animals.addAnimal(new Animal(boundary.getRandomPosition(), defaultAnimalOptions, mapOptions.energyStart(), dayOfBirth));
-    }
-
-    public MapOptions getMapOptions() {
-        return mapOptions;
+            place(new Animal(boundary.getRandomPosition(), defaultAnimalOptions, mapOptions.energyStart(), dayOfBirth));
     }
 
     @Override
@@ -274,23 +262,13 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
+    @Override
     public int getAnimalsCount(){
         return animals.getAnimalsCount();
     }
 
-    public String plantsToString(){
-        StringBuilder sb = new StringBuilder();
-        for(var plant: getPlants()){
-            sb.append(plant.position().toString()).append("\n");
-        }
-        return sb.toString();
-    }
-
+    @Override
     public String mapDataToString(){
         return plantNumEveryDay + "," + energyFromPlantMultiplier + "," + energyDecreaseMultiplier + "," + plantNumMultiplier;
-    }
-
-    public AbstractWorldMap restore(int day){
-
     }
 }

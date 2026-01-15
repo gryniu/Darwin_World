@@ -28,6 +28,18 @@ public class Animal implements WorldElement{
         this.energy = animalData.energyStart();
     }
 
+    Animal(Gen gen, Vector2d position, MapDirection orientation, int energy, int dayOfBirth, int numOfKids, AnimalOptions animalOptions){
+        this.gen = gen;
+        this.genIterator = gen.iterator();
+        this.dayOfBirth = dayOfBirth;
+        this.orientation = orientation;
+        this.position = position;
+        this.energy = energy;
+        this.numOfKids = numOfKids;
+        this.animalOptions = animalOptions;
+        this.energyOptions = animalOptions.energyOptions();
+    }
+
 
     public int giveEnergyToKid(){
         int energyGiven = Math.min(energy, energyOptions.energyToKid());

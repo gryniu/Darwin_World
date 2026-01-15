@@ -130,17 +130,17 @@ public class SimulationPresenter implements Initializable {
     }
 
 
-    private void updateLabels(AbstractWorldMap worldMap){
+    private void updateLabels(WorldMap worldMap){
     }
 
-    private void drawMap(AbstractWorldMap worldMap) {
+    private void drawMap(WorldMap worldMap) {
 
         clearGrid();
         drawGrid(worldMap);
         drawWorldElements(worldMap);
     }
 
-    private void drawWorldElements(AbstractWorldMap worldMap){
+    private void drawWorldElements(WorldMap worldMap){
         gc.save();
         gc.setStroke(Color.BLACK);
         configureFont(gc, fontSize, Color.BLACK);
@@ -177,7 +177,7 @@ public class SimulationPresenter implements Initializable {
         gc.restore();
     }
 
-    private void drawGrid(AbstractWorldMap worldMap){
+    private void drawGrid(WorldMap worldMap){
         gc.save();
 
         gc.setFill(Color.BLACK);

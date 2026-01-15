@@ -141,7 +141,5 @@ public class Simulation implements Runnable{
     }
 
     public void back(){
-        day --;
-        worldMap.restore(day);
     }
 }

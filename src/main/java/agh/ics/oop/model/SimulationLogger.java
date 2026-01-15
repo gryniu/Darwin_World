@@ -8,10 +8,11 @@ import java.io.IOException;
 public class SimulationLogger implements Listener {
     @Override
     public void change(AbstractWorldMap worldMap, String message) {
-        String dirPath = "history"; // or wherever you want to save
+        String dirPath = "history";
         File dir = new File(dirPath);
         if (!dir.exists()) dir.mkdirs();
 
+        //zapisywanie animali
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(dirPath + "/%s-%s-animals.txt".formatted(worldMap.getId(), message)))) {
             for (var item : worldMap.getAllAnimals()) {
                 bw.write(item.animalDataToString() + '\n');
@@ -19,6 +20,8 @@ public class SimulationLogger implements Listener {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        //zapisywanie roslin
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(dirPath + "/%s-%s-plants.txt".formatted(worldMap.getId(), message)))) {
             for (var item : worldMap.getPlants()) {
                 bw.write(item.position().toString() + '\n');
@@ -26,8 +29,10 @@ public class SimulationLogger implements Listener {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        //zapisywanie danych mapy
         try(FileWriter fileWriter = new FileWriter(dirPath + "/%s-%s-map.txt".formatted(worldMap.getId(), message))){
-            fileWriter.write(worldMap.toString());
+            fileWriter.write(worldMap.mapDataToString());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
