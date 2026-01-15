@@ -43,7 +43,7 @@ public interface WorldMap{
     Optional<WorldElement> objectAt(Vector2d position);
     int getAnimalsCount();
     void createAnimalsOnRandomPositions(int day);
-    void removeDeadAnimals();
+    void removeDeadAnimals(int day);
     void eatAllPossiblePlants();
     void moveAllAnimals();
     void reproducePopulation(int day);

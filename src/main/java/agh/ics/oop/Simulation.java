@@ -24,7 +24,7 @@ public class Simulation implements Runnable{
 
     @Override
     public void run() {
-        System.out.println("🚀 Symulacja rozpoczęta");
+        System.out.println("Symulacja rozpoczęta");
 
         try {
             while (isRunning()) {
@@ -65,7 +65,7 @@ public class Simulation implements Runnable{
             return false;
         }
 
-        worldMap.removeDeadAnimals();
+        worldMap.removeDeadAnimals(day);
         worldMap.moveAllAnimals();
         worldMap.eatAllPossiblePlants();
         worldMap.reproducePopulation(day);
@@ -74,9 +74,8 @@ public class Simulation implements Runnable{
 
         day++;
 
-        Platform.runLater(() -> {
-            notifyListeners("Dzień " + day + " zakończony");
-        });
+        notifyListeners("Dzień " + day + " zakończony");
+
 
         return true;
     }
@@ -125,11 +124,6 @@ public class Simulation implements Runnable{
         }
     }
 
-    private void setRunning(boolean running) {
-        synchronized (lock) {
-            this.running = running;
-        }
-    }
 
     public void stopSimulation() {
         synchronized (lock) {

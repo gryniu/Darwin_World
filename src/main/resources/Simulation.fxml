@@ -17,27 +17,54 @@
     </center>
 
     <right>
-        <GridPane hgap="10" vgap="5">
-            <Label text="Liczba zwierzaków:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-            <Label fx:id="animalCountLabel" text="0" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <VBox spacing="10">
+            <!-- mapa -->
+            <GridPane hgap="10" vgap="5">
+                <Label text="Liczba zwierzaków:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <Label fx:id="animalCountLabel" text="0" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-            <Label text="Liczba roślin:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-            <Label fx:id="plantCountLabel" text="0" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Label text="Liczba roślin:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <Label fx:id="plantCountLabel" text="0" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-            <Label text="Liczba wolnych pól:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-            <Label fx:id="freeFieldsLabel" text="0" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                <Label text="Liczba wolnych pól:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <Label fx:id="freeFieldsLabel" text="0" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-            <Label text="Najpopularniejszy genotyp:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-            <Label fx:id="popularGenotypeLabel" text="-" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                <Label text="Najpopularniejszy genotyp:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <Label fx:id="popularGenotypeLabel" text="-" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-            <Label text="Średni poziom energii:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-            <Label fx:id="averageEnergyLabel" text="0" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                <Label text="Średni poziom energii:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <Label fx:id="averageEnergyLabel" text="0" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
-            <Label text="Średnia długość życia:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-            <Label fx:id="averageLifespanLabel" text="0" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                <Label text="Średnia długość życia:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <Label fx:id="averageLifespanLabel" text="0" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
-            <Label text="Średnia liczba dzieci:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-            <Label fx:id="averageChildrenLabel" text="0" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
-        </GridPane>
+                <Label text="Średnia liczba dzieci:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <Label fx:id="averageChildrenLabel" text="0" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <Separator/>
+
+            <!-- wybór danych do wykresu -->
+            <Label text="Wykres – wybierz dane:" style="-fx-font-weight: bold"/>
+
+            <VBox spacing="5">
+                <CheckBox fx:id="animalsChartCheckBox" text="Liczba zwierzaków"/>
+                <CheckBox fx:id="plantsChartCheckBox" text="Liczba roślin"/>
+                <CheckBox fx:id="energyChartCheckBox" text="Średnia energia"/>
+                <CheckBox fx:id="lifespanChartCheckBox" text="Średnia długość życia"/>
+                <CheckBox fx:id="childrenChartCheckBox" text="Średnia liczba dzieci"/>
+            </VBox>
+
+            <!-- wykres -->
+            <LineChart fx:id="statisticsChart" animated="false" prefHeight="300">
+                <xAxis>
+                    <NumberAxis fx:id="dayAxis" label="Dzień"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis fx:id="valueAxis" label="Wartość"/>
+                </yAxis>
+            </LineChart>
+        </VBox>
+
     </right>
 </BorderPane>

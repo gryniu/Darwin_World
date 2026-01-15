@@ -3,11 +3,14 @@ package agh.ics.oop.model;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class Gen implements Iterable<Integer>{
     private List<Integer> genList = new ArrayList<>();;
     private final int lenOfGen;
+
 
     public Gen(int lenOfGen) {
         if (lenOfGen<=0){
@@ -113,5 +116,22 @@ public class Gen implements Iterable<Integer>{
         }
 
         return new Gen(kidGenList);
+    }
+
+    @Override
+    public String toString(){
+        return genList.stream().map(Object::toString).collect(Collectors.joining());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Gen integers = (Gen) o;
+        return lenOfGen == integers.lenOfGen && Objects.equals(genList, integers.genList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(genList, lenOfGen);
     }
 }

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class SimulationPresenter implements Initializable {
     @FXML
@@ -108,6 +109,12 @@ public class SimulationPresenter implements Initializable {
 
         simulation = new Simulation(worldMap, 200);
 
+        // poczatkowe rysowanie mapy
+        javafx.application.Platform.runLater(() -> {
+            updateLabels(worldMap);
+            drawMap(worldMap);
+            //todo : logi
+        });
         simulation.addMapChangeListener((worldMap, message) -> {
             javafx.application.Platform.runLater(() -> {
                 updateLabels(worldMap);
@@ -115,7 +122,6 @@ public class SimulationPresenter implements Initializable {
                 //todo : logi
             });
         });
-        simulation.setPausedSimulation(false);
 
         simulationThread = new Thread(simulation);
         simulationThread.setDaemon(true);
@@ -124,10 +130,16 @@ public class SimulationPresenter implements Initializable {
 
 
     private void updateLabels(AbstractWorldMap worldMap){
+        animalCountLabel.setText(String.valueOf(worldMap.getAnimalsCount()));
+        plantCountLabel.setText(String.valueOf(worldMap.getPlantsCount()));
+        freeFieldsLabel.setText(String.valueOf(worldMap.getFreeFieldsCount()));
+        popularGenotypeLabel.setText(String.valueOf(worldMap.getMostPopularGenotype()));
+        averageEnergyLabel.setText(String.format("%.2f", worldMap.getAverageEnergy()));
+        averageLifespanLabel.setText(String.format("%.2f", worldMap.getAverageLifespan()));
+        averageChildrenLabel.setText(String.format("%.2f", worldMap.getAverageChildren()));
     }
 
     private void drawMap(AbstractWorldMap worldMap) {
-
         clearGrid();
         drawGrid(worldMap);
         drawWorldElements(worldMap);
@@ -223,6 +235,15 @@ public class SimulationPresenter implements Initializable {
         GraphicsContext graphics = mapCanvas.getGraphicsContext2D();
         graphics.setFill(Color.WHITE);
         graphics.fillRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
+    }
+
+    public void stopSimulation() {
+        if (simulation != null) {
+            simulation.setPausedSimulation(true);
+            if (simulationThread != null && simulationThread.isAlive()) {
+                simulationThread.interrupt();
+            }
+        }
     }
 
 }
