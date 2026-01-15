@@ -14,8 +14,9 @@ public class Simulation implements Runnable{
     private final int simulationSpeed;
 
     //logika asynchroniczna
+    private Thread simulationThread;
     private final List<Listener> mapChangeListeners = new ArrayList<>();
-    private boolean paused = true;
+    private boolean paused = false;
     private boolean running = true;
     private final Object lock = new Object();
 
@@ -136,13 +137,26 @@ public class Simulation implements Runnable{
         }
     }
 
+    public void startSimulation(){
+        addMapChangeListener(new SimulationLogger());
+        addMapChangeListener(new CsvLogger(worldMap));
+
+        simulationThread = new Thread(this);
+        simulationThread.setDaemon(true);
+        simulationThread.start();
+
+    }
 
     public void stopSimulation() {
         synchronized (lock) {
             this.running = false;
             this.paused = false;
             lock.notifyAll();
-            HistoryFileHandler.deleteHistory(worldMap.getId());
+        }
+
+        HistoryFileHandler.deleteHistory(worldMap.getId());
+        if (simulationThread != null && simulationThread.isAlive()) {
+            simulationThread.interrupt();
         }
     }
 
@@ -150,10 +164,10 @@ public class Simulation implements Runnable{
         return day;
     }
 
-    public void rewind(boolean back) {
+    public void rewind(boolean goBack) {
         if(!isPaused()) throw new RuntimeException("Can't rewind on play!");
         rewinded = true;
-        if(back)
+        if(goBack)
             rewindedDays = Math.min(day-1, rewindedDays + 1);
         else
             rewindedDays = Math.max(0, rewindedDays - 1);

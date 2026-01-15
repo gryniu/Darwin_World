@@ -263,6 +263,11 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     }
 
     @Override
+    public int getPlantsCount(){
+        return plants.size();
+    }
+
+    @Override
     public int getWidth() {
         return width;
     }
@@ -272,19 +277,13 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
         return height;
     }
 
-    public int getPlantsCount(){
-        return plants.size();
-    }
-
-    @Override
-    public int getFreeFieldsCount(){
+    private int getFreeFieldsCount(){
         Set<Vector2d> takenFields = new HashSet<>(animals.getPositions());
         takenFields.addAll(plants.keySet());
         return width*height - takenFields.size();
     }
 
-    @Override
-    public String getMostPopularGenotype(){
+    private String getMostPopularGenotype(){
         String currentMostPopularGenotype = animals.getAll().getFirst().getGen().toString();
         for (var entry: genotypeCounter.entrySet()){
             if (entry.getValue() > genotypeCounter.get(currentMostPopularGenotype)){
@@ -294,34 +293,29 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
         return currentMostPopularGenotype;
     }
 
-    @Override
-    public Double getAverageEnergy(){
+    private Double getAverageEnergy(){
         return animals.getAll()
                 .stream()
                 .collect(Collectors.averagingInt(Animal::getEnergy));
     }
 
-    @Override
-    public void increaseGenotypeCounter(Animal animal){
-        String genotyp = animal.getGen().toString();
-        genotypeCounter.put(genotyp, genotypeCounter.getOrDefault(genotyp, 0) + 1);
+    private void increaseGenotypeCounter(Animal animal){
+        String gen = animal.getGen().toString();
+        genotypeCounter.put(gen, genotypeCounter.getOrDefault(gen, 0) + 1);
     }
 
-    @Override
-    public void decreaseGenotypeCounter(Animal animal){
-        String genotyp = animal.getGen().toString();
-        if (!genotypeCounter.containsKey(genotyp)) return;
-        genotypeCounter.put(genotyp, genotypeCounter.get(genotyp) - 1);
+    private void decreaseGenotypeCounter(Animal animal){
+        String gen = animal.getGen().toString();
+        if (!genotypeCounter.containsKey(gen)) return;
+        genotypeCounter.put(gen, genotypeCounter.get(gen) - 1);
     }
 
-    @Override
-    public double getAverageLifespan(){
+    private double getAverageLifespan(){
         if (deadAnimalsCounter == 0) return 0.0;
         return (double) totalLifespanYears / deadAnimalsCounter;
     }
 
-    @Override
-    public double getAverageChildren(){
+    private double getAverageChildren(){
         return animals.getAll()
                 .stream()
                 .collect(Collectors.averagingInt(Animal::getNumOfKids));
