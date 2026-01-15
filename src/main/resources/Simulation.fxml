@@ -4,6 +4,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+
 
 <BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.ics.oop.presenter.SimulationPresenter" stylesheets="@simulation.css">
     <center>

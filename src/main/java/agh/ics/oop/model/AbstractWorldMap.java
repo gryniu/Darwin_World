@@ -304,6 +304,7 @@ public abstract class AbstractWorldMap implements WorldMap {
 
     public void decreaseGenotypeCounter(Animal animal){
         String genotyp = animal.getGen().toString();
+        if (!genotypeCounter.containsKey(genotyp)) return;
         genotypeCounter.put(genotyp, genotypeCounter.get(genotyp) - 1);
     }
 
