@@ -28,8 +28,6 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     protected double energyDecreaseMultiplier = 1;
     protected double plantNumMultiplier = 1;
 
-
-
     public AbstractWorldMap(MapOptions mapOptions, AnimalOptions defaultAnimalOptions){
         id = UUID.randomUUID();
         width = mapOptions.mapWidth();
@@ -265,11 +263,6 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     }
 
     @Override
-    public String mapDataToString(){
-        return plantNumEveryDay + "," + energyFromPlantMultiplier + "," + energyDecreaseMultiplier + "," + plantNumMultiplier;
-    }
-
-    @Override
     public int getWidth() {
         return width;
     }
@@ -283,13 +276,14 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
         return plants.size();
     }
 
+    @Override
     public int getFreeFieldsCount(){
         Set<Vector2d> takenFields = new HashSet<>(animals.getPositions());
         takenFields.addAll(plants.keySet());
         return width*height - takenFields.size();
     }
 
-
+    @Override
     public String getMostPopularGenotype(){
         String currentMostPopularGenotype = animals.getAll().getFirst().getGen().toString();
         for (var entry: genotypeCounter.entrySet()){
@@ -299,32 +293,52 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
         }
         return currentMostPopularGenotype;
     }
+
+    @Override
     public Double getAverageEnergy(){
         return animals.getAll()
                 .stream()
                 .collect(Collectors.averagingInt(Animal::getEnergy));
     }
 
+    @Override
     public void increaseGenotypeCounter(Animal animal){
         String genotyp = animal.getGen().toString();
         genotypeCounter.put(genotyp, genotypeCounter.getOrDefault(genotyp, 0) + 1);
     }
 
+    @Override
     public void decreaseGenotypeCounter(Animal animal){
         String genotyp = animal.getGen().toString();
         if (!genotypeCounter.containsKey(genotyp)) return;
         genotypeCounter.put(genotyp, genotypeCounter.get(genotyp) - 1);
     }
 
+    @Override
     public double getAverageLifespan(){
         if (deadAnimalsCounter == 0) return 0.0;
         return (double) totalLifespanYears / deadAnimalsCounter;
     }
 
+    @Override
     public double getAverageChildren(){
         return animals.getAll()
                 .stream()
                 .collect(Collectors.averagingInt(Animal::getNumOfKids));
+    }
+
+    @Override
+    public List<WorldElement> getAllMapElements() {
+        List<WorldElement> elements = new ArrayList<>();
+        elements.addAll(getPlants());
+        elements.addAll(getAllAnimals());
+        return elements;
+    }
+
+    @Override
+    public MapStats getMapStats(){
+        return new MapStats(getAnimalsCount(), getPlantsCount(), getFreeFieldsCount(), getAverageEnergy(), getAverageLifespan(), getAverageChildren(), getMostPopularGenotype());
+
     }
 
 }
