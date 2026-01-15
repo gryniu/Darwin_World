@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,12 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class SimulationPresenter implements Initializable {
+    @FXML
+    private Button forwardButton;
+
+    @FXML
+    private Button backButton;
+
     @FXML
     private Canvas mapCanvas;
     @FXML
@@ -107,7 +114,6 @@ public class SimulationPresenter implements Initializable {
         mapCanvas.setHeight(gridHeight*CELL_SIZE + 2*GRID_OFFSET);
 
         simulation = new Simulation(worldMap, 200);
-
         simulation.addMapChangeListener((worldMap, message) -> {
             javafx.application.Platform.runLater(() -> {
                 updateLabels(worldMap);
@@ -115,6 +121,7 @@ public class SimulationPresenter implements Initializable {
                 //todo : logi
             });
         });
+        simulation.addMapChangeListener(new SimulationLogger());
         simulation.setPausedSimulation(false);
 
         simulationThread = new Thread(simulation);
@@ -225,4 +232,33 @@ public class SimulationPresenter implements Initializable {
         graphics.fillRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
     }
 
+    public void endSimulation(){
+        simulationThread.interrupt();
+    }
+
+    public void deleteHistory(){
+        String folderPath = "history";
+        String prefix = worldMap.getId().toString();
+
+        File folder = new File(folderPath);
+        if (!folder.exists() || !folder.isDirectory()) {
+            System.out.println("Folder nie istnieje!");
+            return;
+        }
+
+        File[] filesToDelete = folder.listFiles((dir, name) -> name.startsWith(prefix));
+
+        if (filesToDelete == null || filesToDelete.length == 0) {
+            System.out.println("Nie znaleziono plików do usunięcia.");
+            return;
+        }
+
+        for (File file : filesToDelete) {
+            if (file.delete()) {
+                System.out.println("Usunięto plik: " + file.getName());
+            } else {
+                System.out.println("Nie udało się usunąć pliku: " + file.getName());
+            }
+        }
+    }
 }

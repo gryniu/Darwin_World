@@ -1,5 +1,9 @@
 package agh.ics.oop.model;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -34,9 +38,23 @@ public abstract class AbstractWorldMap implements WorldMap {
         plantsGenerator = new PlantsGenerator(width, height);
         plantsGeneratorIterator = plantsGenerator.iterator();
 
+        createAnimalsOnRandomPositions(0);
+
         for(int i = 0; i < mapOptions.startingNumOfPlants(); i++){
             createPlant();
         }
+    }
+
+    public AbstractWorldMap(UUID id, int day, MapOptions mapOptions){
+            try (BufferedReader br = new BufferedReader(new FileReader("history/%s-%s-animals".formatted(id, day)))) {
+                String line;
+                List<Animal> animals1 = new ArrayList<>();
+                while ((line = br.readLine()) != null) {
+
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
     }
 
     @Override
@@ -258,5 +276,21 @@ public abstract class AbstractWorldMap implements WorldMap {
 
     public int getAnimalsCount(){
         return animals.getAnimalsCount();
+    }
+
+    public String plantsToString(){
+        StringBuilder sb = new StringBuilder();
+        for(var plant: getPlants()){
+            sb.append(plant.position().toString()).append("\n");
+        }
+        return sb.toString();
+    }
+
+    public String mapDataToString(){
+        return plantNumEveryDay + "," + energyFromPlantMultiplier + "," + energyDecreaseMultiplier + "," + plantNumMultiplier;
+    }
+
+    public AbstractWorldMap restore(int day){
+
     }
 }

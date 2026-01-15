@@ -7,11 +7,9 @@ public class Animal implements WorldElement{
     private MapDirection orientation;
     private int energy;
     private final Gen gen;
-    private final int mutationNum;
     private final int dayOfBirth;
     private int numOfKids = 0;
 
-    private final int lenOfGen;
     private final Iterator<Integer> genIterator;
     private final EnergyOptions energyOptions;
     private final AnimalOptions animalOptions;
@@ -25,8 +23,6 @@ public class Animal implements WorldElement{
         this.position = position;
         this.gen = animalData.gen();
         this.genIterator = gen.iterator();
-        this.mutationNum = animalOptions.mutationNum();
-        this.lenOfGen = animalOptions.lenOfGen();
         this.animalOptions = animalOptions;
         this.energyOptions = animalOptions.energyOptions();
         this.energy = animalData.energyStart();
@@ -45,7 +41,7 @@ public class Animal implements WorldElement{
         int kidStartingEnergy = giveEnergyToKid() + partner.giveEnergyToKid();
 
         Gen kidGen = Gen.mixGens(this, partner);
-        kidGen.randomize(mutationNum);
+        kidGen.randomize(animalOptions.mutationNum());
 
         increaseNumOfKids();
         partner.increaseNumOfKids();
@@ -138,5 +134,9 @@ public class Animal implements WorldElement{
 
     public boolean isDead(){
         return energy<=0;
+    }
+
+    public String animalDataToString(){
+        return gen + "," + position + "," + orientation + "," + energy + "," + dayOfBirth + "," + numOfKids;
     }
 }

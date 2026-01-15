@@ -12,14 +12,13 @@ public class Simulation implements Runnable{
     private int day = 0;
     private final int simulationSpeed;
     private final List<Listener> mapChangeListeners = new ArrayList<>();
-    private boolean paused = true;  // na starcie zatrzymana
+    private boolean paused = true;
     private boolean running = true;
     private final Object lock = new Object();
 
     public Simulation(AbstractWorldMap worldMap, int simulationSpeed) {
         this.worldMap = worldMap;
         this.simulationSpeed = simulationSpeed;
-        worldMap.createAnimalsOnRandomPositions(day);
     }
 
     @Override
@@ -74,9 +73,7 @@ public class Simulation implements Runnable{
 
         day++;
 
-        Platform.runLater(() -> {
-            notifyListeners("Dzień " + day + " zakończony");
-        });
+        notifyListeners(String.valueOf(day));
 
         return true;
     }
@@ -141,5 +138,10 @@ public class Simulation implements Runnable{
 
     public int getCurrentDay() {
         return day;
+    }
+
+    public void back(){
+        day --;
+        worldMap.restore(day);
     }
 }

@@ -16,10 +16,7 @@ public class Vector2d {
 
     @Override
     public String toString() {
-        return "(" +
-                + x +
-                ", " + y +
-                ')';
+        return x + ";" + y;
     }
 
 

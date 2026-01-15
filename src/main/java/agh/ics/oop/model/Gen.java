@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class Gen implements Iterable<Integer>{
     private List<Integer> genList = new ArrayList<>();;
@@ -113,5 +114,10 @@ public class Gen implements Iterable<Integer>{
         }
 
         return new Gen(kidGenList);
+    }
+
+    @Override
+    public String toString(){
+        return genList.stream().map(Object::toString).collect(Collectors.joining());
     }
 }
