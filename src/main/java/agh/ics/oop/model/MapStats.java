@@ -33,6 +33,15 @@ public record MapStats(
         return String.format("%.2f", averageChildren);
     }
 
+    public String getLabel(){
+        return "animalsCount,plantsCount,freeFieldsCount,averageEnergy,averageLifespan,averageChildren,mostPopularGenotype\n";
+    }
+
+    public String getRow(){
+        return animalsCountStr() + "," + plantsCountStr() + "," + freeFieldsCountStr() + "," + averageEnergyStr()
+                + "," + averageLifespanStr() + "," + averageChildrenStr() + "," + mostPopularGenotype() + "\n";
+    }
+
     @Override
     public String toString() {
         return "animalsCount %d\nplantsCount %d\nfreeFieldsCount %d\naverageEnergy %.2f\naverageLifespan %.2f\naverageChildren %.2f\nmostPopularGenotype %s\n"

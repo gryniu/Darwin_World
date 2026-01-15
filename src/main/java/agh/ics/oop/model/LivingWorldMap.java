@@ -21,18 +21,4 @@ public interface LivingWorldMap extends WorldMap{
     List<Animal> getAllAnimalsOrdered();
 
     UUID getId();
-
-    int getFreeFieldsCount();
-
-    String getMostPopularGenotype();
-
-    Double getAverageEnergy();
-
-    void increaseGenotypeCounter(Animal animal);
-
-    void decreaseGenotypeCounter(Animal animal);
-
-    double getAverageLifespan();
-
-    double getAverageChildren();
 }

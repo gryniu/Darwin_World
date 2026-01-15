@@ -61,7 +61,6 @@ public class SimulationPresenter implements Initializable {
     private Label averageChildrenLabel;
 
     private Simulation simulation;
-    private Thread simulationThread;
     private AbstractWorldMap worldMap;
     private int gridWidth;
     private int gridHeight;
@@ -75,7 +74,7 @@ public class SimulationPresenter implements Initializable {
     private int fontSize = (int)(CELL_SIZE*0.5);
 
     BooleanProperty canRewind = new SimpleBooleanProperty(false);
-  
+
     @FXML private LineChart<Number, Number> statisticsChart;
     @FXML private NumberAxis dayAxis;
     @FXML private NumberAxis valueAxis;
@@ -165,20 +164,14 @@ public class SimulationPresenter implements Initializable {
         mapCanvas.setHeight(gridHeight*CELL_SIZE + 2*GRID_OFFSET);
 
         simulation = new Simulation(worldMap, 200);
-      
+
         Platform.runLater(this::updateCheckboxes);;
 
         // poczatkowe rysowanie mapy
         handleSimulationChange(this.worldMap, "starting state");
         simulation.addMapChangeListener(this::handleSimulationChange);
-      
-        simulation.addMapChangeListener(new SimulationLogger());
-        simulation.setPausedSimulation(false);
 
-        simulationThread = new Thread(simulation);
-        simulationThread.setDaemon(true);
-        simulationThread.start();
-
+        simulation.startSimulation();
 
         animalsSeries.setName("Ilość zwierząt");
         plantsSeries.setName("Ilość roślin");
@@ -369,13 +362,8 @@ public class SimulationPresenter implements Initializable {
         graphics.fillRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
     }
 
-    public void stopSimulation() {
-        if (simulation != null) {
-            simulation.stopSimulation();
-            if (simulationThread != null && simulationThread.isAlive()) {
-                simulationThread.interrupt();
-            }
-        }
+    public void closeSimulation() {
+        simulation.stopSimulation();
     }
 
 }

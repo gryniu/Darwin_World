@@ -69,7 +69,7 @@ public class MainWindowPresenter implements Initializable {
 
             Stage stage = new Stage();
             stage.setOnCloseRequest(event -> {
-                presenter.stopSimulation();
+                presenter.closeSimulation();
             });
             configureStage(stage, viewRoot);
             stage.show();
