@@ -93,8 +93,8 @@ public class SimulationConfig {
             List<String> missingFields = new ArrayList<>();
 
             // todo: porobic ograniczenia na pola
-            if (mapWidth <= 0 || mapWidth>40) missingFields.add("mapWidth");
-            if (mapHeight <= 0 || mapHeight>40) missingFields.add("mapHeight");
+            if (mapWidth <= 0 || mapWidth>100) missingFields.add("mapWidth");
+            if (mapHeight <= 0 || mapHeight>100) missingFields.add("mapHeight");
             if (startPlantCount < 0 || startPlantCount>(mapHeight*mapWidth - startAnimalCount)) missingFields.add("startPlantCount");
             if (energyFromPlant <= 0) missingFields.add("energyFromPlant");
             if (plantsPerDay < 0) missingFields.add("plantsPerDay");
@@ -104,7 +104,7 @@ public class SimulationConfig {
             if (energyToReproduce <= 0) missingFields.add("energyToFeed");
             if (energyToKid <= 0 || energyToKid>energyToReproduce) missingFields.add("energyToKid");
             if (minMutations < 0) missingFields.add("minMutations");
-            if (maxMutations < minMutations || maxMutations<genomeLength) missingFields.add("maxMutations");
+            if (maxMutations < minMutations || maxMutations > genomeLength) missingFields.add("maxMutations");
             if (genomeLength <= 0) missingFields.add("genomeLength");
             if (seasonLength < 0) missingFields.add("seasonLength");
             if (minTemperature > 30) missingFields.add("minTemperature"); // todo: maxTemperatura to 30, zrobic lepsze errory

@@ -80,6 +80,7 @@ public class MainWindowPresenter implements Initializable {
             showNumberFormatExceptionAlert(e);
         }
         catch (WrongFieldStateException e){
+            e.printStackTrace();
             showValidationErrorAlert(e);
         }
         catch (IOException e) {
