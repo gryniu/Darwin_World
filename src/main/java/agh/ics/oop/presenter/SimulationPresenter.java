@@ -21,13 +21,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
-import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class SimulationPresenter implements Initializable {
     @FXML
@@ -69,9 +64,9 @@ public class SimulationPresenter implements Initializable {
     private double cellSize = 40.0; // every cell is square
     private double borderWidth = 1.67;
     private double borderOffset = borderWidth /2.0;
-    private final static double GRID_OFFSET = 50.0;
+    private double gridOffset = cellSize * 1.5;
     private double coordsFontSize = 20.0;
-    private double fontSize = cellSize*0.5;
+    private double fontSize = cellSize*0.3;
     private double energyBarWidth = cellSize*0.8;
     private double energyBarHeight =  energyBarWidth *0.15;
     private GraphicsContext gc;
@@ -89,12 +84,12 @@ public class SimulationPresenter implements Initializable {
     @FXML private CheckBox childrenChartCheckBox;
     @FXML private CheckBox freeFieldsChartCheckBox;
 
-    private XYChart.Series<Number, Number> animalsSeries = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> plantsSeries = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> freeFieldsSeries = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> energySeries = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> lifespanSeries = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> childrenSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> animalsSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> plantsSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> freeFieldsSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> energySeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> lifespanSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> childrenSeries = new XYChart.Series<>();
 
 
 
@@ -136,7 +131,7 @@ public class SimulationPresenter implements Initializable {
 
     }
 
-    public void startSimulation(SimulationConfig config){
+    public void startSimulation(SimulationConfig config) {
         MapOptions mapOptions = new MapOptions(
                 config.mapHeight,
                 config.mapWidth,
@@ -164,11 +159,12 @@ public class SimulationPresenter implements Initializable {
         Boundary boundary = worldMap.getCurrentBounds();
         gridWidth = boundary.upperRight().getX() - boundary.lowerLeft().getX() + 1;
         gridHeight = boundary.upperRight().getY() - boundary.lowerLeft().getY() + 1;
-
+        cellSize = Math.min(gridWidth, gridHeight) * (440.0/11.0);
+        updateFields();
 
         simulation = new Simulation(worldMap, 200);
-        mapCanvas.setWidth(gridWidth*cellSize + 2*GRID_OFFSET);
-        mapCanvas.setHeight(gridHeight*cellSize + 2*GRID_OFFSET);
+        mapCanvas.setWidth(gridWidth * cellSize + 2 * gridOffset);
+        mapCanvas.setHeight(gridHeight * cellSize + 2 * gridOffset);
         Platform.runLater(this::updateCheckboxes);
 
         // poczatkowe rysowanie mapy
@@ -183,7 +179,7 @@ public class SimulationPresenter implements Initializable {
         energySeries.setName("Średnia Energia");
         lifespanSeries.setName("Średnia długość życia");
         childrenSeries.setName("Średnia liczba dzieci");
-}
+    }
 
     public void handleSimulationChange(WorldMap worldMap, String message){
         javafx.application.Platform.runLater(() -> {
@@ -196,6 +192,7 @@ public class SimulationPresenter implements Initializable {
     }
 
     private void updateCheckboxes() {
+
         animalsChartCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal) {
                 if (!statisticsChart.getData().contains(animalsSeries))
@@ -254,7 +251,6 @@ public class SimulationPresenter implements Initializable {
 
     private void updateLineChart(MapStats mapStats) {
         int day = simulation.getCurrentDay();
-
         animalsSeries.getData().add(new XYChart.Data<>(day, mapStats.animalsCount()));
 
         plantsSeries.getData().add(new XYChart.Data<>(day, mapStats.plantsCount()));
@@ -297,21 +293,23 @@ public class SimulationPresenter implements Initializable {
         int offsetY = boundary.lowerLeft().getY();
 
         for (WorldElement worldElement: worldMap.getAllMapElements()){
+            if (!(worldElement instanceof AbstractAnimal) && worldMap.getAnimals(worldElement.position()).isPresent())
+                continue;
             Vector2d pos = worldElement.position();
 
-            double centerX = GRID_OFFSET + (pos.getX() - offsetX) * cellSize + cellSize / 2;
+            double centerX = gridOffset + (pos.getX() - offsetX) * cellSize + cellSize / 2;
 
             // W JAVIEFX Y JEST NA GORZE!!11!11!
             int worldY = pos.getY() - offsetY;
             int flippedY = gridHeight - 1 - worldY;
 
-            double centerY = GRID_OFFSET + flippedY * cellSize + cellSize / 2;
+            double centerY = gridOffset + flippedY * cellSize + cellSize / 2;
 
             gc.fillText(worldElement.toString(), centerX, centerY);
 
             // rysowanie energy Bara
-            if (worldElement instanceof Animal) {
-                drawEnergyBar(gc, (Animal) worldElement, centerX, centerY);
+            if (worldElement instanceof AbstractAnimal ) {
+                drawEnergyBar(gc, (AbstractAnimal) worldElement, centerX, centerY);
             }
         }
         gc.restore();
@@ -324,14 +322,14 @@ public class SimulationPresenter implements Initializable {
         gc.setLineWidth(borderWidth);
         // poziome
         for (int row = 0; row <= gridHeight; row++) {
-            double y = GRID_OFFSET + row * cellSize;
-            gc.strokeLine(GRID_OFFSET, y, GRID_OFFSET + gridWidth * cellSize, y);
+            double y = gridOffset + row * cellSize;
+            gc.strokeLine(gridOffset, y, gridOffset + gridWidth * cellSize, y);
         }
 
         // pionowe
         for (int col = 0; col <= gridWidth; col++) {
-            double x = GRID_OFFSET + col * cellSize;
-            gc.strokeLine(x, GRID_OFFSET, x, GRID_OFFSET + gridHeight * cellSize);
+            double x = gridOffset + col * cellSize;
+            gc.strokeLine(x, gridOffset, x, gridOffset + gridHeight * cellSize);
         }
 
 
@@ -361,27 +359,27 @@ public class SimulationPresenter implements Initializable {
     }
 
     private void drawCoords() {
-        double y = GRID_OFFSET;
-        while (y < mapCanvas.getHeight() - GRID_OFFSET) {
-            gc.fillText(String.valueOf((int) ((mapCanvas.getHeight() - GRID_OFFSET - y) / cellSize - 1)),
-                    GRID_OFFSET / 2,
+        double y = gridOffset;
+        while (y < mapCanvas.getHeight() - gridOffset) {
+            gc.fillText(String.valueOf((int) ((mapCanvas.getHeight() - gridOffset - y) / cellSize - 1)),
+                    gridOffset / 2 - fontSize/4,
                     y + cellSize / 2 + borderWidth + fontSize / 4
             );
             y += cellSize;
         }
 
-        double x = GRID_OFFSET;
-        while (x < mapCanvas.getWidth() - GRID_OFFSET) {
+        double x = gridOffset;
+        while (x < mapCanvas.getWidth() - gridOffset) {
             gc.fillText(
-                    String.valueOf((int) ((x - GRID_OFFSET) / cellSize)),
+                    String.valueOf((int) ((x - gridOffset) / cellSize)),
                     x + cellSize / 2 + borderWidth - fontSize / 4,
-                    mapCanvas.getHeight() - GRID_OFFSET / 2
+                    mapCanvas.getHeight() - gridOffset / 2 + fontSize/4
             );
             x += cellSize;
         }
     }
 
-    private void drawEnergyBar(GraphicsContext gc, Animal animal, double centerX, double centerY) {
+    private void drawEnergyBar(GraphicsContext gc, AbstractAnimal animal, double centerX, double centerY) {
         gc.save();
         int energyPercentile = worldMap.getEnergyPercentile(85);
         double ratio = animal.getEnergyRatio(energyPercentile);
@@ -410,14 +408,15 @@ public class SimulationPresenter implements Initializable {
     }
 
     private void updateFields(){
-        double cellWidth = (mapCanvas.getWidth() - 2 * GRID_OFFSET) / gridWidth;
-        double cellHeight = (mapCanvas.getHeight() - 2 * GRID_OFFSET) / gridHeight;
+        double cellWidth = (mapCanvas.getWidth() - 2 * gridOffset) / gridWidth;
+        double cellHeight = (mapCanvas.getHeight() - 2 * gridOffset) / gridHeight;
         cellSize = Math.min(cellWidth, cellHeight);
 
         borderWidth = cellSize/24.0;
         borderOffset = borderWidth /2.0;
         coordsFontSize = cellSize/2.0;
-        fontSize = cellSize*0.5;
+        gridOffset = cellSize * 1.5;
+        fontSize = cellSize*0.3;
         energyBarWidth = cellSize*0.8;
         energyBarHeight =  energyBarWidth *0.15;
 

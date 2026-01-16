@@ -45,8 +45,8 @@ public class FakeWorldMap implements WorldMap{
     @Override
     public List<WorldElement> getAllMapElements() {
         List<WorldElement> elements = new ArrayList<>();
-        elements.addAll(getPlants());
         elements.addAll(getAllAnimals());
+        elements.addAll(getPlants());
         return elements;
     }
 
@@ -82,5 +82,21 @@ public class FakeWorldMap implements WorldMap{
 
     public int getPlantsCount(){
         return plants.size();
+    }
+
+    @Override
+    public int getEnergyPercentile(int percentile){
+        if (percentile < 0 || percentile > 100) throw new IllegalArgumentException("Percentile must be in [0,100]");
+        if (animals.getAll().isEmpty()) return 0;
+
+        List<Integer> energies = animals.getAll().stream()
+                .map(FakeAnimal::getEnergy)
+                .sorted()
+                .toList();
+
+        int index = (int) Math.ceil(percentile / 100.0 * energies.size()) - 1;
+        index = Math.max(0, Math.min(index, energies.size() - 1));
+
+        return energies.get(index);
     }
 }

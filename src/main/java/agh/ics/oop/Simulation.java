@@ -16,7 +16,7 @@ public class Simulation implements Runnable{
     //logika asynchroniczna
     private Thread simulationThread;
     private final List<Listener> mapChangeListeners = new ArrayList<>();
-    private boolean paused = false;
+    private boolean paused = true;
     private boolean running = true;
     private final Object lock = new Object();
 
@@ -123,6 +123,10 @@ public class Simulation implements Runnable{
                 lock.notify();
             }
         }
+    }
+
+    public boolean isRewinded() {
+        return rewinded;
     }
 
     public boolean isPaused() {

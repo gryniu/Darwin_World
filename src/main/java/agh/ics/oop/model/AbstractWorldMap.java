@@ -257,7 +257,6 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
             place(new Animal(boundary.getRandomPosition(), defaultAnimalOptions, mapOptions.energyStart(), dayOfBirth));
     }
 
-    @Override
     public Optional<WorldElement> objectAt(Vector2d position) {
         var items = getAnimalsOrdered(position);
         if(items.isEmpty()){
@@ -341,8 +340,8 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     @Override
     public List<WorldElement> getAllMapElements() {
         List<WorldElement> elements = new ArrayList<>();
-        elements.addAll(getPlants());
         elements.addAll(getAllAnimals());
+        elements.addAll(getPlants());
         return elements;
     }
 
@@ -353,6 +352,7 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     }
 
     // Zwraca wartość energii, poniżej której znajduje się percentile zwierzaków,
+    @Override
     public int getEnergyPercentile(int percentile){
         if (percentile < 0 || percentile > 100) throw new IllegalArgumentException("Percentile must be in [0,100]");
         if (animals.getAll().isEmpty()) return 0;
@@ -367,7 +367,5 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
 
         return energies.get(index);
     }
-
-
 
 }
