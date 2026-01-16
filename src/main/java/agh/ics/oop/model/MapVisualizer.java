@@ -74,9 +74,10 @@ public class MapVisualizer {
     }
 
     private String drawObject(Vector2d currentPosition) {
-        return map.objectAt(currentPosition)
-                .map(Object::toString)
-                .orElse(EMPTY_CELL);
+//        return map.objectAt(currentPosition)
+//                .map(Object::toString)
+//                .orElse(EMPTY_CELL);
+        return "!";
     }
 
 }

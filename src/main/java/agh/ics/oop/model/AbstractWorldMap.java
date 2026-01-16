@@ -4,9 +4,9 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-public abstract class AbstractWorldMap implements WorldMap {
-    protected final UUID id = UUID.randomUUID();
-    protected final AnimalsMap animals = new AnimalsMap();
+public abstract class AbstractWorldMap implements LivingWorldMap {
+    protected final UUID id;
+    protected final AnimalsMap<Animal> animals = new AnimalsMap<>();
     private final ArrayList<Listener> subscribers = new ArrayList<>();
     protected final MapVisualizer mapVisualizer = new MapVisualizer(this);
     protected final Map<String, Integer> genotypeCounter = new HashMap<>();
@@ -28,9 +28,8 @@ public abstract class AbstractWorldMap implements WorldMap {
     protected double energyDecreaseMultiplier = 1;
     protected double plantNumMultiplier = 1;
 
-
-
     public AbstractWorldMap(MapOptions mapOptions, AnimalOptions defaultAnimalOptions){
+        id = UUID.randomUUID();
         width = mapOptions.mapWidth();
         height = mapOptions.mapHeight();
         plantNumEveryDay = mapOptions.plantNumEveryDay();
@@ -40,12 +39,13 @@ public abstract class AbstractWorldMap implements WorldMap {
         plantsGenerator = new PlantsGenerator(width, height);
         plantsGeneratorIterator = plantsGenerator.iterator();
 
+        createAnimalsOnRandomPositions(0);
+
         for(int i = 0; i < mapOptions.startingNumOfPlants(); i++){
             createPlant();
         }
     }
 
-    @Override
     public void place(Animal animal) {
         Vector2d position = animal.position();
         if (!inBounds(animal.position())){
@@ -126,7 +126,6 @@ public abstract class AbstractWorldMap implements WorldMap {
         return position.follows(boundary.lowerLeft()) && position.precedes(boundary.upperRight());
     }
 
-    @Override
     public void move(Animal animal) {
         Vector2d oldPosition = animal.position();
         animals.removeAnimal(animal);
@@ -159,6 +158,7 @@ public abstract class AbstractWorldMap implements WorldMap {
         plants.put(position, new Plant(position));
     }
 
+    @Override
     public void createNewPlants(){
         plantsGeneratorIterator = plantsGenerator.reShuffle();
 
@@ -169,6 +169,7 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
+    @Override
     public List<Plant> getPlants(){
         return new ArrayList<>(plants.values());
     }
@@ -202,6 +203,7 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
+    @Override
     public void reproducePopulation(int day){
         List<Animal> newborns = new ArrayList<>();
 
@@ -232,13 +234,15 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
+    @Override
     public void moveAllAnimals(){
         for (Animal animal: getAllAnimals()){
-            animal.rotate();
             move(animal);
+            animal.rotate();
         }
     }
 
+    @Override
     public void decreaseEnergyAllAnimals(){
         List<Animal> currentAnimals = getAllAnimals();
 
@@ -247,46 +251,44 @@ public abstract class AbstractWorldMap implements WorldMap {
         }
     }
 
-    public void createAnimalsOnRandomPositions(int dayOfBirth){
+    private void createAnimalsOnRandomPositions(int dayOfBirth){
         Boundary boundary = getCurrentBounds();
         for (int i = 0 ;i< mapOptions.startingNumOfAnimals(); i++)
-            animals.addAnimal(new Animal(boundary.getRandomPosition(), defaultAnimalOptions, mapOptions.energyStart(), dayOfBirth));
-    }
-
-    public MapOptions getMapOptions() {
-        return mapOptions;
+            place(new Animal(boundary.getRandomPosition(), defaultAnimalOptions, mapOptions.energyStart(), dayOfBirth));
     }
 
     @Override
-    public Optional<WorldElement> objectAt(Vector2d position) {
-        var items = getAnimalsOrdered(position);
-        if(items.isEmpty()){
-            return Optional.ofNullable(plants.get(position));
-        }else{
-            return items.map(List::getFirst);
-        }
-    }
-
     public int getAnimalsCount(){
         return animals.getAnimalsCount();
     }
 
+    @Override
     public int getPlantsCount(){
         return plants.size();
     }
 
-    public int getFreeFieldsCount(){
+    @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
+    }
+
+    private int getFreeFieldsCount(){
         Set<Vector2d> takenFields = new HashSet<>(animals.getPositions());
         takenFields.addAll(plants.keySet());
         return width*height - takenFields.size();
     }
 
-
-    public String getMostPopularGenotype(){
-        if (genotypeCounter.isEmpty()) {
-            return animals.getAll().isEmpty() ?
-                    "-" :
-                    animals.getAll().getFirst().getGen().toString();
+    private String getMostPopularGenotype(){
+        String currentMostPopularGenotype = animals.getAll().getFirst().getGen().toString();
+        for (var entry: genotypeCounter.entrySet()){
+            if (entry.getValue() > genotypeCounter.get(currentMostPopularGenotype)){
+                currentMostPopularGenotype = entry.getKey();
+            }
         }
 
         return genotypeCounter.entrySet().stream()
@@ -294,15 +296,16 @@ public abstract class AbstractWorldMap implements WorldMap {
                 .map(Map.Entry::getKey)
                 .orElse("-");
     }
-    public Double getAverageEnergy(){
+
+    private Double getAverageEnergy(){
         return animals.getAll()
                 .stream()
                 .collect(Collectors.averagingInt(Animal::getEnergy));
     }
 
-    public void increaseGenotypeCounter(Animal animal){
-        String genotyp = animal.getGen().toString();
-        genotypeCounter.put(genotyp, genotypeCounter.getOrDefault(genotyp, 0) + 1);
+    private void increaseGenotypeCounter(Animal animal){
+        String gen = animal.getGen().toString();
+        genotypeCounter.put(gen, genotypeCounter.getOrDefault(gen, 0) + 1);
     }
 
     public void decreaseGenotypeCounter(Animal animal){
@@ -315,12 +318,12 @@ public abstract class AbstractWorldMap implements WorldMap {
         genotypeCounter.put(genotyp, genotypeCounter.get(genotyp) - 1);
     }
 
-    public double getAverageLifespan(){
+    private double getAverageLifespan(){
         if (deadAnimalsCounter == 0) return 0.0;
         return (double) totalLifespanYears / deadAnimalsCounter;
     }
 
-    public double getAverageChildren(){
+    private double getAverageChildren(){
         return animals.getAll()
                 .stream()
                 .collect(Collectors.averagingInt(Animal::getNumOfKids));
@@ -343,5 +346,18 @@ public abstract class AbstractWorldMap implements WorldMap {
     }
 
 
+    @Override
+    public List<WorldElement> getAllMapElements() {
+        List<WorldElement> elements = new ArrayList<>();
+        elements.addAll(getPlants());
+        elements.addAll(getAllAnimals());
+        return elements;
+    }
+
+    @Override
+    public MapStats getMapStats(){
+        return new MapStats(getAnimalsCount(), getPlantsCount(), getFreeFieldsCount(), getAverageEnergy(), getAverageLifespan(), getAverageChildren(), getMostPopularGenotype());
+
+    }
 
 }

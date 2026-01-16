@@ -16,10 +16,7 @@ public class Vector2d {
 
     @Override
     public String toString() {
-        return "(" +
-                + x +
-                ", " + y +
-                ')';
+        return "(" + x + "," + y  + ")";
     }
 
 
@@ -68,4 +65,7 @@ public class Vector2d {
         return Objects.hash(x, y);
     }
 
+    public String dataToString(){
+        return x + ";" + y;
+    }
 }

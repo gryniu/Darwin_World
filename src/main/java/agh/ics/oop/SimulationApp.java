@@ -1,5 +1,6 @@
 package agh.ics.oop;
 // todo: kod wygenerowany, pozmieniac, tak samo jak presenter i simulation
+import agh.ics.oop.model.HistoryFileHandler;
 import agh.ics.oop.presenter.MainWindowPresenter;
 import agh.ics.oop.presenter.SimulationPresenter;
 import javafx.application.Application;
@@ -19,6 +20,9 @@ public class SimulationApp extends Application {
         MainWindowPresenter presenter = loader.getController();
         // Konfiguracja
         configureStage(primaryStage, viewRoot);
+        primaryStage.setOnCloseRequest(windowEvent -> {
+            HistoryFileHandler.clearHistory();
+        });
 
         // Wyświetlanie
         primaryStage.show();

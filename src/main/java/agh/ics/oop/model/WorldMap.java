@@ -4,49 +4,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * The interface responsible for interacting with the map of the world.
- * Assumes that Vector2d and MoveDirection classes are defined.
- *
- * @author apohllo, idzik
- */
 public interface WorldMap{
 
-    /**
-     * Place a new animal on the map.
-     *
-     * @param animal The animal to be placed on the map.
-     * @return True if the animal was placed. The rules for valid placement are the same as for movement.
-     */
-    void place(Animal animal);
+    <T extends AbstractAnimal>
+    Optional<List<T>> getAnimals(Vector2d position);
 
-    /**
-     * Moves an animal (if it is present on the map) according to direction Animal has.
-     * Animals are moving with Earth rules
-     */
-    void move(Animal animal);
-
-
-    Optional<List<Animal>> getAnimals(Vector2d position);
-    Optional<List<Animal>> getAnimalsOrdered(Vector2d position);
-
-    List<Animal> getAllAnimals();
-    List<Animal> getAllAnimalsOrdered();
-
-    void addSubscriber(Listener observer);
-    void removeSubscriber(Listener observer);
-    void mapChanged(String message);
-
-    UUID getId();
+    List<Plant> getPlants();
+    <T extends AbstractAnimal>
+    List<T> getAllAnimals();
+    List<WorldElement> getAllMapElements();
 
     Boundary getCurrentBounds();
-    Optional<WorldElement> objectAt(Vector2d position);
-    int getAnimalsCount();
-    void createAnimalsOnRandomPositions(int day);
-    void removeDeadAnimals(int day);
-    void eatAllPossiblePlants();
-    void moveAllAnimals();
-    void reproducePopulation(int day);
-    void createNewPlants();
 
+    int getAnimalsCount();
+    int getPlantsCount();
+
+    int getWidth();
+    int getHeight();
+
+    MapStats getMapStats();
 }

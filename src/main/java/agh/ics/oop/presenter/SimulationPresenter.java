@@ -3,6 +3,8 @@ package agh.ics.oop.presenter;
 import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationConfig;
 import agh.ics.oop.model.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,6 +26,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +36,11 @@ import java.util.ResourceBundle;
 public class SimulationPresenter implements Initializable {
     @FXML
     private Scene scene;
+    private Button forwardButton;
+
+    @FXML
+    private Button backButton;
+
     @FXML
     private Canvas mapCanvas;
     @FXML
@@ -40,6 +48,8 @@ public class SimulationPresenter implements Initializable {
     @FXML
     private Button pauseButton;
 
+    @FXML
+    private Label dayLabel;
     @FXML
     private Label animalCountLabel;
     @FXML
@@ -56,7 +66,6 @@ public class SimulationPresenter implements Initializable {
     private Label averageChildrenLabel;
 
     private Simulation simulation;
-    private Thread simulationThread;
     private AbstractWorldMap worldMap;
     private int gridWidth;
     private int gridHeight;
@@ -72,13 +81,25 @@ public class SimulationPresenter implements Initializable {
     private double energyBarHeight =  energyBarWidth *0.15;
     private GraphicsContext gc;
 
+    BooleanProperty canRewind = new SimpleBooleanProperty(false);
 
-    @FXML
-    private LineChart<Number, Number> statisticsChart;
-    @FXML
-    private NumberAxis dayAxis;
-    @FXML
-    private NumberAxis valueAxis;
+    @FXML private LineChart<Number, Number> statisticsChart;
+    @FXML private NumberAxis dayAxis;
+    @FXML private NumberAxis valueAxis;
+
+    @FXML private CheckBox animalsChartCheckBox;
+    @FXML private CheckBox plantsChartCheckBox;
+    @FXML private CheckBox energyChartCheckBox;
+    @FXML private CheckBox lifespanChartCheckBox;
+    @FXML private CheckBox childrenChartCheckBox;
+    @FXML private CheckBox freeFieldsChartCheckBox;
+
+    private XYChart.Series<Number, Number> animalsSeries = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> plantsSeries = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> freeFieldsSeries = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> energySeries = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> lifespanSeries = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> childrenSeries = new XYChart.Series<>();
 
     @FXML
     private CheckBox animalsChartCheckBox;
@@ -105,13 +126,34 @@ public class SimulationPresenter implements Initializable {
         gc = mapCanvas.getGraphicsContext2D();
 
         startButton.setOnAction(e -> {
-            if (simulation != null) simulation.setPausedSimulation(false);
+            if (simulation != null) {
+                simulation.setPausedSimulation(false);
+                canRewind.set(false);
+            }
+        });
 
         });
         pauseButton.setOnAction(e -> {
-            if (simulation != null) simulation.setPausedSimulation(true);
+            if (simulation != null) {
+                simulation.setPausedSimulation(true);
+                canRewind.set(true);
+            }
         });
 
+        backButton.disableProperty().bind(canRewind.not());
+        forwardButton.disableProperty().bind(canRewind.not());
+
+        backButton.setOnAction(e -> {
+            if (simulation != null) {
+                simulation.rewind(true);
+            }
+        });
+
+        forwardButton.setOnAction(e -> {
+            if (simulation != null) {
+                simulation.rewind(false);
+            }
+        });
 
     }
 
@@ -153,33 +195,27 @@ public class SimulationPresenter implements Initializable {
         Platform.runLater(this::updateCheckboxes);
 
         // poczatkowe rysowanie mapy
-        javafx.application.Platform.runLater(() -> {
-            updateLineChart();
-            updateLabels(worldMap);
-            drawMap(worldMap);
-            //todo : logi
-        });
-        simulation.addMapChangeListener((worldMap, message) -> {
-            javafx.application.Platform.runLater(() -> {
-                updateLineChart();
-                updateLabels(worldMap);
-                drawMap(worldMap);
-                //todo : logi
-            });
-        });
+        handleSimulationChange(this.worldMap, "starting state");
+        simulation.addMapChangeListener(this::handleSimulationChange);
 
-        simulationThread = new Thread(simulation);
-        simulationThread.setDaemon(true);
-        simulationThread.start();
+        simulation.startSimulation();
 
-
+        freeFieldsSeries.setName("Ilość wolnych pól");
         animalsSeries.setName("Ilość zwierząt");
         plantsSeries.setName("Ilość roślin");
         energySeries.setName("Średnia Energia");
         lifespanSeries.setName("Średnia długość życia");
         childrenSeries.setName("Średnia liczba dzieci");
+    }
 
-
+    public void handleSimulationChange(WorldMap worldMap, String message){
+        javafx.application.Platform.runLater(() -> {
+            MapStats mapStats = worldMap.getMapStats();
+            updateLineChart(mapStats);
+            updateLabels(mapStats, message);
+            drawMap(worldMap);
+            //todo : logi
+        });
     }
 
     private void updateCheckboxes() {
@@ -227,42 +263,55 @@ public class SimulationPresenter implements Initializable {
                 statisticsChart.getData().remove(childrenSeries);
             }
         });
+
+        freeFieldsChartCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                if (!statisticsChart.getData().contains(freeFieldsSeries))
+                    statisticsChart.getData().add(freeFieldsSeries);
+            } else {
+                statisticsChart.getData().remove(freeFieldsSeries);
+            }
+        });
     }
 
 
-    private void updateLineChart() {
+    private void updateLineChart(MapStats mapStats) {
         int day = simulation.getCurrentDay();
 
-        animalsSeries.getData().add(new XYChart.Data<>(day, worldMap.getAnimalsCount()));
+        animalsSeries.getData().add(new XYChart.Data<>(day, mapStats.animalsCount()));
 
-        plantsSeries.getData().add(new XYChart.Data<>(day, worldMap.getPlantsCount()));
+        plantsSeries.getData().add(new XYChart.Data<>(day, mapStats.plantsCount()));
 
-        energySeries.getData().add(new XYChart.Data<>(day, worldMap.getAverageEnergy()));
+        freeFieldsSeries.getData().add(new XYChart.Data<>(day, mapStats.freeFieldsCount()));
 
-        lifespanSeries.getData().add(new XYChart.Data<>(day, worldMap.getAverageLifespan()));
+        energySeries.getData().add(new XYChart.Data<>(day, mapStats.averageEnergy()));
 
-        childrenSeries.getData().add(new XYChart.Data<>(day, worldMap.getAverageChildren()));
+        lifespanSeries.getData().add(new XYChart.Data<>(day, mapStats.averageLifespan()));
+
+        childrenSeries.getData().add(new XYChart.Data<>(day, mapStats.averageChildren()));
 
     }
 
 
-    private void updateLabels(AbstractWorldMap worldMap) {
-        animalCountLabel.setText(String.valueOf(worldMap.getAnimalsCount()));
-        plantCountLabel.setText(String.valueOf(worldMap.getPlantsCount()));
-        freeFieldsLabel.setText(String.valueOf(worldMap.getFreeFieldsCount()));
-        popularGenotypeLabel.setText(String.valueOf(worldMap.getMostPopularGenotype()));
-        averageEnergyLabel.setText(String.format("%.2f", worldMap.getAverageEnergy()));
-        averageLifespanLabel.setText(String.format("%.2f", worldMap.getAverageLifespan()));
-        averageChildrenLabel.setText(String.format("%.2f", worldMap.getAverageChildren()));
+    private void updateLabels(MapStats mapStats, String day){
+        dayLabel.setText(day);
+        animalCountLabel.setText(mapStats.animalsCountStr());
+        plantCountLabel.setText(mapStats.plantsCountStr());
+        freeFieldsLabel.setText(mapStats.freeFieldsCountStr());
+        averageEnergyLabel.setText(mapStats.averageEnergyStr());
+        averageLifespanLabel.setText(mapStats.averageLifespanStr());
+        averageChildrenLabel.setText(mapStats.averageChildrenStr());
+        popularGenotypeLabel.setText(mapStats.mostPopularGenotype());
     }
 
-    private void drawMap(AbstractWorldMap worldMap) {
+    private void drawMap(WorldMap worldMap) {
         clearGrid();
         drawGrid(worldMap);
         drawWorldElements(worldMap);
     }
 
     private void drawWorldElements(AbstractWorldMap worldMap) {
+    private void drawWorldElements(WorldMap worldMap){
         gc.save();
         gc.setStroke(Color.BLACK);
         configureFont(gc, fontSize, Color.BLACK);
@@ -304,10 +353,7 @@ public class SimulationPresenter implements Initializable {
         gc.restore();
     }
 
-
-
-
-    private void drawGrid(AbstractWorldMap worldMap) {
+    private void drawGrid(WorldMap worldMap){
         gc.save();
 
         gc.setFill(Color.BLACK);
@@ -338,13 +384,8 @@ public class SimulationPresenter implements Initializable {
         graphics.fillRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
     }
 
-    public void stopSimulation() {
-        if (simulation != null) {
-            simulation.setPausedSimulation(true);
-            if (simulationThread != null && simulationThread.isAlive()) {
-                simulationThread.interrupt();
-            }
-        }
+    public void closeSimulation() {
+        simulation.stopSimulation();
     }
 
     private void drawCoords() {
