@@ -258,6 +258,15 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     }
 
     @Override
+    public Optional<WorldElement> objectAt(Vector2d position) {
+        var items = getAnimalsOrdered(position);
+        if(items.isEmpty()){
+            return Optional.ofNullable(plants.get(position));
+        }else{
+            return items.map(List::getFirst);
+        }
+    }
+
     public int getAnimalsCount(){
         return animals.getAnimalsCount();
     }
@@ -283,14 +292,18 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
         return width*height - takenFields.size();
     }
 
+
     private String getMostPopularGenotype(){
-        String currentMostPopularGenotype = animals.getAll().getFirst().getGen().toString();
-        for (var entry: genotypeCounter.entrySet()){
-            if (entry.getValue() > genotypeCounter.get(currentMostPopularGenotype)){
-                currentMostPopularGenotype = entry.getKey();
-            }
+        if (genotypeCounter.isEmpty()) {
+            return animals.getAll().isEmpty() ?
+                    "-" :
+                    animals.getAll().getFirst().getGen().toString();
         }
-        return currentMostPopularGenotype;
+
+        return genotypeCounter.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse("-");
     }
 
     private Double getAverageEnergy(){
@@ -305,9 +318,13 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     }
 
     private void decreaseGenotypeCounter(Animal animal){
-        String gen = animal.getGen().toString();
-        if (!genotypeCounter.containsKey(gen)) return;
-        genotypeCounter.put(gen, genotypeCounter.get(gen) - 1);
+        String genotyp = animal.getGen().toString();
+        if (!genotypeCounter.containsKey(genotyp)) return;
+        if (genotypeCounter.get(genotyp) == 1) {
+            genotypeCounter.remove(genotyp);
+            return;
+        }
+        genotypeCounter.put(genotyp, genotypeCounter.get(genotyp) - 1);
     }
 
     private double getAverageLifespan(){
@@ -334,5 +351,23 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
         return new MapStats(getAnimalsCount(), getPlantsCount(), getFreeFieldsCount(), getAverageEnergy(), getAverageLifespan(), getAverageChildren(), getMostPopularGenotype());
 
     }
+
+    // Zwraca wartość energii, poniżej której znajduje się percentile zwierzaków,
+    public int getEnergyPercentile(int percentile){
+        if (percentile < 0 || percentile > 100) throw new IllegalArgumentException("Percentile must be in [0,100]");
+        if (animals.getAll().isEmpty()) return 0;
+
+        List<Integer> energies = animals.getAll().stream()
+                .map(Animal::getEnergy)
+                .sorted()
+                .toList();
+
+        int index = (int) Math.ceil(percentile / 100.0 * energies.size()) - 1;
+        index = Math.max(0, Math.min(index, energies.size() - 1));
+
+        return energies.get(index);
+    }
+
+
 
 }
