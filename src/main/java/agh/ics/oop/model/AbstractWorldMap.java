@@ -283,13 +283,16 @@ public abstract class AbstractWorldMap implements WorldMap {
 
 
     public String getMostPopularGenotype(){
-        String currentMostPopularGenotype = animals.getAll().getFirst().getGen().toString();
-        for (var entry: genotypeCounter.entrySet()){
-            if (entry.getValue() > genotypeCounter.get(currentMostPopularGenotype)){
-                currentMostPopularGenotype = entry.getKey();
-            }
+        if (genotypeCounter.isEmpty()) {
+            return animals.getAll().isEmpty() ?
+                    "-" :
+                    animals.getAll().getFirst().getGen().toString();
         }
-        return currentMostPopularGenotype;
+
+        return genotypeCounter.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse("-");
     }
     public Double getAverageEnergy(){
         return animals.getAll()
@@ -305,6 +308,10 @@ public abstract class AbstractWorldMap implements WorldMap {
     public void decreaseGenotypeCounter(Animal animal){
         String genotyp = animal.getGen().toString();
         if (!genotypeCounter.containsKey(genotyp)) return;
+        if (genotypeCounter.get(genotyp) == 1) {
+            genotypeCounter.remove(genotyp);
+            return;
+        }
         genotypeCounter.put(genotyp, genotypeCounter.get(genotyp) - 1);
     }
 
@@ -318,5 +325,23 @@ public abstract class AbstractWorldMap implements WorldMap {
                 .stream()
                 .collect(Collectors.averagingInt(Animal::getNumOfKids));
     }
+
+    // Zwraca wartość energii, poniżej której znajduje się percentile zwierzaków,
+    public int getEnergyPercentile(int percentile){
+        if (percentile < 0 || percentile > 100) throw new IllegalArgumentException("Percentile must be in [0,100]");
+        if (animals.getAll().isEmpty()) return 0;
+
+        List<Integer> energies = animals.getAll().stream()
+                .map(Animal::getEnergy)
+                .sorted()
+                .toList();
+
+        int index = (int) Math.ceil(percentile / 100.0 * energies.size()) - 1;
+        index = Math.max(0, Math.min(index, energies.size() - 1));
+
+        return energies.get(index);
+    }
+
+
 
 }

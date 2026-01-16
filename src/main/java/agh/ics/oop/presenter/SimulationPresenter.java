@@ -6,7 +6,9 @@ import agh.ics.oop.model.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.LineChart;
@@ -15,7 +17,10 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
@@ -24,9 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class SimulationPresenter implements Initializable {
+    @FXML
+    private Scene scene;
     @FXML
     private Canvas mapCanvas;
     @FXML
@@ -54,51 +60,62 @@ public class SimulationPresenter implements Initializable {
     private AbstractWorldMap worldMap;
     private int gridWidth;
     private int gridHeight;
-    private final static int CELL_SIZE = 40; // every cell is square
-    private final static double BORDER_WIDTH = 1.67;
-    private final static double BORDER_OFFSET = BORDER_WIDTH/2;
-    private final static int GRID_OFFSET = 60;
-    private final static int BOTTOM_MARGIN = 25;
-    private final static int COORDS_FONT_SIZE = 20;
+
+    // every cell is square
+    private double cellSize = 40.0; // every cell is square
+    private double borderWidth = 1.67;
+    private double borderOffset = borderWidth /2.0;
+    private final static double GRID_OFFSET = 50.0;
+    private double coordsFontSize = 20.0;
+    private double fontSize = cellSize*0.5;
+    private double energyBarWidth = cellSize*0.8;
+    private double energyBarHeight =  energyBarWidth *0.15;
     private GraphicsContext gc;
-    private int fontSize = (int)(CELL_SIZE*0.5);
 
-    @FXML private LineChart<Number, Number> statisticsChart;
-    @FXML private NumberAxis dayAxis;
-    @FXML private NumberAxis valueAxis;
 
-    @FXML private CheckBox animalsChartCheckBox;
-    @FXML private CheckBox plantsChartCheckBox;
-    @FXML private CheckBox energyChartCheckBox;
-    @FXML private CheckBox lifespanChartCheckBox;
-    @FXML private CheckBox childrenChartCheckBox;
-    private XYChart.Series<Number, Number> animalsSeries = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> plantsSeries = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> energySeries = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> lifespanSeries = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> childrenSeries = new XYChart.Series<>();
+    @FXML
+    private LineChart<Number, Number> statisticsChart;
+    @FXML
+    private NumberAxis dayAxis;
+    @FXML
+    private NumberAxis valueAxis;
 
+    @FXML
+    private CheckBox animalsChartCheckBox;
+    @FXML
+    private CheckBox plantsChartCheckBox;
+    @FXML
+    private CheckBox energyChartCheckBox;
+    @FXML
+    private CheckBox lifespanChartCheckBox;
+    @FXML
+    private CheckBox childrenChartCheckBox;
+    private final XYChart.Series<Number, Number> animalsSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> plantsSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> energySeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> lifespanSeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> childrenSeries = new XYChart.Series<>();
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         dayAxis.setAutoRanging(true);
         valueAxis.setAutoRanging(true);
+
         gc = mapCanvas.getGraphicsContext2D();
 
         startButton.setOnAction(e -> {
-            if (simulation != null) {
-                simulation.setPausedSimulation(false);
-            }
+            if (simulation != null) simulation.setPausedSimulation(false);
+
+        });
+        pauseButton.setOnAction(e -> {
+            if (simulation != null) simulation.setPausedSimulation(true);
         });
 
-        pauseButton.setOnAction(e -> {
-            if (simulation != null) {
-                simulation.setPausedSimulation(true);
-            }
-        });
+
     }
-    public void startSimulation(SimulationConfig config){
+
+    public void startSimulation(SimulationConfig config) {
         MapOptions mapOptions = new MapOptions(
                 config.mapHeight,
                 config.mapWidth,
@@ -120,18 +137,20 @@ public class SimulationPresenter implements Initializable {
                 config.genomeLength
         );
 
-        SeasonsOptions seasonsOptions = new SeasonsOptions(100,-5,3);
-        this.worldMap = new SeasonalWorldMap(mapOptions,animalOptions,seasonsOptions);
+        SeasonsOptions seasonsOptions = new SeasonsOptions(100, -5, 3);
+        this.worldMap = new SeasonalWorldMap(mapOptions, animalOptions, seasonsOptions);
 
         Boundary boundary = worldMap.getCurrentBounds();
         gridWidth = boundary.upperRight().getX() - boundary.lowerLeft().getX() + 1;
         gridHeight = boundary.upperRight().getY() - boundary.lowerLeft().getY() + 1;
 
-        mapCanvas.setWidth(gridWidth*CELL_SIZE + 2*GRID_OFFSET);
-        mapCanvas.setHeight(gridHeight*CELL_SIZE + 2*GRID_OFFSET);
-
         simulation = new Simulation(worldMap, 200);
-        Platform.runLater(this::updateCheckboxes);;
+        mapCanvas.setWidth(gridWidth*cellSize + 2*GRID_OFFSET);
+        mapCanvas.setHeight(gridHeight*cellSize + 2*GRID_OFFSET);
+//        mapCanvas.widthProperty().addListener((obs, oldVal, newVal) -> updateFields());
+//        mapCanvas.heightProperty().addListener((obs, oldVal, newVal) -> updateFields());
+
+        Platform.runLater(this::updateCheckboxes);
 
         // poczatkowe rysowanie mapy
         javafx.application.Platform.runLater(() -> {
@@ -159,8 +178,6 @@ public class SimulationPresenter implements Initializable {
         energySeries.setName("Średnia Energia");
         lifespanSeries.setName("Średnia długość życia");
         childrenSeries.setName("Średnia liczba dzieci");
-
-
 
 
     }
@@ -229,7 +246,7 @@ public class SimulationPresenter implements Initializable {
     }
 
 
-    private void updateLabels(AbstractWorldMap worldMap){
+    private void updateLabels(AbstractWorldMap worldMap) {
         animalCountLabel.setText(String.valueOf(worldMap.getAnimalsCount()));
         plantCountLabel.setText(String.valueOf(worldMap.getPlantsCount()));
         freeFieldsLabel.setText(String.valueOf(worldMap.getFreeFieldsCount()));
@@ -245,7 +262,7 @@ public class SimulationPresenter implements Initializable {
         drawWorldElements(worldMap);
     }
 
-    private void drawWorldElements(AbstractWorldMap worldMap){
+    private void drawWorldElements(AbstractWorldMap worldMap) {
         gc.save();
         gc.setStroke(Color.BLACK);
         configureFont(gc, fontSize, Color.BLACK);
@@ -259,7 +276,7 @@ public class SimulationPresenter implements Initializable {
         elements.addAll(worldMap.getPlants());
         elements.addAll(worldMap.getAllAnimals());
 
-        for (WorldElement worldElement: elements){
+        for (WorldElement worldElement : elements) { // todo: nie korzystac z objectAt
             if (!(worldElement instanceof Animal)) { //  w pierwszej kolejnosci wyswietlamy Animala
                 Optional<WorldElement> elementAtPos = worldMap.objectAt(worldElement.position());
 
@@ -269,67 +286,51 @@ public class SimulationPresenter implements Initializable {
             }
             Vector2d pos = worldElement.position();
 
-            double centerX = GRID_OFFSET + (pos.getX() - offsetX) * CELL_SIZE + CELL_SIZE/2 ;
+            double centerX = GRID_OFFSET + (pos.getX() - offsetX) * cellSize + cellSize / 2;
 
             // W JAVIEFX Y JEST NA GORZE!!11!11!
             int worldY = pos.getY() - offsetY;
             int flippedY = gridHeight - 1 - worldY;
 
-            double centerY = GRID_OFFSET + flippedY * CELL_SIZE + CELL_SIZE/2 ;
+            double centerY = GRID_OFFSET + flippedY * cellSize + cellSize / 2;
 
             gc.fillText(worldElement.toString(), centerX, centerY);
+
+            // rysowanie energy Bara
+            if (worldElement instanceof Animal) {
+                drawEnergyBar(gc, (Animal) worldElement, centerX, centerY);
+            }
         }
         gc.restore();
     }
 
-    private void drawGrid(AbstractWorldMap worldMap){
+
+
+
+    private void drawGrid(AbstractWorldMap worldMap) {
         gc.save();
 
         gc.setFill(Color.BLACK);
-        gc.setLineWidth(BORDER_WIDTH);
+        gc.setLineWidth(borderWidth);
         // poziome
         for (int row = 0; row <= gridHeight; row++) {
-            double y = GRID_OFFSET + row * CELL_SIZE;
-            gc.strokeLine(GRID_OFFSET, y, GRID_OFFSET + gridWidth*CELL_SIZE, y);
+            double y = GRID_OFFSET + row * cellSize;
+            gc.strokeLine(GRID_OFFSET, y, GRID_OFFSET + gridWidth * cellSize, y);
         }
 
         // pionowe
         for (int col = 0; col <= gridWidth; col++) {
-            double x = GRID_OFFSET + col * CELL_SIZE;
-            gc.strokeLine(x, GRID_OFFSET, x, GRID_OFFSET + gridHeight*CELL_SIZE);
+            double x = GRID_OFFSET + col * cellSize;
+            gc.strokeLine(x, GRID_OFFSET, x, GRID_OFFSET + gridHeight * cellSize);
         }
-
 
         //coords
-        gc.setFont(new Font("Arial", COORDS_FONT_SIZE));
-
-        //yCoords
-        for (int y = GRID_OFFSET;y<mapCanvas.getHeight() - GRID_OFFSET;y+=CELL_SIZE){
-            gc.fillText(String.valueOf((int)(mapCanvas.getHeight()-GRID_OFFSET-y)/CELL_SIZE -1),
-                    GRID_OFFSET / 2,
-                    y + CELL_SIZE/2 + BORDER_WIDTH + fontSize/4
-            );
-        }
-
-        //xCoords
-        for (int x = GRID_OFFSET;x<mapCanvas.getWidth() - GRID_OFFSET;x+=CELL_SIZE){
-            gc.fillText(
-                    String.valueOf((int)(x-GRID_OFFSET)/CELL_SIZE),
-                    x + CELL_SIZE/2 + BORDER_WIDTH - fontSize/4,
-                    mapCanvas.getHeight() - GRID_OFFSET/2
-            );
-        }
+        gc.setFont(new Font("Arial", coordsFontSize));
+        drawCoords();
 
         gc.restore();
     }
 
-
-    private void configureFont(GraphicsContext graphics, int size, Color black) {
-        graphics.setTextAlign(TextAlignment.CENTER);
-        graphics.setTextBaseline(VPos.CENTER);
-        graphics.setFont(new Font("Arial", size));
-        graphics.setFill(black);
-    }
 
     private void clearGrid() {
         GraphicsContext graphics = mapCanvas.getGraphicsContext2D();
@@ -346,4 +347,72 @@ public class SimulationPresenter implements Initializable {
         }
     }
 
+    private void drawCoords() {
+        double y = GRID_OFFSET;
+        while (y < mapCanvas.getHeight() - GRID_OFFSET) {
+            gc.fillText(String.valueOf((int) ((mapCanvas.getHeight() - GRID_OFFSET - y) / cellSize - 1)),
+                    GRID_OFFSET / 2,
+                    y + cellSize / 2 + borderWidth + fontSize / 4
+            );
+            y += cellSize;
+        }
+
+        double x = GRID_OFFSET;
+        while (x < mapCanvas.getWidth() - GRID_OFFSET) {
+            gc.fillText(
+                    String.valueOf((int) ((x - GRID_OFFSET) / cellSize)),
+                    x + cellSize / 2 + borderWidth - fontSize / 4,
+                    mapCanvas.getHeight() - GRID_OFFSET / 2
+            );
+            x += cellSize;
+        }
+    }
+
+    private void drawEnergyBar(GraphicsContext gc, Animal animal, double centerX, double centerY) {
+        gc.save();
+        int energyPercentile = worldMap.getEnergyPercentile(85);
+        double ratio = animal.getEnergyRatio(energyPercentile);
+        double width = energyBarWidth * ratio;
+
+        double x = centerX - cellSize / 2 + (cellSize - energyBarWidth) / 2;
+        double y = centerY + cellSize / 2 - energyBarHeight - 2.5;
+
+        gc.setFill(Color.LIGHTGRAY);
+        gc.fillRoundRect(x, y, energyBarWidth, energyBarHeight, energyBarHeight, energyBarHeight);
+
+        gc.setFill(animal.getEnergyColor(energyPercentile));
+        gc.fillRoundRect(x, y, width, energyBarHeight, energyBarHeight, energyBarHeight);
+
+        gc.setStroke(Color.DARKGRAY);
+        gc.strokeRoundRect(x, y, energyBarWidth, energyBarHeight, energyBarHeight, energyBarHeight);
+
+        gc.restore();
+    }
+
+    private void configureFont(GraphicsContext graphics, double size, Color color) {
+        graphics.setTextAlign(TextAlignment.CENTER);
+        graphics.setTextBaseline(VPos.CENTER);
+        graphics.setFont(new Font("Arial", size));
+        graphics.setFill(color);
+    }
+
+    private void updateFields(){
+        double cellWidth = (mapCanvas.getWidth() - 2 * GRID_OFFSET) / gridWidth;
+        double cellHeight = (mapCanvas.getHeight() - 2 * GRID_OFFSET) / gridHeight;
+        cellSize = Math.min(cellWidth, cellHeight);
+
+        borderWidth = cellSize/24.0;
+        borderOffset = borderWidth /2.0;
+        coordsFontSize = cellSize/2.0;
+        fontSize = cellSize*0.5;
+        energyBarWidth = cellSize*0.8;
+        energyBarHeight =  energyBarWidth *0.15;
+
+        if (worldMap != null){
+            javafx.application.Platform.runLater(() -> {
+                drawMap(worldMap);
+                //todo : logi
+            });
+        }
+    }
 }

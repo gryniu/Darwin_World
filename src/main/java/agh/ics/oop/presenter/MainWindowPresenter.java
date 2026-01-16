@@ -169,7 +169,7 @@ public class MainWindowPresenter implements Initializable {
 
         // konfiguracja okna
         primaryStage.setTitle("Simulation app");
-        //todo: ustawic szerokosc i wysokosc okienka
+        //todo: ustawic szerokosc i wysokosc okienka jako stałe
         primaryStage.setMinWidth(800);
         primaryStage.setMinHeight(600);
     }
