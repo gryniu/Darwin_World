@@ -1,5 +1,7 @@
 package agh.ics.oop.model;
 
+import javafx.scene.paint.Color;
+
 import java.util.List;
 
 public class SeasonalWorldMap extends RealWorldMap {

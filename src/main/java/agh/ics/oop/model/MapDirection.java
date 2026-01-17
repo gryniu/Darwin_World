@@ -58,6 +58,8 @@ public enum MapDirection {
         };
     }
 
+
+
     public String dataToString() {
         return String.valueOf(ordinal());
     }

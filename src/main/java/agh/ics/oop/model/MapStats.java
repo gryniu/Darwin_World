@@ -33,6 +33,8 @@ public record MapStats(
         return String.format("%.2f", averageChildren);
     }
 
+    public String mostPopularGenotype() { return mostPopularGenotype ;}
+
     public String getLabel(){
         return "animalsCount,plantsCount,freeFieldsCount,averageEnergy,averageLifespan,averageChildren,mostPopularGenotype\n";
     }

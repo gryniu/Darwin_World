@@ -1,5 +1,7 @@
 package agh.ics.oop.model;
 
+import javafx.scene.paint.Color;
+
 import java.util.*;
 
 public abstract class AbstractWorldMap<T extends AbstractAnimal> implements WorldMap{

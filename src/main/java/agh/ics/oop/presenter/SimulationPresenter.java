@@ -28,6 +28,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -66,6 +67,9 @@ public class SimulationPresenter implements Initializable {
     private RealWorldMap worldMap;
     private int gridWidth;
     private int gridHeight;
+
+    public static final String RESET = "\u001B[0m";
+    public static final String RED_BOLD = "\u001B[1;31m";
 
     // every cell is square
     private double cellSize = 40.0; // every cell is square
@@ -314,6 +318,11 @@ public class SimulationPresenter implements Initializable {
         int offsetX = boundary.lowerLeft().getX();
         int offsetY = boundary.lowerLeft().getY();
 
+        // todo: to na dole
+//        List<AbstractAnimal> animalsWithMostPopularGenotype= worldMap.getAllAnimals()
+//                .stream().map(a -> a.getge);
+
+
         for (WorldElement worldElement: worldMap.getAllMapElements()){
             Vector2d pos = worldElement.position();
 
@@ -325,12 +334,17 @@ public class SimulationPresenter implements Initializable {
 
             double centerY = gridOffset + flippedY * cellSize + cellSize / 2;
 
-            gc.fillText(worldElement.toString(), centerX, centerY);
+            // rysowanie z eznergy Barem
+            if (worldElement instanceof AbstractAnimal abstractAnimal) {
+                gc.save();
+                if (Objects.equals(abstractAnimal.getGen().toString(), worldMap.getMapStats().mostPopularGenotype())){
+                    configureFont(gc, fontSize*2.67, Color.RED);
+                }
+                gc.fillText(abstractAnimal.toString(), centerX, centerY);
+                gc.restore();
+                drawEnergyBar(gc, abstractAnimal, centerX, centerY);
 
-            // rysowanie energy Bara
-            if (worldElement instanceof AbstractAnimal ) {
-                drawEnergyBar(gc, (AbstractAnimal) worldElement, centerX, centerY);
-            }
+            }else gc.fillText(worldElement.toString(), centerX, centerY);
         }
         gc.restore();
     }
@@ -360,18 +374,31 @@ public class SimulationPresenter implements Initializable {
         gc.restore();
     }
 
-
-    private void configureFont(GraphicsContext graphics, int size, Color black) {
-        graphics.setTextAlign(TextAlignment.CENTER);
-        graphics.setTextBaseline(VPos.CENTER);
-        graphics.setFont(new Font("Arial", size));
-        graphics.setFill(black);
-    }
-
     private void clearGrid() {
-        GraphicsContext graphics = mapCanvas.getGraphicsContext2D();
-        graphics.setFill(Color.WHITE);
-        graphics.fillRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
+        gc.save();
+
+        gc.setFill(Color.WHITE);
+        gc.fillRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
+
+        for (int canvasCol = 0; canvasCol < gridWidth; canvasCol++) {
+            for (int canvasRow = 0; canvasRow < gridHeight; canvasRow++) {
+
+                Vector2d worldPosition = new Vector2d(canvasCol, canvasRow);
+
+                Color fieldColor;
+                if (worldMap instanceof SeasonalWorldMap seasonalWorldMap) {
+                    fieldColor = seasonalWorldMap.getColorOfField(worldPosition);
+                } else {
+                    fieldColor = worldMap.getColorOfField(worldPosition);
+                }
+
+                gc.setFill(fieldColor);
+                gc.fillRect(gridOffset + canvasCol * cellSize,
+                        gridOffset + canvasRow * cellSize,
+                        cellSize, cellSize);
+            }
+        }
+        gc.restore();
     }
 
     public void closeSimulation() {
@@ -382,7 +409,7 @@ public class SimulationPresenter implements Initializable {
         double y = gridOffset;
         while (y < mapCanvas.getHeight() - gridOffset) {
             gc.fillText(String.valueOf((int) ((mapCanvas.getHeight() - gridOffset - y) / cellSize - 1)),
-                    gridOffset / 2 - fontSize/4,
+                    gridOffset / 2 - fontSize/2,
                     y + cellSize / 2 + borderWidth + fontSize / 4
             );
             y += cellSize;
@@ -392,7 +419,7 @@ public class SimulationPresenter implements Initializable {
         while (x < mapCanvas.getWidth() - gridOffset) {
             gc.fillText(
                     String.valueOf((int) ((x - gridOffset) / cellSize)),
-                    x + cellSize / 2 + borderWidth - fontSize / 4,
+                    x + cellSize / 2 + borderWidth - fontSize / 2,
                     mapCanvas.getHeight() - gridOffset / 2 + fontSize/4
             );
             x += cellSize;

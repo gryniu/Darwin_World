@@ -42,14 +42,14 @@ public class HistoryFileHandler {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] animalData = line.split(",");
-                if (animalData.length != 3) throw new CorruptedFileException(fileName);
+                if (animalData.length != 4) throw new CorruptedFileException(fileName);
 
                 int[] coords = Arrays.stream(animalData[0].split(";")).mapToInt(Integer::parseInt).toArray();
                 Vector2d position = new Vector2d(coords[0], coords[1]);
                 MapDirection orientation = MapDirection.values()[Integer.parseInt(animalData[1])];
                 int energy = Integer.parseInt(animalData[2]);
-
-                animals.add(new FakeAnimal(position, orientation, energy));
+                String genString = animalData[3];
+                animals.add(new FakeAnimal(position, orientation, energy,new Gen(genString)));
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
