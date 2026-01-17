@@ -5,10 +5,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class CsvLogger implements Listener{
+public class CsvLogger implements SimulationListener{
     private final File file;
 
-    public CsvLogger(LivingWorldMap worldMap){
+    public CsvLogger(RealWorldMap worldMap){
         String homeDir = System.getProperty("user.home");
 
         file = new File(homeDir, "%s.csv".formatted(worldMap.getId()));
@@ -21,10 +21,10 @@ public class CsvLogger implements Listener{
     }
 
     @Override
-    public void change(WorldMap worldMap, String message) {
-        if (worldMap instanceof LivingWorldMap) {
+    public void change(WorldMap worldMap, int day, boolean isLive) {
+        if (isLive && worldMap instanceof RealWorldMap) {
             try (FileWriter writer = new FileWriter(file, true)) {
-                writer.append(message + "," + worldMap.getMapStats().getRow());
+                writer.append(day + "," + worldMap.getMapStats().getRow());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

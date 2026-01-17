@@ -1,21 +1,19 @@
 package agh.ics.oop;
 
 import agh.ics.oop.model.*;
-import javafx.application.Platform;
-import javafx.collections.MapChangeListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Simulation implements Runnable{
     //symulacja
-    private final AbstractWorldMap worldMap;
+    private final RealWorldMap worldMap;
     private int day = 0;
     private final int simulationSpeed;
 
     //logika asynchroniczna
     private Thread simulationThread;
-    private final List<Listener> mapChangeListeners = new ArrayList<>();
+    private final List<SimulationListener> mapChangeListeners = new ArrayList<>();
     private boolean paused = true;
     private boolean running = true;
     private final Object lock = new Object();
@@ -25,7 +23,7 @@ public class Simulation implements Runnable{
     private int rewindedDays = 0;
     private FakeWorldMap fakeWorldMap = null;
 
-    public Simulation(AbstractWorldMap worldMap, int simulationSpeed) {
+    public Simulation(RealWorldMap worldMap, int simulationSpeed) {
         this.worldMap = worldMap;
         this.simulationSpeed = simulationSpeed;
     }
@@ -82,34 +80,34 @@ public class Simulation implements Runnable{
 
         day++;
 
-        notifyListeners(String.valueOf(day));
+        notifyListeners();
 
         return true;
     }
 
-    private void notifyListeners(String message) {
+    private void notifyListeners() {
         synchronized (lock) {
-            for (Listener listener : mapChangeListeners) {
-                listener.change(worldMap, message);
+            for (SimulationListener listener : mapChangeListeners) {
+                listener.change(worldMap, day, true);
             }
         }
     }
 
-    private void notifyListeners(String message, FakeWorldMap otherWorldMap) {
+    private void notifyListeners(int day, FakeWorldMap otherWorldMap) {
         synchronized (lock) {
-            for (Listener listener : mapChangeListeners) {
-                listener.change(otherWorldMap, message);
+            for (SimulationListener listener : mapChangeListeners) {
+                listener.change(otherWorldMap, day, false);
             }
         }
     }
 
-    public void addMapChangeListener(Listener listener) {
+    public void addMapChangeListener(SimulationListener listener) {
         synchronized (lock) {
             mapChangeListeners.add(listener);
         }
     }
 
-    public void removeMapChangeListener(Listener listener) {
+    public void removeMapChangeListener(SimulationListener listener) {
         synchronized (lock) {
             mapChangeListeners.remove(listener);
         }
@@ -148,7 +146,7 @@ public class Simulation implements Runnable{
     }
 
     public void startSimulation(){
-        addMapChangeListener(new SimulationLogger());
+        addMapChangeListener(new HistoryLogger());
 
         simulationThread = new Thread(this);
         simulationThread.setDaemon(true);
@@ -171,10 +169,6 @@ public class Simulation implements Runnable{
         }
     }
 
-    public int getCurrentDay() {
-        return day;
-    }
-
     public void rewind(boolean goBack) {
         if(!isPaused()) throw new RuntimeException("Can't rewind on play!");
         rewinded = true;
@@ -184,6 +178,6 @@ public class Simulation implements Runnable{
             rewindedDays = Math.max(0, rewindedDays - 1);
 
         fakeWorldMap = new FakeWorldMap(worldMap.getId(), day - rewindedDays,  worldMap.getWidth(), worldMap.getHeight());
-        notifyListeners(String.valueOf(day - rewindedDays), fakeWorldMap);
+        notifyListeners(day - rewindedDays, fakeWorldMap);
     }
 }

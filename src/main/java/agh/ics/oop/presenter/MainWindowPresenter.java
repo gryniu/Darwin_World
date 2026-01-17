@@ -1,13 +1,17 @@
 package agh.ics.oop.presenter;
 
 import agh.ics.oop.SimulationConfig;
+import agh.ics.oop.model.SeasonalWorldMap;
 import agh.ics.oop.model.WrongFieldStateException;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -20,10 +24,14 @@ import java.util.ResourceBundle;
 public class MainWindowPresenter implements Initializable {
     private final String CONFIG_PATH = "config";
     private final String PRESET_FILE_ENDING = "_preset.properties";
+    BooleanProperty isSeasonal = new SimpleBooleanProperty(true);
 
     @FXML
+    private GridPane seasonalGridPane;
+    @FXML
+    private CheckBox isSeasonalCheckBox;
+    @FXML
     private CheckBox exportCsvCheckBox;
-
     @FXML
     private Button deletePresetsButton;
     @FXML
@@ -66,7 +74,6 @@ public class MainWindowPresenter implements Initializable {
     private TextField minTemperatureField;
     @FXML
     private TextField distanceRequiredToHeatField;
-
     @FXML
     private Button startSimulationButton;
 
@@ -83,6 +90,10 @@ public class MainWindowPresenter implements Initializable {
             loadPresetsComboBox.setValue("default");
             loadSimulationPreset();
         }
+
+        isSeasonalCheckBox.setSelected(true);
+        isSeasonalCheckBox.setOnAction(e -> isSeasonal.set(isSeasonalCheckBox.isSelected()));
+        seasonalGridPane.visibleProperty().bind(isSeasonal);
     }
 
     private void startSimulation(){

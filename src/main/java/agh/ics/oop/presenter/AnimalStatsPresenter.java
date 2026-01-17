@@ -1,8 +1,7 @@
 package agh.ics.oop.presenter;
 
 import agh.ics.oop.Simulation;
-import agh.ics.oop.model.AbstractAnimal;
-import agh.ics.oop.model.AbstractWorldMap;
+import agh.ics.oop.model.RealWorldMap;
 import agh.ics.oop.model.Animal;
 import agh.ics.oop.model.WorldMap;
 import javafx.fxml.FXML;
@@ -27,19 +26,21 @@ public class AnimalStatsPresenter {
     private TextField deathDayField;
 
     private Animal animal;
-    private AbstractWorldMap worldMap;
+    private RealWorldMap worldMap;
     private Simulation simulation;
 
-    public void showAnimalStats(Animal animal, AbstractWorldMap worldMap, Simulation simulation){
+    public void showAnimalStats(Animal animal, RealWorldMap worldMap, Simulation simulation){
         this.animal = animal;
         this.worldMap = worldMap;
         this.simulation = simulation;
         if (animal.isAlive()) deathDayField.setText("-");
-        updateTextFields(worldMap, "start Showing Stats");
+        updateTextFields(worldMap, 0, true);
     }
 
 
-    public void updateTextFields(WorldMap worldMap, String s){
+    public void updateTextFields(WorldMap worldMap, int day, boolean isLive){
+        if(!isLive) return;
+
         animalGenomField.setText(animal.getGen().toString());
 
         if (animal.isAlive()) {
