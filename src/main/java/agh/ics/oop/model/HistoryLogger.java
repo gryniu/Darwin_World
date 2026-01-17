@@ -12,7 +12,7 @@ public class HistoryLogger implements SimulationListener {
             HistoryFileHandler.writeToFile("/%s-%d-plants.txt".formatted(worldMap1.getId(), day), worldMap.getPlants());
 
             //zapisywanie statystyk
-            HistoryFileHandler.writeToFile("/%s-%d-stats.txt".formatted(worldMap1.getId(), day), worldMap.getMapStats().toString());
+            HistoryFileHandler.writeToFile("/%s-%d-stats.txt".formatted(worldMap1.getId(), day), worldMap.getMapStats().toDataString());
         }
     }
 }
