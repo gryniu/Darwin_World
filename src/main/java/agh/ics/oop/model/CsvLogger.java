@@ -6,14 +6,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class CsvLogger implements Listener{
-    private final static String DIR_PATH = "csv";
     private final File file;
 
     public CsvLogger(LivingWorldMap worldMap){
-        File dir = new File(DIR_PATH);
-        if (!dir.exists()) dir.mkdirs();
+        String homeDir = System.getProperty("user.home");
 
-        file = new File("%s/%s.csv".formatted(DIR_PATH, worldMap.getId()));
+        file = new File(homeDir, "%s.csv".formatted(worldMap.getId()));
 
         try (FileWriter writer = new FileWriter(file)) {
             writer.append("Day," + worldMap.getMapStats().getLabel());

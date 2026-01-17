@@ -45,3 +45,4 @@ bin/
 #custom
 tmp/
 csv/
+config/

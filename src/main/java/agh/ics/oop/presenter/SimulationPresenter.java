@@ -144,13 +144,13 @@ public class SimulationPresenter implements Initializable {
         });
     }
 
-    public void startSimulation(SimulationConfig config) {
+    public void startSimulation(SimulationConfig config, boolean saveToCsv) {
         MapOptions mapOptions = new MapOptions(
                 config.mapHeight,
                 config.mapWidth,
                 config.startPlantCount,
-                config.startPlantCount,
                 config.plantsPerDay,
+                config.startAnimalCount,
                 config.energyFromPlant
         );
 
@@ -184,6 +184,9 @@ public class SimulationPresenter implements Initializable {
         handleSimulationChange(this.worldMap, "starting state");
         simulation.addMapChangeListener(this::handleSimulationChange);
 
+        if (saveToCsv)
+            simulation.addMapChangeListener(new CsvLogger(worldMap));
+
         simulation.startSimulation();
 
         freeFieldsSeries.setName("Ilość wolnych pól");
@@ -197,7 +200,8 @@ public class SimulationPresenter implements Initializable {
     public void handleSimulationChange(WorldMap worldMap, String message){
         javafx.application.Platform.runLater(() -> {
             MapStats mapStats = worldMap.getMapStats();
-            updateLineChart(mapStats);
+            if(worldMap instanceof LivingWorldMap)
+                updateLineChart(mapStats, message);
             updateLabels(mapStats, message);
             drawMap(worldMap);
             //todo : logi
@@ -262,8 +266,9 @@ public class SimulationPresenter implements Initializable {
     }
 
 
-    private void updateLineChart(MapStats mapStats) {
-        int day = simulation.getCurrentDay();
+    private void updateLineChart(MapStats mapStats, String message) {
+        int day = Integer.parseInt(message);
+
         animalsSeries.getData().add(new XYChart.Data<>(day, mapStats.animalsCount()));
 
         plantsSeries.getData().add(new XYChart.Data<>(day, mapStats.plantsCount()));

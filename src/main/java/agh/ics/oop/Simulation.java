@@ -149,18 +149,19 @@ public class Simulation implements Runnable{
 
     public void startSimulation(){
         addMapChangeListener(new SimulationLogger());
-        addMapChangeListener(new CsvLogger(worldMap));
 
         simulationThread = new Thread(this);
         simulationThread.setDaemon(true);
         simulationThread.start();
 
+        running = true;
+        paused = false;
     }
 
     public void stopSimulation() {
         synchronized (lock) {
-            this.running = false;
-            this.paused = false;
+            running = false;
+            paused = false;
             lock.notifyAll();
         }
 

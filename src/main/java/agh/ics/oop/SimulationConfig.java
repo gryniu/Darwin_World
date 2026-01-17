@@ -104,7 +104,7 @@ public class SimulationConfig {
             if (energyToReproduce <= 0) missingFields.add("energyToFeed");
             if (energyToKid <= 0 || energyToKid>energyToReproduce) missingFields.add("energyToKid");
             if (minMutations < 0) missingFields.add("minMutations");
-            if (maxMutations < minMutations || maxMutations>genomeLength) missingFields.add("maxMutations");
+            if (maxMutations < minMutations || maxMutations > genomeLength) missingFields.add("maxMutations");
             if (genomeLength <= 0) missingFields.add("genomeLength");
             if (seasonLength < 0) missingFields.add("seasonLength");
             if (minTemperature > 30) missingFields.add("minTemperature"); // todo: maxTemperatura to 30, zrobic lepsze errory
