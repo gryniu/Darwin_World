@@ -1,36 +1,107 @@
-/* Główne VBox */
 .root {
-    -fx-background-color: #f0f0f0;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-background-color: #f5f7fa;
+    -fx-padding: 20;
 }
 
-/* Nagłówek */
-.label {
+.VBox {
+    -fx-spacing: 15;
+}
+
+.HBox {
+    -fx-spacing: 10;
+}
+
+Label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+}
+
+Label[style*="bold"] {
     -fx-font-weight: bold;
-    -fx-font-size: 16px;
 }
 
-/* TextField */
-.text-field {
-    -fx-pref-width: 80px;
+Label:first-child {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
 }
 
-/* GridPane etykiety */
-.grid-pane .label {
-    -fx-font-weight: normal;
+Button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 8 20 8 20;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.15) , 4,0,0,2 );
+}
+
+Button:hover {
+    -fx-background-color: #2980b9;
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.25) , 6,0,0,2 );
+}
+
+Button:pressed {
+    -fx-background-color: #1f618d;
+}
+
+TextField {
+    -fx-background-color: white;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 5 8 5 8;
     -fx-font-size: 13px;
 }
 
-/* Przycisk Start nowej symulacji */
-#startSimulationButton {
-    -fx-background-color: #4CAF50;
+TextField:focused {
+    -fx-border-color: #3498db;
+    -fx-border-width: 2;
+}
+
+ComboBox {
+    -fx-font-size: 13px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+ComboBox:hover {
+    -fx-border-color: #3498db;
+}
+
+CheckBox {
+    -fx-font-size: 13px;
+}
+
+GridPane {
+    -fx-hgap: 10;
+    -fx-vgap: 10;
+}
+
+.start-simulation-button {
+    -fx-background-color: #27ae60;
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-font-size: 14px;
-    -fx-padding: 8px 15px;
-    -fx-border-radius: 5px;
-    -fx-background-radius: 5px;
+    -fx-font-size: 15px;
+    -fx-background-radius: 10px;
 }
-#startSimulationButton:hover {
-    -fx-background-color: #45a049;
+
+.start-simulation-button:hover {
+    -fx-background-color: #1e8449;
+}
+
+.start-simulation-button:pressed {
+    -fx-background-color: #145a32;
+}
+
+.label-bold {
+    -fx-font-weight: bold;
+}
+
+.text-field-rounded {
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
 }

@@ -1,0 +1,47 @@
+.root {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-background-color: #f5f7fa;
+    -fx-padding: 20;
+}
+
+Label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #2c3e50;
+}
+
+Label[style*="bold"] {
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+}
+
+GridPane {
+    -fx-hgap: 15;
+    -fx-vgap: 10;
+}
+
+TextField {
+    -fx-background-color: white;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 5 8 5 8;
+    -fx-font-size: 13px;
+}
+
+TextField:focused {
+    -fx-border-color: #3498db;
+    -fx-border-width: 2;
+}
+
+.center Label:first-child {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 0 0 15 0;
+}
+
+TextField:disabled {
+    -fx-background-color: #ecf0f1;
+    -fx-text-fill: #7f8c8d;
+}
+
