@@ -187,7 +187,8 @@ public class SimulationPresenter implements Initializable {
     public void handleSimulationChange(WorldMap worldMap, String message){
         javafx.application.Platform.runLater(() -> {
             MapStats mapStats = worldMap.getMapStats();
-            updateLineChart(mapStats);
+            if(worldMap instanceof LivingWorldMap)
+                updateLineChart(mapStats, message);
             updateLabels(mapStats, message);
             drawMap(worldMap);
             //todo : logi
@@ -252,8 +253,9 @@ public class SimulationPresenter implements Initializable {
     }
 
 
-    private void updateLineChart(MapStats mapStats) {
-        int day = simulation.getCurrentDay();
+    private void updateLineChart(MapStats mapStats, String message) {
+        int day = Integer.parseInt(message);
+
         animalsSeries.getData().add(new XYChart.Data<>(day, mapStats.animalsCount()));
 
         plantsSeries.getData().add(new XYChart.Data<>(day, mapStats.plantsCount()));
