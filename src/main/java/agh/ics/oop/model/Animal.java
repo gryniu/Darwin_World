@@ -53,7 +53,7 @@ public class Animal extends AbstractAnimal{
         int kidStartingEnergy = giveEnergyToKid() + partner.giveEnergyToKid();
 
         Gen kidGen = Gen.mixGens(this, partner);
-        kidGen.randomize(animalOptions.mutationNum());
+        kidGen.randomize(animalOptions.minMutationNum(), animalOptions.maxMutationNum());
 
         increaseNumOfKids();
         partner.increaseNumOfKids();

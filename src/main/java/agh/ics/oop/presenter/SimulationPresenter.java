@@ -165,6 +165,7 @@ public class SimulationPresenter implements Initializable {
 
         AnimalOptions animalOptions = new AnimalOptions(
                 energyOptions,
+                config.minMutations,
                 config.maxMutations,
                 config.genomeLength
         );
@@ -214,7 +215,6 @@ public class SimulationPresenter implements Initializable {
             drawMap(worldMap);
             if(isLive)
                 updateLineChart(mapStats, day);
-            //todo : logi
         });
     }
 
@@ -318,10 +318,6 @@ public class SimulationPresenter implements Initializable {
         int offsetX = boundary.lowerLeft().getX();
         int offsetY = boundary.lowerLeft().getY();
 
-        // todo: to na dole
-//        List<AbstractAnimal> animalsWithMostPopularGenotype= worldMap.getAllAnimals()
-//                .stream().map(a -> a.getge);
-
 
         for (WorldElement worldElement: worldMap.getAllMapElements()){
             Vector2d pos = worldElement.position();
@@ -379,14 +375,13 @@ public class SimulationPresenter implements Initializable {
 
         gc.setFill(Color.WHITE);
         gc.fillRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
-
         for (int canvasCol = 0; canvasCol < gridWidth; canvasCol++) {
             for (int canvasRow = 0; canvasRow < gridHeight; canvasRow++) {
 
                 Vector2d worldPosition = new Vector2d(canvasCol, canvasRow);
 
                 Color fieldColor;
-                if (worldMap instanceof SeasonalWorldMap seasonalWorldMap) {
+                if (this.worldMap instanceof SeasonalWorldMap seasonalWorldMap) {
                     fieldColor = seasonalWorldMap.getColorOfField(worldPosition);
                 } else {
                     fieldColor = worldMap.getColorOfField(worldPosition);
@@ -470,17 +465,14 @@ public class SimulationPresenter implements Initializable {
         if (worldMap != null){
             javafx.application.Platform.runLater(() -> {
                 drawMap(worldMap);
-                //todo : logi
             });
         }
     }
 
     private void handleCanvasClick(double mouseX, double mouseY){
-        System.out.println("poprawne klikniecie!!!");
         if (mouseX < gridOffset || mouseY < gridOffset) return;
         if (mouseX > gridOffset + gridWidth * cellSize) return;
         if (mouseY > gridOffset + gridHeight * cellSize) return;
-        System.out.println("POPRAWNE KLIKNIECIE!!!");
 
         int col = (int) ((mouseX-gridOffset)/cellSize);
         int rowFromTop = (int) ((mouseY - gridOffset) / cellSize);
@@ -499,7 +491,6 @@ public class SimulationPresenter implements Initializable {
         Optional<List<Animal>> animalsOnPosition = worldMap.getAnimalsOrdered(position);
 
         if (animalsOnPosition.isEmpty() || animalsOnPosition.get().isEmpty()) return; // nie ma żadnego Animala na pozycji
-        System.out.println("POPRAWNE KLIKNIECIE NA ANIMALA!!!");
         Animal animal =  animalsOnPosition.get().getFirst();
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/AnimalStats.fxml"));

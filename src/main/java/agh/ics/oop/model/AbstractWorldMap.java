@@ -8,10 +8,15 @@ public abstract class AbstractWorldMap<T extends AbstractAnimal> implements Worl
     protected final AnimalsMap<T> animals = new AnimalsMap<>();
     protected final HashMap<Vector2d, Plant> plants = new HashMap<>();
 
+    //liczniki częstotliwości
     protected final Map<String, Integer> genotypeCounter = new HashMap<>();
+    protected final Map<Vector2d, Long> plantsFrequencyCounter = new HashMap<>();
 
     protected final int width;
     protected final int height;
+    protected Long maxNumOfPlantsOnPosition = 7L;
+    // ustawiam na poczatek na 7 zeby nie bylo sytuacji,
+    // ze na poczatku wszystko jest na ciemno-zielono
 
     public AbstractWorldMap(int width, int height){
         this.width = width;
@@ -61,7 +66,7 @@ public abstract class AbstractWorldMap<T extends AbstractAnimal> implements Worl
 
     @Override
     public int getPlantsCount(){
-        System.out.println(plants.values());
+//        System.out.println(plants.values()); // po co
         return plants.size();
     }
 
@@ -82,5 +87,12 @@ public abstract class AbstractWorldMap<T extends AbstractAnimal> implements Worl
         elements.addAll(getAllAnimals());
         elements.addAll(getPlants());
         return elements;
+    }
+
+    public Color getColorOfField(Vector2d fieldPosition){
+        Long plantsFrequency = plantsFrequencyCounter.getOrDefault(fieldPosition,0L);
+        if (plantsFrequency < maxNumOfPlantsOnPosition*.33) return Color.LIGHTGREEN;
+        if (plantsFrequency < maxNumOfPlantsOnPosition*.75) return Color.GREEN;
+        return Color.DARKGREEN;
     }
 }

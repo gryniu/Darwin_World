@@ -70,7 +70,8 @@ public class Gen implements Iterable<Integer>{
         genList.set(ThreadLocalRandom.current().nextInt(lenOfGen), ThreadLocalRandom.current().nextInt(8));
     }
 
-    public void randomize(int mutationNum){ // todo: powinno byc mutationMin i mutationMax przyjmowany, i losowana liczba z tego przedizalu
+    public void randomize(int minMutationNum, int maxMutationNum){
+        int mutationNum = ThreadLocalRandom.current().nextInt(minMutationNum, maxMutationNum + 1);
         for (int i = 0; i<mutationNum; i++)
             setRandomElementInGenList();
     }

@@ -144,6 +144,7 @@ public class MainWindowPresenter implements Initializable {
                 .seasonLength(parse(seasonLengthField))
                 .minTemperature(parse(minTemperatureField))
                 .distanceRequiredToHeat(parse(distanceRequiredToHeatField))
+                .isSeasional(isSeasonal.get())
                 .build();
     }
 

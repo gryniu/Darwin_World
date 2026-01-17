@@ -28,7 +28,7 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
         plantNumEveryDay = mapOptions.plantNumEveryDay();
         this.defaultAnimalOptions = defaultAnimalOptions;
         this.mapOptions = mapOptions;
-
+        this.maxNumOfPlantsOnPosition = (long) (mapOptions.startingNumOfPlants()/4);
         plantsGenerator = new PlantsGenerator(width, height);
         plantsGeneratorIterator = plantsGenerator.iterator();
 
@@ -123,6 +123,8 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
         int created = 0;
         while (created < (int)(plantNumEveryDay*plantNumMultiplier) && plantsGeneratorIterator.hasNext()) {
             Vector2d position = plantsGeneratorIterator.next();
+            plantsFrequencyCounter.put(position, 1 + plantsFrequencyCounter.getOrDefault(position,0L));
+            maxNumOfPlantsOnPosition = Math.max(maxNumOfPlantsOnPosition, plantsFrequencyCounter.get(position));
             plants.put(position, new Plant(position));
             created++;
         }
@@ -153,6 +155,7 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
         for (var animal: animals.getAll()){
             if(animal.getEnergy()<=0){
                 animal.setAlive(false);
+                animal.setDeathDay(day);
                 animals.removeAnimal(animal);
                 decreaseGenotypeCounter(animal);
                 deadAnimalsCounter++;
