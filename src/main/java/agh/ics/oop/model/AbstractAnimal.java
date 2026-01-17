@@ -8,7 +8,8 @@ public abstract class AbstractAnimal implements WorldElement{
     protected Vector2d position;
     protected MapDirection orientation;
     protected int energy;
-    private UUID id = UUID.randomUUID();
+    protected Gen gen;
+    private final UUID id = UUID.randomUUID();
 
     @Override
     public Vector2d position() {
@@ -35,7 +36,7 @@ public abstract class AbstractAnimal implements WorldElement{
 
     @Override
     public String dataToString() {
-        return position.dataToString() + "," + orientation.dataToString() + "," + energy;
+        return position.dataToString() + "," + orientation.dataToString() + "," + energy + "," + gen;
     }
 
     public int getEnergy(){
@@ -56,7 +57,9 @@ public abstract class AbstractAnimal implements WorldElement{
         return Color.DARKGREEN;
     }
 
-    public UUID getId() {
-        return id;
+    public UUID getId() { return id; }
+
+    public Gen getGen() {
+        return gen;
     }
 }

@@ -5,7 +5,6 @@ import javafx.scene.paint.Color;
 import java.util.*;
 
 public class Animal extends AbstractAnimal{
-    private final Gen gen;
     private final int dayOfBirth;
     private int numOfKids = 0;
     private int numOfDescendants = 0;
@@ -62,10 +61,6 @@ public class Animal extends AbstractAnimal{
 
     public void decreaseDailyEnergy(double energyDecreaseMultiplier){
         energy = Math.max(0,energy - (int)(energyOptions.dailyEnergyLoss()*energyDecreaseMultiplier));
-    }
-
-    public Gen getGen() {
-        return gen;
     }
 
     public EnergyOptions getEnergyOptions() {

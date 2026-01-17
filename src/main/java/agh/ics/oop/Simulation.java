@@ -4,8 +4,7 @@ import agh.ics.oop.model.*;
 import javafx.application.Platform;
 import javafx.collections.MapChangeListener;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Simulation implements Runnable{
     //symulacja

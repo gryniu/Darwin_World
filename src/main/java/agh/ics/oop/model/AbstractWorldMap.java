@@ -1,5 +1,7 @@
 package agh.ics.oop.model;
 
+import javafx.scene.paint.Color;
+
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -9,11 +11,16 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     protected final AnimalsMap<Animal> animals = new AnimalsMap<>();
     private final ArrayList<Listener> subscribers = new ArrayList<>();
     protected final MapVisualizer mapVisualizer = new MapVisualizer(this);
+    // liczniki częstotliwości
     protected final Map<String, Integer> genotypeCounter = new HashMap<>();
+    protected final Map<Vector2d, Long> plantsFrequencyCounter = new HashMap<>();
 
     private final Map<Vector2d, Plant> plants = new HashMap<>();
     private final PlantsGenerator plantsGenerator;
-    private Iterator<Vector2d> plantsGeneratorIterator;;
+    private Iterator<Vector2d> plantsGeneratorIterator;
+    protected Long maxNumOfPlantsOnPosition = 7L;
+    // ustawiam na poczatek na 7 zeby nie bylo sytuacji,
+    // ze na poczatku wszystko jest na ciemno-zielono
 
     private long deadAnimalsCounter = 0L;
     private long totalLifespanYears = 0L;
@@ -39,7 +46,7 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
         plantsGenerator = new PlantsGenerator(width, height);
         plantsGeneratorIterator = plantsGenerator.iterator();
 
-        createAnimalsOnRandomPositions(0);
+        createAnimalsOnRandomPositions();
 
         for(int i = 0; i < mapOptions.startingNumOfPlants(); i++){
             createPlant();
@@ -155,6 +162,8 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     private void createPlant(){
         if(!plantsGeneratorIterator.hasNext()) return;
         Vector2d position = plantsGeneratorIterator.next();
+        plantsFrequencyCounter.put(position, 1 + plantsFrequencyCounter.getOrDefault(position,0L));
+        maxNumOfPlantsOnPosition = Math.max(maxNumOfPlantsOnPosition, plantsFrequencyCounter.get(position));
         plants.put(position, new Plant(position));
     }
 
@@ -255,10 +264,10 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
         }
     }
 
-    private void createAnimalsOnRandomPositions(int dayOfBirth){
+    private void createAnimalsOnRandomPositions(){
         Boundary boundary = getCurrentBounds();
         for (int i = 0 ;i< mapOptions.startingNumOfAnimals(); i++)
-            place(new Animal(boundary.getRandomPosition(), defaultAnimalOptions, mapOptions.energyStart(), dayOfBirth));
+            place(new Animal(boundary.getRandomPosition(), defaultAnimalOptions, mapOptions.energyStart(), 0));
     }
 
     public Optional<WorldElement> objectAt(Vector2d position) {
@@ -353,6 +362,14 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
     public MapStats getMapStats(){
         return new MapStats(getAnimalsCount(), getPlantsCount(), getFreeFieldsCount(), getAverageEnergy(), getAverageLifespan(), getAverageChildren(), getMostPopularGenotype());
 
+    }
+
+
+    public Color getColorOfField(Vector2d fieldPosition){
+        Long plantsFrequency = plantsFrequencyCounter.getOrDefault(fieldPosition,0L);
+        if (plantsFrequency < maxNumOfPlantsOnPosition*.33) return Color.LIGHTGREEN;
+        if (plantsFrequency < maxNumOfPlantsOnPosition*.75) return Color.GREEN;
+        return Color.DARKGREEN;
     }
 
     // Zwraca wartość energii, poniżej której znajduje się percentile zwierzaków,

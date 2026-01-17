@@ -29,6 +29,16 @@ public class Gen implements Iterable<Integer>{
         this.genList = gen;
     }
 
+    public Gen(String genString){
+        this.lenOfGen = genString.length();
+        if (lenOfGen==0){
+            throw new IllegalArgumentException("lenOfGen must be > 0");
+        }
+        this.genList = genString.chars()
+                .mapToObj(c -> Character.getNumericValue((char) c))
+                .collect(Collectors.toList());
+    }
+
     @Override
     public Iterator<Integer> iterator() {
         return new Itr();

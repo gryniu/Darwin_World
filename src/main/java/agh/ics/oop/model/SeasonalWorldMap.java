@@ -1,5 +1,7 @@
 package agh.ics.oop.model;
 
+import javafx.scene.paint.Color;
+
 import java.util.List;
 
 public class SeasonalWorldMap extends AbstractWorldMap{
@@ -82,5 +84,13 @@ public class SeasonalWorldMap extends AbstractWorldMap{
     public void createNewPlants(){
         super.createNewPlants();
         handleEndOfADay();
+    }
+
+    public Color getColorOfField(Vector2d fieldPosition){
+        if (!isWinter) return super.getColorOfField(fieldPosition);
+        Long plantsFrequency = plantsFrequencyCounter.getOrDefault(fieldPosition,0L);
+        if (plantsFrequency < maxNumOfPlantsOnPosition*.33) return Color.LIGHTBLUE;
+        if (plantsFrequency < maxNumOfPlantsOnPosition*.75) return Color.BLUE;
+        return Color.DARKBLUE;
     }
 }
