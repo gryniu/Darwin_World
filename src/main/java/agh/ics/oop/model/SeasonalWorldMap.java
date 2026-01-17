@@ -4,19 +4,17 @@ import javafx.scene.paint.Color;
 
 import java.util.List;
 
-public class SeasonalWorldMap extends AbstractWorldMap{
-    private static double SUMMER_TEMPERATURE = 30;
-    private static double SUMMER_PLANT_NUM_MULTIPLIER = 2;
-    private static double SUMMER_ENERGY_FROM_PLANT_MULTIPLIER = 2;
-    private static double MAX_ENERGY_DECREASE_MULTIPLIER = 2;
-
+public class SeasonalWorldMap extends RealWorldMap {
+    private static final double SUMMER_TEMPERATURE = 30;
+    private static final double SUMMER_PLANT_NUM_MULTIPLIER = 1.5;
+    private static final double SUMMER_ENERGY_FROM_PLANT_MULTIPLIER = 1.5;
 
     private boolean isWinter;
     private int dayOfCurrentSeason;
     private double temperature;
 
-
     private final SeasonsOptions seasonsOptions;
+
     public SeasonalWorldMap(MapOptions mapOptions, AnimalOptions defaultAnimalOptions, SeasonsOptions seasonsOptions) {
         super(mapOptions, defaultAnimalOptions);
         this.seasonsOptions = seasonsOptions;
@@ -55,9 +53,9 @@ public class SeasonalWorldMap extends AbstractWorldMap{
                 temperature += dailyTemperatureIncrement;
             }
             double temperatureAmplitude = SUMMER_TEMPERATURE-seasonsOptions.minTemperature();
-            energyDecreaseMultiplier = 1 + (MAX_ENERGY_DECREASE_MULTIPLIER-1) * ((SUMMER_TEMPERATURE - temperature) / temperatureAmplitude);
+            double MAX_ENERGY_DECREASE_MULTIPLIER = 2;
+            energyDecreaseMultiplier = 1 + (MAX_ENERGY_DECREASE_MULTIPLIER -1) * ((SUMMER_TEMPERATURE - temperature) / temperatureAmplitude);
         }
-        System.out.printf("%s %s, %s\n", dayOfCurrentSeason, isWinter, temperature);
     }
 
     @Override
@@ -86,11 +84,11 @@ public class SeasonalWorldMap extends AbstractWorldMap{
         handleEndOfADay();
     }
 
-    public Color getColorOfField(Vector2d fieldPosition){
-        if (!isWinter) return super.getColorOfField(fieldPosition);
-        Long plantsFrequency = plantsFrequencyCounter.getOrDefault(fieldPosition,0L);
-        if (plantsFrequency < maxNumOfPlantsOnPosition*.33) return Color.LIGHTBLUE;
-        if (plantsFrequency < maxNumOfPlantsOnPosition*.75) return Color.BLUE;
-        return Color.DARKBLUE;
+    public double getTemperature() {
+        return temperature;
+    }
+
+    public boolean getIsWinter(){
+        return isWinter;
     }
 }

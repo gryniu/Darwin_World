@@ -44,8 +44,7 @@ public record MapStats(
                 + "," + averageLifespanStr() + "," + averageChildrenStr() + "," + mostPopularGenotype() + "\n";
     }
 
-    @Override
-    public String toString() {
+    public String toDataString() {
         return "animalsCount %d\nplantsCount %d\nfreeFieldsCount %d\naverageEnergy %.2f\naverageLifespan %.2f\naverageChildren %.2f\nmostPopularGenotype %s\n"
             .formatted(
                 animalsCount,

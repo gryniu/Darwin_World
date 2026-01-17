@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SimulationConfig {
-
+    public final boolean isSeasonal;
     public final int mapWidth;
     public final int mapHeight;
     public final int startPlantCount;
@@ -27,6 +27,7 @@ public class SimulationConfig {
     public final int distanceRequiredToHeat;
 
     private SimulationConfig(Builder b) {
+        this.isSeasonal = b.isSeasonal;
         this.mapWidth = b.mapWidth;
         this.mapHeight = b.mapHeight;
         this.startPlantCount = b.startPlantCount;
@@ -50,6 +51,7 @@ public class SimulationConfig {
     }
 
     public static class Builder {
+        private boolean isSeasonal;
         private int mapWidth;
         private int mapHeight;
         private int startPlantCount;
@@ -67,6 +69,7 @@ public class SimulationConfig {
         private int minTemperature;
         private int distanceRequiredToHeat;
 
+        public Builder isSeasional(boolean v) {isSeasonal = v; return this;}
         public Builder mapWidth(int v) { mapWidth = v; return this; }
         public Builder mapHeight(int v) { mapHeight = v; return this; }
         public Builder startPlantCount(int v) { startPlantCount = v; return this; }
@@ -106,9 +109,18 @@ public class SimulationConfig {
             if (minMutations < 0) missingFields.add("minMutations");
             if (maxMutations < minMutations || maxMutations > genomeLength) missingFields.add("maxMutations");
             if (genomeLength <= 0) missingFields.add("genomeLength");
-            if (seasonLength < 0) missingFields.add("seasonLength");
-            if (minTemperature > 30) missingFields.add("minTemperature"); // todo: maxTemperatura to 30, zrobic lepsze errory
-            if (distanceRequiredToHeat < 0 || distanceRequiredToHeat > Math.max(mapWidth,mapHeight)) missingFields.add("distanceRequiredToHeat");
+
+            if(isSeasonal) {
+                if (seasonLength < 0) missingFields.add("seasonLength");
+                if (minTemperature > 30)
+                    missingFields.add("minTemperature"); // todo: maxTemperatura to 30, zrobic lepsze errory
+                if (distanceRequiredToHeat < 0 || distanceRequiredToHeat > Math.max(mapWidth, mapHeight))
+                    missingFields.add("distanceRequiredToHeat");
+            } else {
+                seasonLength = 0;
+                minTemperature = 0;
+                distanceRequiredToHeat = 0;
+            }
 
             if (!missingFields.isEmpty()) {
                 throw new WrongFieldStateException(missingFields);

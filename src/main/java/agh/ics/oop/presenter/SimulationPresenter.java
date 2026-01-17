@@ -64,7 +64,7 @@ public class SimulationPresenter implements Initializable {
     private Label averageChildrenLabel;
 
     private Simulation simulation;
-    private AbstractWorldMap worldMap;
+    private RealWorldMap worldMap;
     private int gridWidth;
     private int gridHeight;
 
@@ -141,7 +141,6 @@ public class SimulationPresenter implements Initializable {
         });
 
         mapCanvas.setOnMouseClicked(event -> {
-            if (!(worldMap instanceof LivingWorldMap)) return;
             if (simulation == null || !simulation.isPaused()) return;
 
             handleCanvasClick(event.getX(), event.getY());
@@ -170,8 +169,15 @@ public class SimulationPresenter implements Initializable {
                 config.genomeLength
         );
 
-        SeasonsOptions seasonsOptions = new SeasonsOptions(100, -5, 3);
-        this.worldMap = new SeasonalWorldMap(mapOptions, animalOptions, seasonsOptions);
+        if(config.isSeasonal) {
+            SeasonsOptions seasonsOptions = new SeasonsOptions(
+                    config.seasonLength,
+                    config.minTemperature,
+                    config.distanceRequiredToHeat);
+            this.worldMap = new SeasonalWorldMap(mapOptions, animalOptions, seasonsOptions);
+        }else{
+            this.worldMap = new RealWorldMap(mapOptions, animalOptions);
+        }
 
         Boundary boundary = worldMap.getCurrentBounds();
         gridWidth = boundary.upperRight().getX() - boundary.lowerLeft().getX() + 1;
@@ -185,7 +191,7 @@ public class SimulationPresenter implements Initializable {
         Platform.runLater(this::updateCheckboxes);
 
         // poczatkowe rysowanie mapy
-        handleSimulationChange(this.worldMap, "starting state");
+        handleSimulationChange(this.worldMap, 0, true);
         simulation.addMapChangeListener(this::handleSimulationChange);
 
         if (saveToCsv)
@@ -201,13 +207,13 @@ public class SimulationPresenter implements Initializable {
         childrenSeries.setName("Średnia liczba dzieci");
     }
 
-    public void handleSimulationChange(WorldMap worldMap, String message){
+    public void handleSimulationChange(WorldMap worldMap, int day, boolean isLive){
         javafx.application.Platform.runLater(() -> {
             MapStats mapStats = worldMap.getMapStats();
-            if(worldMap instanceof LivingWorldMap)
-                updateLineChart(mapStats, message);
-            updateLabels(mapStats, message);
+            updateLabels(mapStats, day);
             drawMap(worldMap);
+            if(isLive)
+                updateLineChart(mapStats, day);
             //todo : logi
         });
     }
@@ -270,9 +276,7 @@ public class SimulationPresenter implements Initializable {
     }
 
 
-    private void updateLineChart(MapStats mapStats, String message) {
-        int day = Integer.parseInt(message);
-
+    private void updateLineChart(MapStats mapStats, int day) {
         animalsSeries.getData().add(new XYChart.Data<>(day, mapStats.animalsCount()));
 
         plantsSeries.getData().add(new XYChart.Data<>(day, mapStats.plantsCount()));
@@ -288,8 +292,8 @@ public class SimulationPresenter implements Initializable {
     }
 
 
-    private void updateLabels(MapStats mapStats, String day){
-        dayLabel.setText(day);
+    private void updateLabels(MapStats mapStats, int day){
+        dayLabel.setText(String.valueOf(day));
         animalCountLabel.setText(mapStats.animalsCountStr());
         plantCountLabel.setText(mapStats.plantsCountStr());
         freeFieldsLabel.setText(mapStats.freeFieldsCountStr());
@@ -301,7 +305,7 @@ public class SimulationPresenter implements Initializable {
 
     private void drawMap(WorldMap worldMap) {
         clearGrid();
-        drawGrid(worldMap);
+        drawGrid();
         drawWorldElements(worldMap);
     }
 
@@ -320,8 +324,6 @@ public class SimulationPresenter implements Initializable {
 
 
         for (WorldElement worldElement: worldMap.getAllMapElements()){
-            if (!(worldElement instanceof AbstractAnimal) && worldMap.getAnimals(worldElement.position()).isPresent())
-                continue;
             Vector2d pos = worldElement.position();
 
             double centerX = gridOffset + (pos.getX() - offsetX) * cellSize + cellSize / 2;
@@ -347,7 +349,7 @@ public class SimulationPresenter implements Initializable {
         gc.restore();
     }
 
-    private void drawGrid(WorldMap worldMap){
+    private void drawGrid(){
         gc.save();
 
         gc.setFill(Color.BLACK);

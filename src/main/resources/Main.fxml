@@ -59,15 +59,20 @@
 
             <Label text="Długość genomu zwierzaków" GridPane.rowIndex="12" GridPane.columnIndex="0"/>
             <TextField fx:id="genLengthField" text="10" GridPane.rowIndex="12" GridPane.columnIndex="1"/>
+        </GridPane>
+        <VBox spacing="10" alignment="CENTER">
+            <CheckBox fx:id="isSeasonalCheckBox" text="pory roku"/>
+        </VBox>
 
-            <Label text="Długość pory roku w dniach: " GridPane.rowIndex="13" GridPane.columnIndex="0"/>
-            <TextField fx:id="seasonLengthField" text="50" GridPane.rowIndex="13" GridPane.columnIndex="1"/>
+        <GridPane hgap="10" vgap="10" fx:id="seasonalGridPane">
+            <Label text="Długość pory roku w dniach: " GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="seasonLengthField" text="50" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-            <Label text="Minimalna temperatura ℃: " GridPane.rowIndex="14" GridPane.columnIndex="0"/>
-            <TextField fx:id="minTemperatureField" text="-10" GridPane.rowIndex="14" GridPane.columnIndex="1"/>
+            <Label text="Minimalna temperatura ℃: " GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="minTemperatureField" text="-10" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-            <Label text="Dystans potrzebny do ogrzania dwóch zwierzaków: " GridPane.rowIndex="15" GridPane.columnIndex="0"/>
-            <TextField fx:id="distanceRequiredToHeatField" text="2" GridPane.rowIndex="15" GridPane.columnIndex="1"/>
+            <Label text="Dystans potrzebny do ogrzania dwóch zwierzaków: " GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <TextField fx:id="distanceRequiredToHeatField" text="2" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
         </GridPane>
         <VBox spacing="10" alignment="CENTER">
             <CheckBox fx:id="exportCsvCheckBox" text="export stats to .csv"/>

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 public interface WorldMap{
 
+
     <T extends AbstractAnimal>
     Optional<List<T>> getAnimals(Vector2d position);
 
