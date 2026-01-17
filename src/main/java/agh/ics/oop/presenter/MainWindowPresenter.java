@@ -5,19 +5,35 @@ import agh.ics.oop.model.WrongFieldStateException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 public class MainWindowPresenter implements Initializable {
+    private final String CONFIG_PATH = "config";
+    private final String PRESET_FILE_ENDING = "_preset.properties";
+
+    @FXML
+    private CheckBox exportCsvCheckBox;
+
+    @FXML
+    private Button deletePresetsButton;
+    @FXML
+    private TextField savePresetsTextField;
+    @FXML
+    private Button savePresetsButton;
+    @FXML
+    private ComboBox loadPresetsComboBox;
+    @FXML
+    private Button loadPresetsButton;
     @FXML
     private TextField mapWidthField;
     @FXML
@@ -43,7 +59,7 @@ public class MainWindowPresenter implements Initializable {
     @FXML
     private TextField maxMutationNumField;
     @FXML
-    private TextField genLenghtField;
+    private TextField genLengthField;
     @FXML
     private TextField seasonLengthField;
     @FXML
@@ -54,9 +70,19 @@ public class MainWindowPresenter implements Initializable {
     @FXML
     private Button startSimulationButton;
 
-    @FXML
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        loadPresetsList();
+        loadPresetsButton.setOnAction(e -> loadSimulationPreset());
+        savePresetsButton.setOnAction(e -> saveSimulationPreset());
+        deletePresetsButton.setOnAction(e -> deleteSimulationPreset());
+
         startSimulationButton.setOnAction(e -> startSimulation());
+
+        if(loadPresetsComboBox.getItems().contains("default"))
+        {
+            loadPresetsComboBox.setValue("default");
+            loadSimulationPreset();
+        }
     }
 
     private void startSimulation(){
@@ -74,7 +100,7 @@ public class MainWindowPresenter implements Initializable {
             configureStage(stage, viewRoot);
             stage.show();
 
-            presenter.startSimulation(simulationConfig);
+            presenter.startSimulation(simulationConfig, exportCsvCheckBox.isSelected());
         }
         catch (NumberFormatException e){
             showNumberFormatExceptionAlert(e);
@@ -103,7 +129,7 @@ public class MainWindowPresenter implements Initializable {
                 .energyToKid(parse(energyToKidField))
                 .minMutations(parse(minMutationNumField))
                 .maxMutations(parse(maxMutationNumField))
-                .genomeLength(parse(genLenghtField))
+                .genomeLength(parse(genLengthField))
                 .seasonLength(parse(seasonLengthField))
                 .minTemperature(parse(minTemperatureField))
                 .distanceRequiredToHeat(parse(distanceRequiredToHeatField))
@@ -119,7 +145,7 @@ public class MainWindowPresenter implements Initializable {
                 mapWidthField, mapHeightField, startPlantCountField,
                 energyFromPlantField, plantEveryDayField, startAnimalCountField,
                 startAnimalEnergyField, energyLossEverydayField, energyToReproduce,
-                energyToKidField, minMutationNumField, maxMutationNumField, genLenghtField
+                energyToKidField, minMutationNumField, maxMutationNumField, genLengthField
         };
 
         for (TextField field : allFields) {
@@ -175,4 +201,140 @@ public class MainWindowPresenter implements Initializable {
         primaryStage.setMinHeight(600);
     }
 
+    private void saveSimulationPreset() {
+        try {
+            String fileName = savePresetsTextField.getText().trim();
+            if (fileName.isEmpty()) throw new Exception("File name cannot be empty!");
+            if (loadPresetsComboBox.getItems().contains(fileName)) throw new Exception("File with name %s already exists!".formatted(fileName));
+
+            Properties props = new Properties();
+            readConfig();
+
+            props.setProperty("mapWidth", mapWidthField.getText());
+            props.setProperty("mapHeight", mapHeightField.getText());
+            props.setProperty("startPlantCount", startPlantCountField.getText());
+            props.setProperty("energyFromPlant", energyFromPlantField.getText());
+            props.setProperty("plantsPerDay", plantEveryDayField.getText());
+            props.setProperty("startAnimalCount", startAnimalCountField.getText());
+            props.setProperty("startAnimalEnergy", startAnimalEnergyField.getText());
+            props.setProperty("energyLossPerDay", energyLossEverydayField.getText());
+            props.setProperty("energyToReproduce", energyToReproduce.getText());
+            props.setProperty("energyToKid", energyToKidField.getText());
+            props.setProperty("minMutations", minMutationNumField.getText());
+            props.setProperty("maxMutations", maxMutationNumField.getText());
+            props.setProperty("genomeLength", genLengthField.getText());
+            props.setProperty("seasonLength", seasonLengthField.getText());
+            props.setProperty("minTemperature", minTemperatureField.getText());
+            props.setProperty("distanceRequiredToHeat", distanceRequiredToHeatField.getText());
+
+
+            File dir = new File(CONFIG_PATH);
+            if (!dir.exists()) dir.mkdirs();
+
+            File file = new File(dir, fileName + PRESET_FILE_ENDING);
+
+            try (var fos = new java.io.FileOutputStream(file)) {
+                props.store(fos, "Simulation preset saved by user");
+                System.out.println("Preset saved to: " + file.getName());
+            }
+
+            if (!loadPresetsComboBox.getItems().contains(fileName)) {
+                loadPresetsComboBox.getItems().add(fileName);
+            }
+
+        } catch (Exception e) {
+            var alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Błąd zapisu");
+            alert.setHeaderText("Nie udało się zapisać presetu symulacji");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    private void deleteSimulationPreset() {
+        try {
+            String selectedPreset = (String)loadPresetsComboBox.getValue();
+            if (selectedPreset == null)  throw new Exception("Preset not selected");;
+
+            File dir = new File(CONFIG_PATH);
+            if (!dir.exists()) dir.mkdirs();
+
+            File file = new File(dir, selectedPreset + PRESET_FILE_ENDING);
+            file.delete();
+
+            loadPresetsComboBox.getItems().remove(selectedPreset);
+        } catch (Exception e) {
+            var alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Nie udało się usunąć");
+            alert.setHeaderText("Nie udało się odczytać presetu symulacji");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    private void loadSimulationPreset() {
+        try {
+            String selectedPreset = (String)loadPresetsComboBox.getValue();
+            if (selectedPreset == null)  throw new Exception("Preset not selected");;
+
+            File dir = new File(CONFIG_PATH);
+            if (!dir.exists()) dir.mkdirs();
+
+            File file = new File(dir, selectedPreset + PRESET_FILE_ENDING);
+
+            Properties props = new Properties();
+            try (var fis = new java.io.FileInputStream(file)) {
+                props.load(fis);
+            }
+
+            // wczytujemy wartości do pól
+            mapWidthField.setText(props.getProperty("mapWidth", ""));
+            mapHeightField.setText(props.getProperty("mapHeight", ""));
+            startPlantCountField.setText(props.getProperty("startPlantCount", ""));
+            energyFromPlantField.setText(props.getProperty("energyFromPlant", ""));
+            plantEveryDayField.setText(props.getProperty("plantsPerDay", ""));
+            startAnimalCountField.setText(props.getProperty("startAnimalCount", ""));
+            startAnimalEnergyField.setText(props.getProperty("startAnimalEnergy", ""));
+            energyLossEverydayField.setText(props.getProperty("energyLossPerDay", ""));
+            energyToReproduce.setText(props.getProperty("energyToReproduce", ""));
+            energyToKidField.setText(props.getProperty("energyToKid", ""));
+            minMutationNumField.setText(props.getProperty("minMutations", ""));
+            maxMutationNumField.setText(props.getProperty("maxMutations", ""));
+            genLengthField.setText(props.getProperty("genomeLength", ""));
+            seasonLengthField.setText(props.getProperty("seasonLength", ""));
+            minTemperatureField.setText(props.getProperty("minTemperature", ""));
+            distanceRequiredToHeatField.setText(props.getProperty("distanceRequiredToHeat", ""));
+
+            System.out.println("Preset loaded: " + selectedPreset);
+        } catch (Exception e) {
+            var alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Błąd odczytu");
+            alert.setHeaderText("Nie udało się odczytać presetu symulacji");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    public void loadPresetsList() {
+        try {
+            File dir = new File(CONFIG_PATH);
+            if (!dir.exists()) dir.mkdirs();
+
+            loadPresetsComboBox.getItems().clear();
+
+            Files.list(dir.toPath())
+                    .filter(p -> p.getFileName().toString().endsWith(PRESET_FILE_ENDING))
+                    .forEach(preset -> {
+                        String fileName = preset.getFileName().toString();
+                        fileName = fileName.substring(0, fileName.length() - PRESET_FILE_ENDING.length());
+                        loadPresetsComboBox.getItems().add(fileName);
+                    });
+        } catch (Exception e) {
+            var alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Błąd");
+            alert.setHeaderText("Nie udało się załadować presetów");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
+    }
 }
