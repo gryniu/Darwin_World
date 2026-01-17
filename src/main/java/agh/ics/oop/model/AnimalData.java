@@ -1,4 +1,4 @@
 package agh.ics.oop.model;
 
-public record AnimalData(Gen gen, int energyStart, int dayOfBirth) {
+public record AnimalData(Gen gen, int energyStart, int dayOfBirth, Animal firstParent, Animal secondParent) {
 }

@@ -8,13 +8,22 @@ public class Animal extends AbstractAnimal{
     private final Gen gen;
     private final int dayOfBirth;
     private int numOfKids = 0;
+    private int numOfDescendants = 0;
+    private int plantConsumedCounter = 0;
+    private boolean isAlive;
+    private final Animal firstParent;
+    private final Animal secondParent;
+    private int numOfLivedDays;
 
     private final Iterator<Integer> genIterator;
     private final EnergyOptions energyOptions;
     private final AnimalOptions animalOptions;
 
     public Animal(Vector2d position, AnimalOptions animalOptions, int energyStart, int dayOfBirth) {
-        this(position,animalOptions, new AnimalData(new Gen(animalOptions.lenOfGen()), energyStart, dayOfBirth));
+        this(position,animalOptions,
+                new AnimalData(new Gen(animalOptions.lenOfGen()),
+                        energyStart, dayOfBirth, null,
+                        null));
     }
     public Animal(Vector2d position, AnimalOptions animalOptions, AnimalData animalData) {
         this.dayOfBirth = animalData.dayOfBirth(); //todo: tymczasowe - zmienic facotry, po stworzeniu simuation DONE
@@ -25,18 +34,10 @@ public class Animal extends AbstractAnimal{
         this.animalOptions = animalOptions;
         this.energyOptions = animalOptions.energyOptions();
         this.energy = animalData.energyStart();
-    }
-
-    Animal(Gen gen, Vector2d position, MapDirection orientation, int energy, int dayOfBirth, int numOfKids, AnimalOptions animalOptions){
-        this.gen = gen;
-        this.genIterator = gen.iterator();
-        this.dayOfBirth = dayOfBirth;
-        this.orientation = orientation;
-        this.position = position;
-        this.energy = energy;
-        this.numOfKids = numOfKids;
-        this.animalOptions = animalOptions;
-        this.energyOptions = animalOptions.energyOptions();
+        this.firstParent = animalData.firstParent();
+        this.secondParent = animalData.secondParent();
+        this.isAlive = true;
+        this.numOfLivedDays = 0;
     }
 
 
@@ -56,7 +57,7 @@ public class Animal extends AbstractAnimal{
 
         increaseNumOfKids();
         partner.increaseNumOfKids();
-        return Optional.of(new AnimalData(kidGen, kidStartingEnergy, day));
+        return Optional.of(new AnimalData(kidGen, kidStartingEnergy, day, this, partner));
     }
 
     public void decreaseDailyEnergy(double energyDecreaseMultiplier){
@@ -77,6 +78,7 @@ public class Animal extends AbstractAnimal{
 
 
     public void eat(double energyFromPlantMultiplier){
+        plantConsumedCounter++;
         energy += (int)(energyOptions.energyFromPlant()*energyFromPlantMultiplier);
     }
 
@@ -98,6 +100,8 @@ public class Animal extends AbstractAnimal{
         return firstPartner.isFeed() && secondPartner.isFeed();
     }
 
+
+
     public void rotate(){
         orientation = orientation.next(genIterator.next());
     }
@@ -118,8 +122,26 @@ public class Animal extends AbstractAnimal{
         numOfKids++;
     }
 
-    public boolean isDead(){
-        return energy<=0;
+    public int getPlantConsumedCounter() { return plantConsumedCounter; }
+
+    public void setAlive(boolean alive) { isAlive = alive; }
+
+    public boolean isAlive() { return isAlive ;}
+
+    public Animal getFirstParent() { return firstParent; }
+
+    public Animal getSecondParent() { return secondParent; }
+
+    public int getNumOfDescendants() { return numOfDescendants; }
+
+    public int getNumOfLivedDays() { return numOfLivedDays; }
+
+    public void increaseNumOfLivedDays() { numOfLivedDays++; }
+
+    public void increaseDescendantsCounter(){
+        numOfDescendants++;
+        if (firstParent != null) firstParent.increaseDescendantsCounter();
+        if (secondParent != null) secondParent.increaseDescendantsCounter();
     }
 
 }

@@ -7,8 +7,10 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.VPos;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.LineChart;
@@ -17,11 +19,16 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class SimulationPresenter implements Initializable {
@@ -129,6 +136,12 @@ public class SimulationPresenter implements Initializable {
             }
         });
 
+        mapCanvas.setOnMouseClicked(event -> {
+            if (!(worldMap instanceof LivingWorldMap)) return;
+            if (simulation == null || !simulation.isPaused()) return;
+
+            handleCanvasClick(event.getX(), event.getY());
+        });
     }
 
     public void startSimulation(SimulationConfig config) {
@@ -426,5 +439,66 @@ public class SimulationPresenter implements Initializable {
                 //todo : logi
             });
         }
+    }
+
+    private void handleCanvasClick(double mouseX, double mouseY){
+        System.out.println("poprawne klikniecie!!!");
+        if (mouseX < gridOffset || mouseY < gridOffset) return;
+        if (mouseX > gridOffset + gridWidth * cellSize) return;
+        if (mouseY > gridOffset + gridHeight * cellSize) return;
+        System.out.println("POPRAWNE KLIKNIECIE!!!");
+
+        int col = (int) ((mouseX-gridOffset)/cellSize);
+        int rowFromTop = (int) ((mouseY - gridOffset) / cellSize);
+
+        int row = gridHeight - 1 - rowFromTop;
+
+        Boundary boundary = worldMap.getCurrentBounds();
+        int mapX = boundary.lowerLeft().getX() + col;
+        int mapY = boundary.lowerLeft().getY() + row;
+
+        handleMapFieldClick(mapX, mapY);
+    }
+
+    private void handleMapFieldClick(int x, int y) {
+        Vector2d position = new Vector2d(x, y);
+        Optional<List<Animal>> animalsOnPosition = worldMap.getAnimalsOrdered(position);
+
+        if (animalsOnPosition.isEmpty() || animalsOnPosition.get().isEmpty()) return; // nie ma żadnego Animala na pozycji
+        System.out.println("POPRAWNE KLIKNIECIE NA ANIMALA!!!");
+        Animal animal =  animalsOnPosition.get().getFirst();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AnimalStats.fxml"));
+            BorderPane viewRoot = loader.load();
+            AnimalStatsPresenter presenter = loader.getController();
+
+            Stage stage = new Stage();
+            stage.setOnCloseRequest(event -> {
+                presenter.closeStatsWindow();
+            });
+
+            configureStage(stage,viewRoot, animal);
+            stage.show();
+
+            presenter.showAnimalStats(animal, worldMap, simulation);
+            simulation.addMapChangeListener(presenter::updateTextFields);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void configureStage(Stage primaryStage, BorderPane viewRoot, Animal animal) {
+        // stworzenie sceny (panelu do wyświetlania wraz zawartoscia z FXML)
+        var scene = new Scene(viewRoot);
+
+        // ustawienie sceny w oknie
+        primaryStage.setScene(scene);
+
+        // konfiguracja okna
+        primaryStage.setTitle("Animal " + animal.getId() + " statistics");
+        //todo: ustawic szerokosc i wysokosc okienka jako stałe
+        primaryStage.setMinWidth(400);
+        primaryStage.setMinHeight(300);
     }
 }

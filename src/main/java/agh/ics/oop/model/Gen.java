@@ -51,13 +51,11 @@ public class Gen implements Iterable<Integer>{
             currIndex = (currIndex+1) % lenOfGen;
             return genList.get(currIndex);
         }
-
     }
 
     public List<Integer> getGenList() {
         return genList;
     }
-
     private void setRandomElementInGenList(){
         genList.set(ThreadLocalRandom.current().nextInt(lenOfGen), ThreadLocalRandom.current().nextInt(8));
     }
@@ -134,4 +132,6 @@ public class Gen implements Iterable<Integer>{
     public int hashCode() {
         return Objects.hash(genList, lenOfGen);
     }
+
+
 }

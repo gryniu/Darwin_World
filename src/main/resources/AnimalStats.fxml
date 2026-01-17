@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.ics.oop.presenter.AnimalStatsPresenter" stylesheets="@animal_stats.css">
+    <center>
+        <Label text="Statystyk"/>
+        <GridPane hgap="10" vgap="10">
+            <Label text="Genom" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="animalGenomField" text="15" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Aktywowana część genomu" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="activeAnimalGenomField" text="15" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Energia: " GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <TextField fx:id="animalEnergyField" text="15" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Ilość zjedzonych roślin" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <TextField fx:id="plantConsumedCounterField" text="15" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+            <Label text="Ilość dzieci" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <TextField fx:id="childCounterField" text="15" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+            <Label text="Ilość potomków" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <TextField fx:id="descendantCounterField" text="15" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+            <Label text="Ilość przeżytych dni" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+            <TextField fx:id="livedDayCounterField" text="15" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+            <Label text="Dzień śmierci" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+            <TextField fx:id="deathDayField" text="15" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+        </GridPane>
+    </center>
+</BorderPane>

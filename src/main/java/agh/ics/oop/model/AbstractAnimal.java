@@ -2,10 +2,13 @@ package agh.ics.oop.model;
 
 import javafx.scene.paint.Color;
 
+import java.util.UUID;
+
 public abstract class AbstractAnimal implements WorldElement{
     protected Vector2d position;
     protected MapDirection orientation;
     protected int energy;
+    private UUID id = UUID.randomUUID();
 
     @Override
     public Vector2d position() {
@@ -51,5 +54,9 @@ public abstract class AbstractAnimal implements WorldElement{
         if (energy < softCap * 0.5) return Color.YELLOW;
         if (energy < softCap * 0.75) return Color.LIMEGREEN;
         return Color.DARKGREEN;
+    }
+
+    public UUID getId() {
+        return id;
     }
 }

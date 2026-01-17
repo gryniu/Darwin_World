@@ -193,7 +193,8 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
 
     public void removeDeadAnimals(int day){
         for (var animal: animals.getAll()){
-            if(animal.isDead()){
+            if(animal.getEnergy()<=0){
+                animal.setAlive(false);
                 animals.removeAnimal(animal);
                 mapChanged("animal died on %s".formatted(animal.position()));
                 decreaseGenotypeCounter(animal);
@@ -223,6 +224,8 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
                                             kidAnimalData
                                     );
                                     increaseGenotypeCounter(child);
+                                    firstPartner.increaseDescendantsCounter();
+                                    secondPartner.increaseDescendantsCounter();
                                     newborns.add(child);
                                 });
                             }
@@ -239,6 +242,7 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
         for (Animal animal: getAllAnimals()){
             move(animal);
             animal.rotate();
+            animal.increaseNumOfLivedDays();
         }
     }
 

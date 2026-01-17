@@ -109,6 +109,12 @@ public class Simulation implements Runnable{
         }
     }
 
+    public void removeMapChangeListener(Listener listener) {
+        synchronized (lock) {
+            mapChangeListeners.remove(listener);
+        }
+    }
+
     public void setPausedSimulation(boolean isPaused) {
         synchronized (lock) {
             boolean wasPaused = paused;
