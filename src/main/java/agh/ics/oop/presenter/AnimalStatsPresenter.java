@@ -53,7 +53,7 @@ public class AnimalStatsPresenter {
         childCounterField.setText(String.valueOf(animal.getNumOfKids()));
         descendantCounterField.setText(String.valueOf(animal.getNumOfDescendants()));
         livedDayCounterField.setText(String.valueOf(animal.getNumOfLivedDays()));
-        if (!animal.isAlive()) deathDayField.setText(String.valueOf(animal.getNumOfLivedDays()));
+        if (!animal.isAlive()) deathDayField.setText(String.valueOf(animal.getDeathDay()));
     }
 
     public void closeStatsWindow(){

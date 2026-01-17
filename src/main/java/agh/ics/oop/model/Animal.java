@@ -10,6 +10,7 @@ public class Animal extends AbstractAnimal{
     private int numOfDescendants = 0;
     private int plantConsumedCounter = 0;
     private boolean isAlive;
+    private int deathDay;
     private final Animal firstParent;
     private final Animal secondParent;
     private int numOfLivedDays;
@@ -139,4 +140,7 @@ public class Animal extends AbstractAnimal{
         if (secondParent != null) secondParent.increaseDescendantsCounter();
     }
 
+    public void setDeathDay(int deathDay) {this.deathDay = deathDay;}
+
+    public int getDeathDay() {return deathDay;}
 }

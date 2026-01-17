@@ -204,6 +204,7 @@ public abstract class AbstractWorldMap implements LivingWorldMap {
         for (var animal: animals.getAll()){
             if(animal.getEnergy()<=0){
                 animal.setAlive(false);
+                animal.setDeathDay(day);
                 animals.removeAnimal(animal);
                 mapChanged("animal died on %s".formatted(animal.position()));
                 decreaseGenotypeCounter(animal);
