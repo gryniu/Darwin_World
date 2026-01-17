@@ -48,7 +48,7 @@ public class Gen implements Iterable<Integer>{
         private int currIndex;
 
         public Itr() {
-            currIndex = -1;
+            currIndex = ThreadLocalRandom.current().nextInt(-1,lenOfGen-2);
         }
 
         @Override
