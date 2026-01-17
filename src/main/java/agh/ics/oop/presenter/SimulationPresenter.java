@@ -131,13 +131,13 @@ public class SimulationPresenter implements Initializable {
 
     }
 
-    public void startSimulation(SimulationConfig config) {
+    public void startSimulation(SimulationConfig config, boolean saveToCsv) {
         MapOptions mapOptions = new MapOptions(
                 config.mapHeight,
                 config.mapWidth,
                 config.startPlantCount,
-                config.startPlantCount,
                 config.plantsPerDay,
+                config.startAnimalCount,
                 config.energyFromPlant
         );
 
@@ -170,6 +170,9 @@ public class SimulationPresenter implements Initializable {
         // poczatkowe rysowanie mapy
         handleSimulationChange(this.worldMap, "starting state");
         simulation.addMapChangeListener(this::handleSimulationChange);
+
+        if (saveToCsv)
+            simulation.addMapChangeListener(new CsvLogger(worldMap));
 
         simulation.startSimulation();
 
