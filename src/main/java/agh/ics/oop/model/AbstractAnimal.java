@@ -43,12 +43,13 @@ public abstract class AbstractAnimal implements WorldElement{
         return energy;
     }
 
-    public double getEnergyRatio(int softCap) {
-        if (softCap <= 0) return 0;
+    public double getEnergyRatio(int median, int percentile85) {
+        if (percentile85 <= median) return 0;
 
-        double k = 6.0 / softCap; // stromość
-        return 1.0 / (1.0 + Math.exp(-k * (energy - softCap / 2.0)));
+        double k = Math.log(9) / (percentile85 - median);
+        return 1.0 / (1.0 + Math.exp(-k * (energy - median)));
     }
+
 
     public UUID getId() { return id; }
 
@@ -57,9 +58,10 @@ public abstract class AbstractAnimal implements WorldElement{
     }
 
     public Color getEnergyColor(int softCap) {
-        if (energy < softCap * 0.15) return Color.RED;
-        if (energy < softCap * 0.5) return Color.YELLOW;
-        if (energy < softCap * 0.75) return Color.LIMEGREEN;
+        if (energy < softCap * .15) return Color.RED;
+        if (energy < softCap * .3) return Color.YELLOW;
+        if (energy < softCap * .5) return Color.ORANGE;
+        if (energy < softCap * .75) return Color.LIMEGREEN;
         return Color.DARKGREEN;
     }
 }

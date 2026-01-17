@@ -422,18 +422,19 @@ public class SimulationPresenter implements Initializable {
     }
 
     private void drawEnergyBar(GraphicsContext gc, AbstractAnimal animal, double centerX, double centerY) {
-        gc.save();
-        int energyPercentile = worldMap.getEnergyPercentile(85);
-        double ratio = animal.getEnergyRatio(energyPercentile);
+        int p85 = worldMap.getEnergyPercentile(85);
+        int median = worldMap.getEnergyPercentile(50);
+        double ratio = animal.getEnergyRatio(median, p85);
         double width = energyBarWidth * ratio;
 
         double x = centerX - cellSize / 2 + (cellSize - energyBarWidth) / 2;
         double y = centerY + cellSize / 2 - energyBarHeight - 2.5;
 
+        gc.save();
         gc.setFill(Color.LIGHTGRAY);
         gc.fillRoundRect(x, y, energyBarWidth, energyBarHeight, energyBarHeight, energyBarHeight);
 
-        gc.setFill(animal.getEnergyColor(energyPercentile));
+        gc.setFill(animal.getEnergyColor(p85));
         gc.fillRoundRect(x, y, width, energyBarHeight, energyBarHeight, energyBarHeight);
 
         gc.setStroke(Color.DARKGRAY);
