@@ -65,7 +65,13 @@ public class SeasonalWorldMap extends RealWorldMap {
         List<Animal> currentAnimals = getAllAnimals();
         boolean[] isHeated = new boolean[currentAnimals.size()];
         checkIfHeated(currentAnimals, isHeated);
-
+        for(int i = 0; i < currentAnimals.size(); i++){
+            if(isHeated[i]){
+                currentAnimals.get(i).decreaseDailyEnergy(1);
+            }else{
+                currentAnimals.get(i).decreaseDailyEnergy(energyDecreaseMultiplier);
+            }
+        }
     }
 
     private void checkIfHeated(List<Animal> animals, boolean[] isHeated){
