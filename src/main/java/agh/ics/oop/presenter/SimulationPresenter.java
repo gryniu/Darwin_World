@@ -19,6 +19,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -27,10 +28,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class SimulationPresenter implements Initializable {
     @FXML
@@ -102,10 +100,18 @@ public class SimulationPresenter implements Initializable {
     private final XYChart.Series<Number, Number> lifespanSeries = new XYChart.Series<>();
     private final XYChart.Series<Number, Number> childrenSeries = new XYChart.Series<>();
 
-
+    private List<Image> animalImages = new ArrayList<>();
+    private Image plantImage;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        for(int i = 0; i<8; i++){
+            animalImages.add(new Image(
+                            getClass().getResourceAsStream("/images/animal%d.png".formatted(i))
+                    ));
+        }
+        plantImage = new Image(getClass().getResourceAsStream("/images/plant.png"));
+;
         dayAxis.setAutoRanging(true);
         valueAxis.setAutoRanging(true);
 
@@ -324,24 +330,31 @@ public class SimulationPresenter implements Initializable {
             Vector2d pos = worldElement.position();
 
             double centerX = gridOffset + (pos.getX() - offsetX) * cellSize + cellSize / 2;
+            double posX = gridOffset + (pos.getX() - offsetX) * cellSize;
 
             // W JAVIEFX Y JEST NA GORZE!!11!11!
             int worldY = pos.getY() - offsetY;
             int flippedY = gridHeight - 1 - worldY;
 
             double centerY = gridOffset + flippedY * cellSize + cellSize / 2;
+            double posY = gridOffset + flippedY * cellSize;
 
             // rysowanie z eznergy Barem
             if (worldElement instanceof AbstractAnimal abstractAnimal) {
                 gc.save();
-                if (Objects.equals(abstractAnimal.getGen().toString(), simulation.getStats(day).mostPopularGenotype())){
-                    configureFont(gc, fontSize*2.67, Color.RED);
-                }
-                gc.fillText(abstractAnimal.toString(), centerX, centerY);
+//                if (Objects.equals(abstractAnimal.getGen().toString(), simulation.getStats(day).mostPopularGenotype())){
+//                    configureFont(gc, fontSize*2.67, Color.RED);
+//                }//todo: jakos to ogarnac
+//                gc.fillText(abstractAnimal.toString(), centerX, centerY);
+                gc.drawImage(animalImages.get(abstractAnimal.getOrientation().ordinal()), posX, posY, cellSize, cellSize);
                 gc.restore();
                 drawEnergyBar(gc, abstractAnimal, centerX, centerY);
 
-            }else gc.fillText(worldElement.toString(), centerX, centerY);
+            }else
+            {
+                    gc.drawImage(plantImage, posX, posY, cellSize, cellSize);
+//                gc.fillText(worldElement.toString(), centerX, centerY);
+            }
         }
         gc.restore();
     }

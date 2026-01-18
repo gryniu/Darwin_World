@@ -84,15 +84,15 @@ public abstract class AbstractWorldMap<T extends AbstractAnimal> implements Worl
     @Override
     public List<WorldElement> getAllMapElements() {
         List<WorldElement> elements = new ArrayList<>();
-        elements.addAll(getAllAnimals());
         elements.addAll(getPlants());
+        elements.addAll(getAllAnimals());
         return elements;
     }
 
     public Color getColorOfField(Vector2d fieldPosition){
         Long plantsFrequency = plantsFrequencyCounter.getOrDefault(fieldPosition,0L);
-        if (plantsFrequency < maxNumOfPlantsOnPosition*.33) return Color.LIGHTGREEN;
-        if (plantsFrequency < maxNumOfPlantsOnPosition*.75) return Color.GREEN;
-        return Color.DARKGREEN;
+        if (plantsFrequency < maxNumOfPlantsOnPosition*.33) return Color.valueOf("#78D23D");
+        if (plantsFrequency < maxNumOfPlantsOnPosition*.75) return Color.valueOf("#58BB43");
+        return Color.valueOf("#3AA346");
     }
 }
