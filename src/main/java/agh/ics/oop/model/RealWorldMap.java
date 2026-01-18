@@ -281,7 +281,6 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
         return elements;
     }
 
-    @Override
     public MapStats getMapStats(){
         return new MapStats(getAnimalsCount(), getPlantsCount(), getFreeFieldsCount(), getAverageEnergy(), getAverageLifespan(), getAverageChildren(), getMostPopularGenotype());
 

@@ -210,9 +210,10 @@ public class SimulationPresenter implements Initializable {
 
     public void handleSimulationChange(WorldMap worldMap, int day, boolean isLive){
         javafx.application.Platform.runLater(() -> {
-            MapStats mapStats = worldMap.getMapStats();
+            drawMap(worldMap, day);
+
+            MapStats mapStats = simulation.getStats(day);
             updateLabels(mapStats, day);
-            drawMap(worldMap);
             if(isLive)
                 updateLineChart(mapStats, day);
         });
@@ -303,13 +304,13 @@ public class SimulationPresenter implements Initializable {
         popularGenotypeLabel.setText(mapStats.mostPopularGenotype());
     }
 
-    private void drawMap(WorldMap worldMap) {
+    private void drawMap(WorldMap worldMap, int day) {
         clearGrid();
         drawGrid();
-        drawWorldElements(worldMap);
+        drawWorldElements(worldMap, day);
     }
 
-    private void drawWorldElements(WorldMap worldMap){
+    private void drawWorldElements(WorldMap worldMap, int day){
         gc.save();
         gc.setStroke(Color.BLACK);
         configureFont(gc, fontSize, Color.BLACK);
@@ -333,7 +334,7 @@ public class SimulationPresenter implements Initializable {
             // rysowanie z eznergy Barem
             if (worldElement instanceof AbstractAnimal abstractAnimal) {
                 gc.save();
-                if (Objects.equals(abstractAnimal.getGen().toString(), worldMap.getMapStats().mostPopularGenotype())){
+                if (Objects.equals(abstractAnimal.getGen().toString(), simulation.getStats(day).mostPopularGenotype())){
                     configureFont(gc, fontSize*2.67, Color.RED);
                 }
                 gc.fillText(abstractAnimal.toString(), centerX, centerY);
@@ -462,12 +463,6 @@ public class SimulationPresenter implements Initializable {
         fontSize = cellSize*0.3;
         energyBarWidth = cellSize*0.8;
         energyBarHeight =  energyBarWidth *0.15;
-
-        if (worldMap != null){
-            javafx.application.Platform.runLater(() -> {
-                drawMap(worldMap);
-            });
-        }
     }
 
     private void handleCanvasClick(double mouseX, double mouseY){
