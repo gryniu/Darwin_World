@@ -10,9 +10,6 @@ public class HistoryLogger implements SimulationListener {
 
             //zapisywanie roslin
             HistoryFileHandler.writeToFile("/%s-%d-plants.txt".formatted(realWorldMap.getId(), day), worldMap.getPlants());
-
-            //zapisywanie statystyk
-//            HistoryFileHandler.writeToFile("/%s-%d-stats.txt".formatted(realWorldMap.getId(), day), realWorldMap.getMapStats().toDataString());
         }
     }
 }

@@ -1,8 +1,6 @@
-package agh.ics.oop;
+package agh.ics.oop.simulation;
 
 import agh.ics.oop.model.WrongFieldStateException;
-import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +67,7 @@ public class SimulationConfig {
         private int minTemperature;
         private int distanceRequiredToHeat;
 
-        public Builder isSeasional(boolean v) {isSeasonal = v; return this;}
+        public Builder isSeasonal(boolean v) {isSeasonal = v; return this;}
         public Builder mapWidth(int v) { mapWidth = v; return this; }
         public Builder mapHeight(int v) { mapHeight = v; return this; }
         public Builder startPlantCount(int v) { startPlantCount = v; return this; }

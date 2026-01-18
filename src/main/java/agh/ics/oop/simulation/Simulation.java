@@ -1,4 +1,4 @@
-package agh.ics.oop;
+package agh.ics.oop.simulation;
 
 import agh.ics.oop.model.*;
 
@@ -19,9 +19,7 @@ public class Simulation implements Runnable{
     private final Object lock = new Object();
 
     //cofanie
-    private boolean rewinded = false;
     private int rewindedDays = 0;
-    private FakeWorldMap fakeWorldMap = null;
 
     public Simulation(RealWorldMap worldMap, int simulationSpeed) {
         this.worldMap = worldMap;
@@ -123,15 +121,10 @@ public class Simulation implements Runnable{
 
 
             if (wasPaused && !isPaused) {
-                rewinded = false;
                 rewindedDays = 0;
                 lock.notify();
             }
         }
-    }
-
-    public boolean isRewinded() {
-        return rewinded;
     }
 
     public boolean isPaused() {
@@ -172,13 +165,12 @@ public class Simulation implements Runnable{
 
     public void rewind(boolean goBack) {
         if(!isPaused()) throw new RuntimeException("Can't rewind on play!");
-        rewinded = true;
         if(goBack)
             rewindedDays = Math.min(day-1, rewindedDays + 1);
         else
             rewindedDays = Math.max(0, rewindedDays - 1);
 
-        fakeWorldMap = new FakeWorldMap(worldMap.getId(), day - rewindedDays,  worldMap.getWidth(), worldMap.getHeight());
+        FakeWorldMap fakeWorldMap = new FakeWorldMap(worldMap.getId(), day - rewindedDays, worldMap.getWidth(), worldMap.getHeight());
         notifyListeners(day - rewindedDays, fakeWorldMap);
     }
 

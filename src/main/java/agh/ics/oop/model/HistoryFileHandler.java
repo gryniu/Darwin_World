@@ -22,18 +22,6 @@ public class HistoryFileHandler {
         }
     }
 
-    public static void writeToFile(String fileName, String item){
-        File dir = new File(DIR_PATH);
-        if (!dir.exists()) dir.mkdirs();
-
-        try {
-            Path path = Path.of(DIR_PATH, fileName);
-            Files.writeString(path, item);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static List<FakeAnimal> importAnimals(UUID id, int day){
         List<FakeAnimal>  animals = new ArrayList<>();
 

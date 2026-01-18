@@ -1,7 +1,6 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.SimulationConfig;
-import agh.ics.oop.model.SeasonalWorldMap;
+import agh.ics.oop.simulation.SimulationConfig;
 import agh.ics.oop.model.WrongFieldStateException;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -116,11 +115,9 @@ public class MainWindowPresenter implements Initializable {
             showNumberFormatExceptionAlert(e);
         }
         catch (WrongFieldStateException e){
-            e.printStackTrace();
             showValidationErrorAlert(e);
         }
         catch (IOException e) {
-            e.printStackTrace();
             showIOExceptionAlert(e);
         }
     }
@@ -143,7 +140,7 @@ public class MainWindowPresenter implements Initializable {
                 .seasonLength(parse(seasonLengthField))
                 .minTemperature(parse(minTemperatureField))
                 .distanceRequiredToHeat(parse(distanceRequiredToHeatField))
-                .isSeasional(isSeasonal.get())
+                .isSeasonal(isSeasonal.get())
                 .build();
     }
 
@@ -151,24 +148,12 @@ public class MainWindowPresenter implements Initializable {
         return Integer.parseInt(field.getText().trim());
     }
 
-    private void resetFieldStyles() {
-        TextField[] allFields = {
-                mapWidthField, mapHeightField, startPlantCountField,
-                energyFromPlantField, plantEveryDayField, startAnimalCountField,
-                startAnimalEnergyField, energyLossEverydayField, energyToReproduce,
-                energyToKidField, minMutationNumField, maxMutationNumField, genLengthField
-        };
 
-        for (TextField field : allFields) {
-            field.setStyle("");
-        }
-    }
 
     private void showValidationErrorAlert(WrongFieldStateException e) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Błąd walidacji");
         alert.setHeaderText("Nieprawidłowe parametry symulacji");
-        resetFieldStyles();
         String errorMessage = String.join("\n• ", e.getErrors());
 
         alert.setContentText("Błędy wystąpiły na polach:\n• " + errorMessage);
@@ -189,8 +174,6 @@ public class MainWindowPresenter implements Initializable {
         alert.setTitle("Błąd walidacji");
         alert.setHeaderText("Nieprawidłowe parametry symulacji");
 
-        resetFieldStyles();
-
         String errorMessage = String.join("\n• ", "Wpisane Parametry nie są liczbami");
 
         alert.setContentText(errorMessage);
@@ -207,9 +190,6 @@ public class MainWindowPresenter implements Initializable {
 
         // konfiguracja okna
         primaryStage.setTitle("Simulation app");
-        //todo: ustawic szerokosc i wysokosc okienka jako stałe
-        primaryStage.setMinWidth(800);
-        primaryStage.setMinHeight(600);
     }
 
     private void saveSimulationPreset() {

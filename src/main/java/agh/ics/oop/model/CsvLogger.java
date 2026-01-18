@@ -14,7 +14,7 @@ public class CsvLogger implements SimulationListener{
         file = new File(homeDir, "%s.csv".formatted(worldMap.getId()));
 
         try (FileWriter writer = new FileWriter(file)) {
-            writer.append("Day," + worldMap.getMapStats().getLabel());
+            writer.append("Day,").append(worldMap.getMapStats().getLabel());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -24,7 +24,7 @@ public class CsvLogger implements SimulationListener{
     public void change(WorldMap worldMap, int day, boolean isLive) {
         if (isLive && worldMap instanceof RealWorldMap realWorldMap) {
             try (FileWriter writer = new FileWriter(file, true)) {
-                writer.append(day + "," + realWorldMap.getMapStats().getRow());
+                writer.append(String.valueOf(day)).append(",").append(realWorldMap.getMapStats().getRow());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

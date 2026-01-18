@@ -1,12 +1,10 @@
-package agh.ics.oop;
+package agh.ics.oop.simulation;
 // todo: kod wygenerowany, pozmieniac, tak samo jak presenter i simulation
 import agh.ics.oop.model.HistoryFileHandler;
 import agh.ics.oop.presenter.MainWindowPresenter;
-import agh.ics.oop.presenter.SimulationPresenter;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 

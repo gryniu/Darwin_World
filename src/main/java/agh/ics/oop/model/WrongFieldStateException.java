@@ -2,6 +2,7 @@ package agh.ics.oop.model;
 
 import java.util.List;
 
+// todo: opisac bledy
 public class WrongFieldStateException extends Exception {
     private final List<String> missingFields;
     public WrongFieldStateException(List<String> missingFields) {

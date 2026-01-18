@@ -19,7 +19,7 @@ javafx {
 }
 
 application {
-    mainClass = 'agh.ics.oop.SimulationApp' // albo WorldGUI
+    mainClass = 'agh.ics.oop.WorldGUI' 
 }
 
 repositories {

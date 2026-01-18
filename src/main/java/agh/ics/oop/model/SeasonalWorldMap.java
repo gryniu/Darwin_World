@@ -5,7 +5,6 @@ import javafx.scene.paint.Color;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.stream.IntStream;
 
 public class SeasonalWorldMap extends RealWorldMap {
@@ -76,7 +75,7 @@ public class SeasonalWorldMap extends RealWorldMap {
     private void checkIfHeated(List<Animal> animals, boolean[] isHeated) {
         List<Integer> indexes = IntStream.range(0, animals.size())
                 .boxed()
-                .sorted(Comparator.comparingInt(i -> animals.get(i).position.getX()))
+                .sorted(Comparator.comparingInt(i -> animals.get(i).position.x()))
                 .toList();
 
         HashSet<Integer> activeSet = new HashSet<>();
@@ -84,7 +83,7 @@ public class SeasonalWorldMap extends RealWorldMap {
         for (int idx : indexes) {
             Animal current = animals.get(idx);
 
-            activeSet.removeIf(i -> current.position.getX() - animals.get(i).position.getX() > seasonsOptions.distanceRequiredToHeat());
+            activeSet.removeIf(i -> current.position.x() - animals.get(i).position.x() > seasonsOptions.distanceRequiredToHeat());
 
             for (int i : activeSet) {
                 Animal other = animals.get(i);

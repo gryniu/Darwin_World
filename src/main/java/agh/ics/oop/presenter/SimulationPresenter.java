@@ -1,7 +1,7 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.Simulation;
-import agh.ics.oop.SimulationConfig;
+import agh.ics.oop.simulation.Simulation;
+import agh.ics.oop.simulation.SimulationConfig;
 import agh.ics.oop.model.*;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -70,7 +70,6 @@ public class SimulationPresenter implements Initializable {
     // every cell is square
     private double cellSize = 40.0; // every cell is square
     private double borderWidth = 1.67;
-    private double borderOffset = borderWidth /2.0;
     private double gridOffset = cellSize * 1.5;
     private double coordsFontSize = 20.0;
     private double fontSize = cellSize*0.3;
@@ -318,11 +317,11 @@ public class SimulationPresenter implements Initializable {
         for (WorldElement worldElement: worldMap.getAllMapElements()){
             Vector2d pos = worldElement.position();
 
-            double centerX = gridOffset + pos.getX() * cellSize + cellSize / 2;
-            double posX = gridOffset + pos.getX() * cellSize;
+            double centerX = gridOffset + pos.x() * cellSize + cellSize / 2;
+            double posX = gridOffset + pos.x() * cellSize;
 
             // W JAVIEFX Y JEST NA GORZE!!11!11!
-            int worldY = pos.getY();
+            int worldY = pos.y();
             int flippedY = worldMap.getHeight() - 1 - worldY;
 
             double centerY = gridOffset + flippedY * cellSize + cellSize / 2;
@@ -455,7 +454,6 @@ public class SimulationPresenter implements Initializable {
         cellSize = Math.min(cellWidth, cellHeight);
 
         borderWidth = cellSize/24.0;
-        borderOffset = borderWidth /2.0;
         coordsFontSize = cellSize/2.0;
         gridOffset = cellSize * 1.5;
         fontSize = cellSize*0.3;
@@ -512,8 +510,6 @@ public class SimulationPresenter implements Initializable {
 
         // konfiguracja okna
         primaryStage.setTitle("Animal " + animal.getId() + " statistics");
-        //todo: ustawic szerokosc i wysokosc okienka jako stałe
-        primaryStage.setMinWidth(400);
-        primaryStage.setMinHeight(300);
+
     }
 }

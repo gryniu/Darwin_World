@@ -89,12 +89,12 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
         animals.removeAnimal(animal);
         Vector2d newPosition = oldPosition.add(animal.getOrientation().toUnitVector());
 
-        if (newPosition.getY() < 0 || newPosition.getY() >= height){
+        if (newPosition.y() < 0 || newPosition.y() >= height){
             animal.rotate180();
             newPosition = oldPosition.add(animal.getOrientation().toUnitVector());
         }
-        if (newPosition.getX() < 0 || newPosition.getX() >= width){
-            newPosition = new Vector2d(Math.floorMod(newPosition.getX(), width), newPosition.getY());
+        if (newPosition.x() < 0 || newPosition.x() >= width){
+            newPosition = new Vector2d(Math.floorMod(newPosition.x(), width), newPosition.y());
         }
 
         animal.setPosition(newPosition);

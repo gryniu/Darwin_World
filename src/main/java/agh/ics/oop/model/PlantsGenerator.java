@@ -2,7 +2,6 @@ package agh.ics.oop.model;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Consumer;
 
 public class PlantsGenerator implements Iterable<Vector2d>{
     private Deque<Vector2d> normalArea = new ArrayDeque<>();
@@ -33,8 +32,8 @@ public class PlantsGenerator implements Iterable<Vector2d>{
     }
 
     public void returnPlant(Vector2d position){
-        int x = position.getX();
-        int y = position.getY();
+        int x = position.x();
+        int y = position.y();
 
         if(y >= jungleStarts && y < jungleEnds){
             jungleArea.addLast(new Vector2d(x, y));

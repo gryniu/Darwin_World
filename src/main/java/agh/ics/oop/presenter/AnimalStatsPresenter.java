@@ -1,6 +1,6 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.Simulation;
+import agh.ics.oop.simulation.Simulation;
 import agh.ics.oop.model.RealWorldMap;
 import agh.ics.oop.model.Animal;
 import agh.ics.oop.model.WorldMap;
@@ -26,12 +26,10 @@ public class AnimalStatsPresenter {
     private TextField deathDayField;
 
     private Animal animal;
-    private RealWorldMap worldMap;
     private Simulation simulation;
 
     public void showAnimalStats(Animal animal, RealWorldMap worldMap, Simulation simulation){
         this.animal = animal;
-        this.worldMap = worldMap;
         this.simulation = simulation;
         if (animal.isAlive()) deathDayField.setText("-");
         updateTextFields(worldMap, 0, true);

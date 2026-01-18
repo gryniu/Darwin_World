@@ -1,6 +1,5 @@
 package agh.ics.oop.model;
 
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 import java.util.UUID;
