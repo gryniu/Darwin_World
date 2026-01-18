@@ -4,15 +4,15 @@ public class HistoryLogger implements SimulationListener {
 
     @Override
     public void change(WorldMap worldMap, int day, boolean isLive){
-        if (isLive && worldMap instanceof RealWorldMap worldMap1) {
+        if (isLive && worldMap instanceof RealWorldMap realWorldMap) {
             //zapisywanie animali
-            HistoryFileHandler.writeToFile("/%s-%d-animals.txt".formatted(worldMap1.getId(), day), worldMap.getAllAnimals());
+            HistoryFileHandler.writeToFile("/%s-%d-animals.txt".formatted(realWorldMap.getId(), day), worldMap.getAllAnimals());
 
             //zapisywanie roslin
-            HistoryFileHandler.writeToFile("/%s-%d-plants.txt".formatted(worldMap1.getId(), day), worldMap.getPlants());
+            HistoryFileHandler.writeToFile("/%s-%d-plants.txt".formatted(realWorldMap.getId(), day), worldMap.getPlants());
 
             //zapisywanie statystyk
-            HistoryFileHandler.writeToFile("/%s-%d-stats.txt".formatted(worldMap1.getId(), day), worldMap.getMapStats().toDataString());
+//            HistoryFileHandler.writeToFile("/%s-%d-stats.txt".formatted(realWorldMap.getId(), day), realWorldMap.getMapStats().toDataString());
         }
     }
 }

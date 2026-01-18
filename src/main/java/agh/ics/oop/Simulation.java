@@ -9,6 +9,7 @@ public class Simulation implements Runnable{
     private final RealWorldMap worldMap;
     private int day = 0;
     private final int simulationSpeed;
+    private final List<MapStats> simulationStats;
 
     //logika asynchroniczna
     private Thread simulationThread;
@@ -25,6 +26,7 @@ public class Simulation implements Runnable{
     public Simulation(RealWorldMap worldMap, int simulationSpeed) {
         this.worldMap = worldMap;
         this.simulationSpeed = simulationSpeed;
+        this.simulationStats = new ArrayList<>(List.of(worldMap.getMapStats()));
     }
 
     @Override
@@ -38,6 +40,7 @@ public class Simulation implements Runnable{
                 if (!isRunning()) break;
 
                 boolean canContinue = nextDay();
+
                 if (!canContinue) {
                     System.out.println("Brak zwierząt - koniec symulacji");
                     stopSimulation();
@@ -76,11 +79,10 @@ public class Simulation implements Runnable{
         worldMap.reproducePopulation(day);
         worldMap.decreaseEnergyAllAnimals();
         worldMap.createNewPlants();
-
         day++;
 
+        simulationStats.add(worldMap.getMapStats());
         notifyListeners();
-
         return true;
     }
 
@@ -178,5 +180,9 @@ public class Simulation implements Runnable{
 
         fakeWorldMap = new FakeWorldMap(worldMap.getId(), day - rewindedDays,  worldMap.getWidth(), worldMap.getHeight());
         notifyListeners(day - rewindedDays, fakeWorldMap);
+    }
+
+    public MapStats getStats(int day){
+        return simulationStats.get(day);
     }
 }

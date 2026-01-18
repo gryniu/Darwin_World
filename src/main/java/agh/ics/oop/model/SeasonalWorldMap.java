@@ -2,7 +2,9 @@ package agh.ics.oop.model;
 
 import javafx.scene.paint.Color;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class SeasonalWorldMap extends RealWorldMap {
     private static final double SUMMER_TEMPERATURE = 30;
@@ -61,19 +63,32 @@ public class SeasonalWorldMap extends RealWorldMap {
     @Override
     public void decreaseEnergyAllAnimals(){
         List<Animal> currentAnimals = getAllAnimals();
+        boolean[] isHeated = new boolean[currentAnimals.size()];
+        checkIfHeated(currentAnimals, isHeated);
 
-        for (int i = 0; i<currentAnimals.size(); i++){
-            boolean isHeated = false;
-            for (int j = i+1; j<currentAnimals.size(); j++){
-                if (Vector2d.getDistance(currentAnimals.get(i).position(), currentAnimals.get(j).position()) <= seasonsOptions.distanceRequiredToHeat()){
-                    isHeated = true;
-                    break;
-                }
-            }
-            if(isHeated){
-                currentAnimals.get(i).decreaseDailyEnergy(1);
-            } else{
-                currentAnimals.get(i).decreaseDailyEnergy(energyDecreaseMultiplier);
+    }
+
+    private void checkIfHeated(List<Animal> animals, boolean[] isHeated){
+        List<Integer> sortedX = IntStream.range(0, animals.size())
+                .boxed()
+                .sorted(Comparator.comparingInt(id -> animals.get(id).position.getX()))
+                .toList();
+
+        checkNeighbours(animals, isHeated, sortedX);
+
+        List<Integer> sortedY = IntStream.range(0, animals.size())
+                .boxed()
+                .sorted(Comparator.comparingInt(id -> animals.get(id).position.getY()))
+                .toList();
+
+        checkNeighbours(animals, isHeated, sortedY);
+    }
+
+    private void checkNeighbours(List<Animal> animals, boolean[] isHeated, List<Integer> sorted) {
+        for(int i = 0; i < sorted.size()-1; i++){
+            if(Vector2d.getDistance(animals.get(sorted.get(i)).position, animals.get(sorted.get(i+1)).position) <= seasonsOptions.distanceRequiredToHeat()){
+                isHeated[sorted.get(i)] = true;
+                isHeated[sorted.get(i+1)] = true;
             }
         }
     }

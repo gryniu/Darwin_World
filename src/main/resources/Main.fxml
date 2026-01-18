@@ -60,7 +60,7 @@
             <Label text="Długość genomu zwierzaków" GridPane.rowIndex="12" GridPane.columnIndex="0"/>
             <TextField fx:id="genLengthField" text="10" GridPane.rowIndex="12" GridPane.columnIndex="1"/>
         </GridPane>
-        <VBox spacing="10" alignment="CENTER">
+        <VBox spacing="10" alignment="CENTER_LEFT">
             <CheckBox fx:id="isSeasonalCheckBox" text="pory roku"/>
         </VBox>
 
@@ -74,7 +74,7 @@
             <Label text="Dystans potrzebny do ogrzania dwóch zwierzaków: " GridPane.rowIndex="2" GridPane.columnIndex="0"/>
             <TextField fx:id="distanceRequiredToHeatField" text="2" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
         </GridPane>
-        <VBox spacing="10" alignment="CENTER">
+        <VBox spacing="10" alignment="CENTER_LEFT">
             <CheckBox fx:id="exportCsvCheckBox" text="export stats to .csv"/>
         </VBox>
         <Button text="Uruchom nową symulację" fx:id="startSimulationButton" maxWidth="Infinity"/>
