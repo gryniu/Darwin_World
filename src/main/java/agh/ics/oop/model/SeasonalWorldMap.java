@@ -4,6 +4,7 @@ import javafx.scene.paint.Color;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.stream.IntStream;
 
 public class SeasonalWorldMap extends RealWorldMap {
@@ -66,38 +67,35 @@ public class SeasonalWorldMap extends RealWorldMap {
         boolean[] isHeated = new boolean[currentAnimals.size()];
         checkIfHeated(currentAnimals, isHeated);
         for(int i = 0; i < currentAnimals.size(); i++){
-            if(isHeated[i]){
-                currentAnimals.get(i).decreaseDailyEnergy(1);
-            }else{
-                currentAnimals.get(i).decreaseDailyEnergy(energyDecreaseMultiplier);
-            }
+            currentAnimals.get(i).decreaseDailyEnergy(isHeated[i] ? 1 : energyDecreaseMultiplier);
         }
     }
 
-    private void checkIfHeated(List<Animal> animals, boolean[] isHeated){
-        List<Integer> sortedX = IntStream.range(0, animals.size())
+    private void checkIfHeated(List<Animal> animals, boolean[] isHeated) {
+        List<Integer> indexes = IntStream.range(0, animals.size())
                 .boxed()
-                .sorted(Comparator.comparingInt(id -> animals.get(id).position.getX()))
+                .sorted(Comparator.comparingInt(i -> animals.get(i).position.getX()))
                 .toList();
 
-        checkNeighbours(animals, isHeated, sortedX);
+        TreeSet<Integer> activeSet = new TreeSet<>();
 
-        List<Integer> sortedY = IntStream.range(0, animals.size())
-                .boxed()
-                .sorted(Comparator.comparingInt(id -> animals.get(id).position.getY()))
-                .toList();
+        for (int idx : indexes) {
+            Animal current = animals.get(idx);
 
-        checkNeighbours(animals, isHeated, sortedY);
-    }
+            activeSet.removeIf(i -> current.position.getX() - animals.get(i).position.getX() > seasonsOptions.distanceRequiredToHeat());
 
-    private void checkNeighbours(List<Animal> animals, boolean[] isHeated, List<Integer> sorted) {
-        for(int i = 0; i < sorted.size()-1; i++){
-            if(Vector2d.getDistance(animals.get(sorted.get(i)).position, animals.get(sorted.get(i+1)).position) <= seasonsOptions.distanceRequiredToHeat()){
-                isHeated[sorted.get(i)] = true;
-                isHeated[sorted.get(i+1)] = true;
+            for (int i : activeSet) {
+                Animal other = animals.get(i);
+                if (Vector2d.getDistance(current.position, other.position) <= seasonsOptions.distanceRequiredToHeat()) {
+                    isHeated[idx] = true;
+                    isHeated[i] = true;
+                }
             }
+
+            activeSet.add(idx);
         }
     }
+
 
     @Override
     public void createNewPlants(){
