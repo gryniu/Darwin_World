@@ -55,10 +55,9 @@ public class PlantsGenerator implements Iterable<Vector2d>{
         normalArea = new ArrayDeque<>(list);
     }
 
-    public Iterator<Vector2d> reShuffle(){
-        if (returnedCounter == 0) return iterator();
+    public void reShuffle(){
+        if (returnedCounter == 0) return;
         shuffle();
-        return iterator();
     }
 
     public class PlantsGeneratorIterator implements Iterator<Vector2d>{

@@ -8,7 +8,7 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
     protected final UUID id;
 
     private final PlantsGenerator plantsGenerator;
-    private Iterator<Vector2d> plantsGeneratorIterator;
+    private final Iterator<Vector2d> plantsGeneratorIterator;
 
     private long deadAnimalsCounter = 0L;
     private long totalLifespanYears = 0L;
@@ -41,10 +41,6 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
     }
 
     public void place(Animal animal) {
-        Vector2d position = animal.position();
-        if (!inBounds(animal.position())){
-            throw new IncorrectPositionException(position,getCurrentBounds());
-        }
         animals.addAnimal(animal);
         increaseGenotypeCounter(animal);
     }
@@ -88,11 +84,6 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
         return id;
     }
 
-    public boolean inBounds(Vector2d position){
-        Boundary boundary = getCurrentBounds();
-        return position.follows(boundary.lowerLeft()) && position.precedes(boundary.upperRight());
-    }
-
     public void move(Animal animal) {
         Vector2d oldPosition = animal.position();
         animals.removeAnimal(animal);
@@ -110,15 +101,8 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
         animals.addAnimal(animal);
     }
 
-    @Override
-    public Boundary getCurrentBounds() { // todo: Bounds sie nie zmieniaja bo to nie GrassField do wyjebania
-        Vector2d lowerLeft = new Vector2d(0,  0);
-        Vector2d upperRight = new Vector2d(width-1, height-1);
-        return new Boundary(lowerLeft, upperRight);
-    }
-
     public void createNewPlants(){
-        plantsGeneratorIterator = plantsGenerator.reShuffle();
+        plantsGenerator.reShuffle();
 
         int created = 0;
         while (created < (int)(plantNumEveryDay*plantNumMultiplier) && plantsGeneratorIterator.hasNext()) {
@@ -128,11 +112,6 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
             plants.put(position, new Plant(position));
             created++;
         }
-    }
-
-    @Override
-    public List<Plant> getPlants(){
-        return new ArrayList<>(plants.values());
     }
 
     private void eatPlant(Vector2d position) {
@@ -184,6 +163,8 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
                                     );
                                     increaseGenotypeCounter(child);
                                     newborns.add(child);
+                                    firstPartner.addKid(child);
+                                    secondPartner.addKid(child);
                                 });
                             }
                         }));
@@ -210,13 +191,8 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
     }
 
     private void createAnimalsOnRandomPositions(){
-        Boundary boundary = getCurrentBounds();
         for (int i = 0 ;i< mapOptions.startingNumOfAnimals(); i++)
-            place(new Animal(boundary.getRandomPosition(), defaultAnimalOptions, mapOptions.energyStart(), 0));
-    }
-
-    public int getAnimalsCount(){
-        return animals.getAnimalsCount();
+            place(new Animal(getRandomPosition(), defaultAnimalOptions, mapOptions.energyStart(), 0));
     }
 
     private int getFreeFieldsCount(){
@@ -252,7 +228,6 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
 
     private void decreaseGenotypeCounter(Animal animal){
         String genotyp = animal.getGen().toString();
-        if (!genotypeCounter.containsKey(genotyp)) return;
         if (genotypeCounter.get(genotyp) == 1) {
             genotypeCounter.remove(genotyp);
             return;
@@ -271,15 +246,20 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
                 .collect(Collectors.averagingInt(Animal::getNumOfKids));
     }
 
-    @Override
-    public List<WorldElement> getAllMapElements() {
-        List<WorldElement> elements = new ArrayList<>();
-        elements.addAll(getAllAnimals());
-        elements.addAll(getPlants());
-        return elements;
-    }
 
     public MapStats getMapStats(){
         return new MapStats(getAnimalsCount(), getPlantsCount(), getFreeFieldsCount(), getAverageEnergy(), getAverageLifespan(), getAverageChildren(), getMostPopularGenotype(),getEnergyPercentile(85),getEnergyPercentile(50));
+    }
+
+    private Vector2d getRandomPosition() {
+        int x = ThreadLocalRandom.current().nextInt(
+                0,
+                width
+        );
+        int y = ThreadLocalRandom.current().nextInt(
+                0,
+                height
+        );
+        return new Vector2d(x, y);
     }
 }

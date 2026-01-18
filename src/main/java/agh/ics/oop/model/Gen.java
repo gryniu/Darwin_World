@@ -66,6 +66,7 @@ public class Gen implements Iterable<Integer>{
     public List<Integer> getGenList() {
         return genList;
     }
+
     private void setRandomElementInGenList(){
         genList.set(ThreadLocalRandom.current().nextInt(lenOfGen), ThreadLocalRandom.current().nextInt(8));
     }
@@ -91,12 +92,6 @@ public class Gen implements Iterable<Integer>{
         double strongerEnergy = strongerAnimal.getEnergy();
         double weakerEnergy = weakerAnimal.getEnergy();
         double totalEnergy = strongerEnergy + weakerEnergy;
-
-        if (totalEnergy == 0) {
-            totalEnergy = 1;
-            strongerEnergy = 0.5;
-            weakerEnergy = 0.5;
-        }
 
 
         if (isSideLeft) {

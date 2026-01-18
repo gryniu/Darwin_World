@@ -1,7 +1,5 @@
 package agh.ics.oop.model;
 
-import javafx.scene.paint.Color;
-
 import java.util.*;
 
 public class Animal extends AbstractAnimal{
@@ -23,7 +21,7 @@ public class Animal extends AbstractAnimal{
                         energyStart, dayOfBirth));
     }
     public Animal(Vector2d position, AnimalOptions animalOptions, AnimalData animalData) {
-        this.dayOfBirth = animalData.dayOfBirth(); //todo: tymczasowe - zmienic facotry, po stworzeniu simuation DONE
+        this.dayOfBirth = animalData.dayOfBirth();
         this.orientation = MapDirection.getRandomDirection();
         this.position = position;
         this.gen = animalData.gen();
@@ -59,10 +57,6 @@ public class Animal extends AbstractAnimal{
         energy = Math.max(0,energy - (int)(energyOptions.dailyEnergyLoss()*energyDecreaseMultiplier));
     }
 
-    public EnergyOptions getEnergyOptions() {
-        return energyOptions;
-    }
-
     public AnimalOptions animalOptions() {
         return animalOptions;
     }
@@ -80,11 +74,6 @@ public class Animal extends AbstractAnimal{
 
     public void setPosition(Vector2d position) {
         this.position = position;
-    }
-
-
-    public boolean isAt(Vector2d position){
-        return this.position.equals(position);
     }
 
     public static boolean canReproduce(Animal firstPartner, Animal secondPartner){

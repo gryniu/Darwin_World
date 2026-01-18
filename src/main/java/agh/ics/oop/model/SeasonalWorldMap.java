@@ -3,6 +3,7 @@ package agh.ics.oop.model;
 import javafx.scene.paint.Color;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.IntStream;
@@ -11,6 +12,7 @@ public class SeasonalWorldMap extends RealWorldMap {
     private static final double SUMMER_TEMPERATURE = 30;
     private static final double SUMMER_PLANT_NUM_MULTIPLIER = 1.5;
     private static final double SUMMER_ENERGY_FROM_PLANT_MULTIPLIER = 1.5;
+    private static final double MAX_ENERGY_DECREASE_MULTIPLIER = 2;
 
     private boolean isWinter;
     private int dayOfCurrentSeason;
@@ -56,7 +58,7 @@ public class SeasonalWorldMap extends RealWorldMap {
                 temperature += dailyTemperatureIncrement;
             }
             double temperatureAmplitude = SUMMER_TEMPERATURE-seasonsOptions.minTemperature();
-            double MAX_ENERGY_DECREASE_MULTIPLIER = 2;
+
             energyDecreaseMultiplier = 1 + (MAX_ENERGY_DECREASE_MULTIPLIER -1) * ((SUMMER_TEMPERATURE - temperature) / temperatureAmplitude);
         }
     }
@@ -77,7 +79,7 @@ public class SeasonalWorldMap extends RealWorldMap {
                 .sorted(Comparator.comparingInt(i -> animals.get(i).position.getX()))
                 .toList();
 
-        TreeSet<Integer> activeSet = new TreeSet<>();
+        HashSet<Integer> activeSet = new HashSet<>();
 
         for (int idx : indexes) {
             Animal current = animals.get(idx);
@@ -91,7 +93,6 @@ public class SeasonalWorldMap extends RealWorldMap {
                     isHeated[i] = true;
                 }
             }
-
             activeSet.add(idx);
         }
     }
@@ -105,11 +106,7 @@ public class SeasonalWorldMap extends RealWorldMap {
 
     public double getTemperature() {
         return temperature;
-    }
-
-    public boolean getIsWinter(){
-        return isWinter;
-    }
+    } // todo: chcemy wyswietlac jaka jest temperatura na mapie
 
     @Override
     public Color getColorOfField(Vector2d fieldPosition){

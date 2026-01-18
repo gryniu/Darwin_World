@@ -14,7 +14,7 @@ public abstract class AbstractWorldMap<T extends AbstractAnimal> implements Worl
 
     protected final int width;
     protected final int height;
-    protected Long maxNumOfPlantsOnPosition = 7L;
+    protected Long maxNumOfPlantsOnPosition = 6L;
     // ustawiam na poczatek na 7 zeby nie bylo sytuacji,
     // ze na poczatku wszystko jest na ciemno-zielono
 
@@ -52,12 +52,6 @@ public abstract class AbstractWorldMap<T extends AbstractAnimal> implements Worl
     public List<T> getAllAnimals() {
         return animals.getAll();
     }
-
-    @Override
-    public Boundary getCurrentBounds() {
-        return new Boundary(new Vector2d(0, 0), new Vector2d(width-1, height-1));
-    }
-
     @Override
     public int getAnimalsCount() {
         return animals.getAnimalsCount();
@@ -65,7 +59,6 @@ public abstract class AbstractWorldMap<T extends AbstractAnimal> implements Worl
 
     @Override
     public int getPlantsCount(){
-//        System.out.println(plants.values()); // po co
         return plants.size();
     }
 

@@ -6,9 +6,9 @@ public class IncorrectPositionException extends RuntimeException {
         super(message);
     }
 
-    public IncorrectPositionException(Vector2d position, Boundary bounds) {
+    public IncorrectPositionException(Vector2d position, int width, int height) {
         super(String.format("Position %s is outside the map boundaries %s",
-                position, bounds));
+                position, width, height));
     }
 
     public IncorrectPositionException(Vector2d position) {

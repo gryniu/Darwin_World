@@ -63,8 +63,6 @@ public class SimulationPresenter implements Initializable {
 
     private Simulation simulation;
     private RealWorldMap worldMap;
-    private int gridWidth;
-    private int gridHeight;
 
     public static final String RESET = "\u001B[0m";
     public static final String RED_BOLD = "\u001B[1;31m";
@@ -185,16 +183,12 @@ public class SimulationPresenter implements Initializable {
         }else{
             this.worldMap = new RealWorldMap(mapOptions, animalOptions);
         }
-
-        Boundary boundary = worldMap.getCurrentBounds();
-        gridWidth = boundary.upperRight().getX() - boundary.lowerLeft().getX() + 1;
-        gridHeight = boundary.upperRight().getY() - boundary.lowerLeft().getY() + 1;
-        cellSize = Math.min(gridWidth, gridHeight) * (440.0/11.0);
+        cellSize = Math.min(worldMap.getWidth(), worldMap.getHeight()) * (440.0/11.0);
         updateFields();
 
         simulation = new Simulation(worldMap, 200);
-        mapCanvas.setWidth(gridWidth * cellSize + 2 * gridOffset);
-        mapCanvas.setHeight(gridHeight * cellSize + 2 * gridOffset);
+        mapCanvas.setWidth(worldMap.getWidth() * cellSize + 2 * gridOffset);
+        mapCanvas.setHeight(worldMap.getHeight() * cellSize + 2 * gridOffset);
         Platform.runLater(this::updateCheckboxes);
 
         // poczatkowe rysowanie mapy
@@ -321,41 +315,30 @@ public class SimulationPresenter implements Initializable {
         gc.setStroke(Color.BLACK);
         configureFont(gc, fontSize, Color.BLACK);
 
-        Boundary boundary = worldMap.getCurrentBounds();
-        int offsetX = boundary.lowerLeft().getX();
-        int offsetY = boundary.lowerLeft().getY();
-
-
         for (WorldElement worldElement: worldMap.getAllMapElements()){
             Vector2d pos = worldElement.position();
 
-            double centerX = gridOffset + (pos.getX() - offsetX) * cellSize + cellSize / 2;
-            double posX = gridOffset + (pos.getX() - offsetX) * cellSize;
+            double centerX = gridOffset + pos.getX() * cellSize + cellSize / 2;
+            double posX = gridOffset + pos.getX() * cellSize;
 
             // W JAVIEFX Y JEST NA GORZE!!11!11!
-            int worldY = pos.getY() - offsetY;
-            int flippedY = gridHeight - 1 - worldY;
+            int worldY = pos.getY();
+            int flippedY = worldMap.getHeight() - 1 - worldY;
 
             double centerY = gridOffset + flippedY * cellSize + cellSize / 2;
             double posY = gridOffset + flippedY * cellSize;
 
-            // rysowanie z eznergy Barem
             if (worldElement instanceof AbstractAnimal abstractAnimal) {
                 gc.save();
                 if (Objects.equals(abstractAnimal.getGen().toString(), simulation.getStats(day).mostPopularGenotype())){
                     gc.setFill(Color.rgb(255, 0, 255, 0.5));
                     gc.fillOval(posX, posY, cellSize, cellSize);
                 }
-//                gc.fillText(abstractAnimal.toString(), centerX, centerY);
                 gc.drawImage(animalImages.get(abstractAnimal.getOrientation().ordinal()), posX, posY, cellSize, cellSize);
                 gc.restore();
                 drawEnergyBar(gc, abstractAnimal, centerX, centerY, day);
 
-            }else
-            {
-                    gc.drawImage(plantImage, posX, posY, cellSize, cellSize);
-//                gc.fillText(worldElement.toString(), centerX, centerY);
-            }
+            }else gc.drawImage(plantImage, posX, posY, cellSize, cellSize);
         }
         gc.restore();
     }
@@ -366,15 +349,15 @@ public class SimulationPresenter implements Initializable {
         gc.setFill(Color.BLACK);
         gc.setLineWidth(borderWidth);
         // poziome
-        for (int row = 0; row <= gridHeight; row++) {
+        for (int row = 0; row <= worldMap.getHeight(); row++) {
             double y = gridOffset + row * cellSize;
-            gc.strokeLine(gridOffset, y, gridOffset + gridWidth * cellSize, y);
+            gc.strokeLine(gridOffset, y, gridOffset + worldMap.getWidth() * cellSize, y);
         }
 
         // pionowe
-        for (int col = 0; col <= gridWidth; col++) {
+        for (int col = 0; col <= worldMap.getWidth(); col++) {
             double x = gridOffset + col * cellSize;
-            gc.strokeLine(x, gridOffset, x, gridOffset + gridHeight * cellSize);
+            gc.strokeLine(x, gridOffset, x, gridOffset + worldMap.getHeight() * cellSize);
         }
 
 
@@ -390,8 +373,8 @@ public class SimulationPresenter implements Initializable {
 
         gc.setFill(Color.WHITE);
         gc.fillRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
-        for (int canvasCol = 0; canvasCol < gridWidth; canvasCol++) {
-            for (int canvasRow = 0; canvasRow < gridHeight; canvasRow++) {
+        for (int canvasCol = 0; canvasCol < worldMap.getWidth(); canvasCol++) {
+            for (int canvasRow = 0; canvasRow < worldMap.getHeight(); canvasRow++) {
 
                 Vector2d worldPosition = new Vector2d(canvasCol, canvasRow);
 
@@ -467,8 +450,8 @@ public class SimulationPresenter implements Initializable {
     }
 
     private void updateFields(){
-        double cellWidth = (mapCanvas.getWidth() - 2 * gridOffset) / gridWidth;
-        double cellHeight = (mapCanvas.getHeight() - 2 * gridOffset) / gridHeight;
+        double cellWidth = (mapCanvas.getWidth() - 2 * gridOffset) / worldMap.getWidth();
+        double cellHeight = (mapCanvas.getHeight() - 2 * gridOffset) / worldMap.getHeight();
         cellSize = Math.min(cellWidth, cellHeight);
 
         borderWidth = cellSize/24.0;
@@ -482,19 +465,15 @@ public class SimulationPresenter implements Initializable {
 
     private void handleCanvasClick(double mouseX, double mouseY){
         if (mouseX < gridOffset || mouseY < gridOffset) return;
-        if (mouseX > gridOffset + gridWidth * cellSize) return;
-        if (mouseY > gridOffset + gridHeight * cellSize) return;
+        if (mouseX > gridOffset + worldMap.getWidth() * cellSize) return;
+        if (mouseY > gridOffset + worldMap.getHeight() * cellSize) return;
 
         int col = (int) ((mouseX-gridOffset)/cellSize);
         int rowFromTop = (int) ((mouseY - gridOffset) / cellSize);
 
-        int row = gridHeight - 1 - rowFromTop;
+        int row = worldMap.getHeight() - 1 - rowFromTop;
 
-        Boundary boundary = worldMap.getCurrentBounds();
-        int mapX = boundary.lowerLeft().getX() + col;
-        int mapY = boundary.lowerLeft().getY() + row;
-
-        handleMapFieldClick(mapX, mapY);
+        handleMapFieldClick(col, row);
     }
 
     private void handleMapFieldClick(int x, int y) {
