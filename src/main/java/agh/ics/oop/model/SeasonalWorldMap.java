@@ -117,8 +117,8 @@ public class SeasonalWorldMap extends RealWorldMap {
     public Color getColorOfField(Vector2d fieldPosition){
         if (!isWinter) return super.getColorOfField(fieldPosition);
         Long plantsFrequency = plantsFrequencyCounter.getOrDefault(fieldPosition,0L);
-        if (plantsFrequency < maxNumOfPlantsOnPosition*.33) return Color.LIGHTBLUE;
-        if (plantsFrequency < maxNumOfPlantsOnPosition*.75) return Color.BLUE;
-        return Color.DARKBLUE;
+        if (plantsFrequency < maxNumOfPlantsOnPosition*.33) return Color.valueOf("#9ECAE1");
+        if (plantsFrequency < maxNumOfPlantsOnPosition*.75) return Color.valueOf("#6BAED8");
+        return Color.valueOf("#4292C6");
     }
 }
