@@ -183,8 +183,6 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
                                             kidAnimalData
                                     );
                                     increaseGenotypeCounter(child);
-                                    firstPartner.increaseDescendantsCounter();
-                                    secondPartner.increaseDescendantsCounter();
                                     newborns.add(child);
                                 });
                             }
