@@ -91,8 +91,7 @@ public class MainWindowPresenter implements Initializable {
             loadSimulationPreset();
         }
 
-        isSeasonalCheckBox.setSelected(true);
-        isSeasonalCheckBox.setOnAction(e -> isSeasonal.set(isSeasonalCheckBox.isSelected()));
+        isSeasonalCheckBox.selectedProperty().bindBidirectional(isSeasonal);
         seasonalGridPane.visibleProperty().bind(isSeasonal);
     }
 
@@ -222,6 +221,7 @@ public class MainWindowPresenter implements Initializable {
             Properties props = new Properties();
             readConfig();
 
+            props.setProperty("isSeasonal", Boolean.toString(isSeasonal.get()));
             props.setProperty("mapWidth", mapWidthField.getText());
             props.setProperty("mapHeight", mapHeightField.getText());
             props.setProperty("startPlantCount", startPlantCountField.getText());
@@ -300,6 +300,8 @@ public class MainWindowPresenter implements Initializable {
             }
 
             // wczytujemy wartości do pól
+            isSeasonal.set(Boolean.parseBoolean(props.getProperty("isSeasonal", "true")));
+            System.out.println(isSeasonal);
             mapWidthField.setText(props.getProperty("mapWidth", ""));
             mapHeightField.setText(props.getProperty("mapHeight", ""));
             startPlantCountField.setText(props.getProperty("startPlantCount", ""));
