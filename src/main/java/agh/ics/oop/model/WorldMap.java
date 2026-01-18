@@ -23,6 +23,4 @@ public interface WorldMap{
     int getWidth();
     int getHeight();
 
-    int getEnergyPercentile(int percentile);
-
 }

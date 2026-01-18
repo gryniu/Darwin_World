@@ -27,9 +27,16 @@ public class AnimalsMap<T extends WorldElement> {
         return Optional.ofNullable(animals.get(position));
     }
 
-    public List<T> getAll(){
-        return animals.values().stream().flatMap(List::stream).toList();
+    public List<T> getAll() {
+        synchronized (animals) {
+            return animals.values()
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .toList();
+        }
     }
+
+
 
     public Set<Vector2d> getPositions(){
         return animals.keySet();

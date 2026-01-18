@@ -280,7 +280,6 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
     }
 
     public MapStats getMapStats(){
-        return new MapStats(getAnimalsCount(), getPlantsCount(), getFreeFieldsCount(), getAverageEnergy(), getAverageLifespan(), getAverageChildren(), getMostPopularGenotype());
-
+        return new MapStats(getAnimalsCount(), getPlantsCount(), getFreeFieldsCount(), getAverageEnergy(), getAverageLifespan(), getAverageChildren(), getMostPopularGenotype(),getEnergyPercentile(85),getEnergyPercentile(50));
     }
 }

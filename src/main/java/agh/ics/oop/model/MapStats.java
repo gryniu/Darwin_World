@@ -7,7 +7,9 @@ public record MapStats(
         double averageEnergy,
         double averageLifespan,
         double averageChildren,
-        String mostPopularGenotype
+        String mostPopularGenotype,
+        int p85,
+        int p50
 ) {
     public String animalsCountStr() {
         return String.valueOf(animalsCount);
@@ -44,16 +46,4 @@ public record MapStats(
                 + "," + averageLifespanStr() + "," + averageChildrenStr() + "," + mostPopularGenotype() + "\n";
     }
 
-    public String toDataString() {
-        return "animalsCount %d\nplantsCount %d\nfreeFieldsCount %d\naverageEnergy %.2f\naverageLifespan %.2f\naverageChildren %.2f\nmostPopularGenotype %s\n"
-            .formatted(
-                animalsCount,
-                plantsCount,
-                freeFieldsCount,
-                averageEnergy,
-                averageLifespan,
-                averageChildren,
-                mostPopularGenotype
-        );
-    }
 }

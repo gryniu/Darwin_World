@@ -349,7 +349,7 @@ public class SimulationPresenter implements Initializable {
 //                gc.fillText(abstractAnimal.toString(), centerX, centerY);
                 gc.drawImage(animalImages.get(abstractAnimal.getOrientation().ordinal()), posX, posY, cellSize, cellSize);
                 gc.restore();
-                drawEnergyBar(gc, abstractAnimal, centerX, centerY);
+                drawEnergyBar(gc, abstractAnimal, centerX, centerY, day);
 
             }else
             {
@@ -436,9 +436,10 @@ public class SimulationPresenter implements Initializable {
         }
     }
 
-    private void drawEnergyBar(GraphicsContext gc, AbstractAnimal animal, double centerX, double centerY) {
-        int p85 = worldMap.getEnergyPercentile(85);
-        int median = worldMap.getEnergyPercentile(50);
+    private void drawEnergyBar(GraphicsContext gc, AbstractAnimal animal, double centerX, double centerY, int day) {
+        int p85 = simulation.getStats(day).p85();
+        int median = simulation.getStats(day).p50();
+
         double ratio = animal.getEnergyRatio(median, p85);
         double width = energyBarWidth * ratio;
 

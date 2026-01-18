@@ -23,8 +23,7 @@ public abstract class AbstractWorldMap<T extends AbstractAnimal> implements Worl
         this.height = height;
     }
 
-    @Override
-    public int getEnergyPercentile(int percentile){
+    protected int getEnergyPercentile(int percentile){
         if (percentile < 0 || percentile > 100) throw new IllegalArgumentException("Percentile must be in [0,100]");
         if (animals.getAll().isEmpty()) return 0;
 
