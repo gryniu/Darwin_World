@@ -342,9 +342,10 @@ public class SimulationPresenter implements Initializable {
             // rysowanie z eznergy Barem
             if (worldElement instanceof AbstractAnimal abstractAnimal) {
                 gc.save();
-//                if (Objects.equals(abstractAnimal.getGen().toString(), simulation.getStats(day).mostPopularGenotype())){
-//                    configureFont(gc, fontSize*2.67, Color.RED);
-//                }//todo: jakos to ogarnac
+                if (Objects.equals(abstractAnimal.getGen().toString(), simulation.getStats(day).mostPopularGenotype())){
+                    gc.setFill(Color.rgb(255, 0, 255, 0.5));
+                    gc.fillOval(posX, posY, cellSize, cellSize);
+                }
 //                gc.fillText(abstractAnimal.toString(), centerX, centerY);
                 gc.drawImage(animalImages.get(abstractAnimal.getOrientation().ordinal()), posX, posY, cellSize, cellSize);
                 gc.restore();
