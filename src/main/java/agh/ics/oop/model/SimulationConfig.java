@@ -1,6 +1,4 @@
-package agh.ics.oop.simulation;
-
-import agh.ics.oop.model.WrongFieldStateException;
+package agh.ics.oop.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,38 +89,67 @@ public class SimulationConfig {
         }
 
         private void validate() throws WrongFieldStateException {
-            List<String> missingFields = new ArrayList<>();
+            List<String> errors = new ArrayList<>();
 
             // todo: porobic ograniczenia na pola
-            if (mapWidth <= 0 || mapWidth>40) missingFields.add("mapWidth");
-            if (mapHeight <= 0 || mapHeight>40) missingFields.add("mapHeight");
-            if (startPlantCount < 0 || startPlantCount>(mapHeight*mapWidth - startAnimalCount)) missingFields.add("startPlantCount");
-            if (energyFromPlant <= 0) missingFields.add("energyFromPlant");
-            if (plantsPerDay < 0) missingFields.add("plantsPerDay");
-            if (startAnimalCount <= 0) missingFields.add("startAnimalCount");
-            if (startAnimalEnergy <= 0) missingFields.add("startAnimalEnergy");
-            if (energyLossPerDay < 0) missingFields.add("energyLossPerDay");
-            if (energyToReproduce <= 0) missingFields.add("energyToFeed");
-            if (energyToKid <= 0 || energyToKid>energyToReproduce) missingFields.add("energyToKid");
-            if (minMutations < 0) missingFields.add("minMutations");
-            if (maxMutations < minMutations || maxMutations > genomeLength) missingFields.add("maxMutations");
-            if (genomeLength <= 0) missingFields.add("genomeLength");
+            if (mapWidth <= 1 || mapWidth > 100)
+                errors.add("mapWidth: szerokość mapy musi być > 1 i ≤ 100");
 
-            if(isSeasonal) {
-                if (seasonLength < 0) missingFields.add("seasonLength");
+            if (mapHeight <= 1 || mapHeight > 100)
+                errors.add("mapHeight: wysokość mapy musi być > 1 i ≤ 100");
+
+            if (startPlantCount < 0)
+                errors.add("startPlantCount: startowa liczba roślin musi być >= 0");
+
+            if (energyFromPlant <= 0)
+                errors.add("energyFromPlant: energia z rośliny musi być > 0");
+
+            if (plantsPerDay < 0)
+                errors.add("plantsPerDay: liczba roślin na dzień nie może być ujemna");
+
+            if (startAnimalCount <= 0)
+                errors.add("startAnimalCount: liczba startowych zwierząt musi być > 0");
+
+            if (startAnimalEnergy <= 0)
+                errors.add("startAnimalEnergy: energia startowa zwierząt musi być > 0");
+
+            if (energyLossPerDay < 0)
+                errors.add("energyLossPerDay: dzienna utrata energii nie może być ujemna");
+
+            if (energyToReproduce <= 0)
+                errors.add("energyToFeed: energia potrzebna do rozmnażania musi być > 0");
+
+            if (energyToKid <= 0 || energyToKid > energyToReproduce)
+                errors.add("energyToKid: energia dla potomka musi być > 0 i ≤ energii do rozmnażania");
+
+            if (minMutations < 0)
+                errors.add("minMutations: minimalna liczba mutacji nie może być ujemna");
+
+            if (maxMutations < minMutations || maxMutations > genomeLength)
+                errors.add("maxMutations: musi być ≥ minMutations i ≤ genomeLength");
+
+            if (genomeLength <= 0)
+                errors.add("genomeLength: długość genomu musi być > 0");
+
+            if (isSeasonal) {
+                if (seasonLength < 0)
+                    errors.add("seasonLength: długość sezonu nie może być ujemna");
+
                 if (minTemperature > 30)
-                    missingFields.add("minTemperature"); // todo: maxTemperatura to 30, zrobic lepsze errory
+                    errors.add("minTemperature: minimalna temperatura nie może być większa niż 30");
+
                 if (distanceRequiredToHeat < 0 || distanceRequiredToHeat > Math.max(mapWidth, mapHeight))
-                    missingFields.add("distanceRequiredToHeat");
+                    errors.add("distanceRequiredToHeat: odległość poza zakresem mapy");
             } else {
                 seasonLength = 0;
                 minTemperature = 0;
                 distanceRequiredToHeat = 0;
             }
 
-            if (!missingFields.isEmpty()) {
-                throw new WrongFieldStateException(missingFields);
+            if (!errors.isEmpty()) {
+                throw new WrongFieldStateException(errors);
             }
         }
+
     }
 }

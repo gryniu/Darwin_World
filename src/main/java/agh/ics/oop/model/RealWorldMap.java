@@ -34,10 +34,7 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
 
         createAnimalsOnRandomPositions();
 
-        for(int i = 0; i < mapOptions.startingNumOfPlants(); i++){
-            Vector2d position = plantsGeneratorIterator.next();
-            plants.put(position, new Plant(position));
-        }
+        createPlants(mapOptions.startingNumOfPlants());
     }
 
     public void place(Animal animal) {
@@ -103,9 +100,12 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
 
     public void createNewPlants(){
         plantsGenerator.reShuffle();
+        createPlants((int)(plantNumEveryDay*plantNumMultiplier));
+    }
 
+    private void createPlants(int n){
         int created = 0;
-        while (created < (int)(plantNumEveryDay*plantNumMultiplier) && plantsGeneratorIterator.hasNext()) {
+        while (created < n && plantsGeneratorIterator.hasNext()) {
             Vector2d position = plantsGeneratorIterator.next();
             plantsFrequencyCounter.put(position, 1 + plantsFrequencyCounter.getOrDefault(position,0L));
             maxNumOfPlantsOnPosition = Math.max(maxNumOfPlantsOnPosition, plantsFrequencyCounter.get(position));
@@ -161,7 +161,6 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
                                             firstPartner.animalOptions(),
                                             kidAnimalData
                                     );
-                                    increaseGenotypeCounter(child);
                                     newborns.add(child);
                                     firstPartner.addKid(child);
                                     secondPartner.addKid(child);
@@ -204,14 +203,22 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
 
     private String getMostPopularGenotype(){
         if (genotypeCounter.isEmpty()) {
-            return animals.getAll().isEmpty() ?
-                    "-" :
-                    animals.getAll().getFirst().getGen().toString();
+            return "-";
         }
 
-        return genotypeCounter.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
+        int maxCounter = genotypeCounter.values()
+                .stream()
+                .mapToInt(Integer::intValue)
+                .max()
+                .orElse(0);
+
+        if(maxCounter < 2) return "-";
+
+        return genotypeCounter
+                .keySet()
+                .stream()
+                .filter(key -> genotypeCounter.get(key) == maxCounter)
+                .findFirst()
                 .orElse("-");
     }
 

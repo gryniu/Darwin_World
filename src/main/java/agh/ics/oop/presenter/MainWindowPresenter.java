@@ -1,6 +1,6 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.simulation.SimulationConfig;
+import agh.ics.oop.model.SimulationConfig;
 import agh.ics.oop.model.WrongFieldStateException;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -227,7 +227,7 @@ public class MainWindowPresenter implements Initializable {
 
             try (var fos = new java.io.FileOutputStream(file)) {
                 props.store(fos, "Simulation preset saved by user");
-                System.out.println("Preset saved to: " + file.getName());
+                System.out.println("Zapisano preset do: " + file.getName());
             }
 
             if (!loadPresetsComboBox.getItems().contains(fileName)) {
@@ -267,7 +267,7 @@ public class MainWindowPresenter implements Initializable {
     private void loadSimulationPreset() {
         try {
             String selectedPreset = (String)loadPresetsComboBox.getValue();
-            if (selectedPreset == null)  throw new Exception("Preset not selected");;
+            if (selectedPreset == null)  return;
 
             File dir = new File(CONFIG_PATH);
             if (!dir.exists()) dir.mkdirs();

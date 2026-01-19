@@ -1,6 +1,4 @@
-package agh.ics.oop.simulation;
-
-import agh.ics.oop.model.*;
+package agh.ics.oop.model;
 
 import java.util.*;
 
@@ -165,7 +163,7 @@ public class Simulation implements Runnable{
     }
 
     public void rewind(boolean goBack) {
-        if(!isPaused()) throw new RuntimeException("Can't rewind on play!");
+        if(!isPaused()) throw new RuntimeException("Nie można przewinąć niezatrzymanej symulacji.");
         if(goBack)
             rewindedDays = Math.min(day-1, rewindedDays + 1);
         else

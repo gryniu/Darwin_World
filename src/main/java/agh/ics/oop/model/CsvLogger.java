@@ -16,7 +16,7 @@ public class CsvLogger implements SimulationListener{
         try (FileWriter writer = new FileWriter(file)) {
             writer.append("Day,").append(worldMap.getMapStats().getLabel());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
         }
     }
 
@@ -26,7 +26,7 @@ public class CsvLogger implements SimulationListener{
             try (FileWriter writer = new FileWriter(file, true)) {
                 writer.append(String.valueOf(day)).append(",").append(realWorldMap.getMapStats().getRow());
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                System.out.println(e.getMessage());
             }
         }
     }

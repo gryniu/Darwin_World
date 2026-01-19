@@ -1,4 +1,4 @@
-package agh.ics.oop.simulation;
+package agh.ics.oop;
 // todo: kod wygenerowany, pozmieniac, tak samo jak presenter i simulation
 import agh.ics.oop.model.HistoryFileHandler;
 import agh.ics.oop.presenter.MainWindowPresenter;

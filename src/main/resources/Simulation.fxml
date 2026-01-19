@@ -21,7 +21,7 @@
     </center>
 
     <right>
-        <VBox spacing="10">
+        <VBox spacing="10" styleClass="right-panel">
             <!-- mapa -->
             <GridPane hgap="10" vgap="5">
 

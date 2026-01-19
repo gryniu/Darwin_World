@@ -1,7 +1,7 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.simulation.Simulation;
-import agh.ics.oop.simulation.SimulationConfig;
+import agh.ics.oop.model.Simulation;
+import agh.ics.oop.model.SimulationConfig;
 import agh.ics.oop.model.*;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -97,11 +97,12 @@ public class SimulationPresenter implements Initializable {
     private final XYChart.Series<Number, Number> lifespanSeries = new XYChart.Series<>();
     private final XYChart.Series<Number, Number> childrenSeries = new XYChart.Series<>();
 
-    private List<Image> animalImages = new ArrayList<>();
+    private List<Image> animalImages;
     private Image plantImage;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        animalImages = new ArrayList<>();
         for(int i = 0; i<8; i++){
             animalImages.add(new Image(
                             getClass().getResourceAsStream("/images/animal%d.png".formatted(i))
@@ -182,12 +183,12 @@ public class SimulationPresenter implements Initializable {
         }else{
             this.worldMap = new RealWorldMap(mapOptions, animalOptions);
         }
-        cellSize = Math.min(worldMap.getWidth(), worldMap.getHeight()) * (440.0/11.0);
-        updateFields();
+//        cellSize = Math.min(worldMap.getWidth(), worldMap.getHeight()) * (440.0/7.0);
+
+//        cellSize = 1200.0/(Math.max(worldMap.getHeight(), worldMap.getWidth()));
+        adjustCellSize();
 
         simulation = new Simulation(worldMap, 200);
-        mapCanvas.setWidth(worldMap.getWidth() * cellSize + 2 * gridOffset);
-        mapCanvas.setHeight(worldMap.getHeight() * cellSize + 2 * gridOffset);
         Platform.runLater(this::updateCheckboxes);
 
         // poczatkowe rysowanie mapy
@@ -305,7 +306,7 @@ public class SimulationPresenter implements Initializable {
 
     private void drawMap(WorldMap worldMap, int day) {
         clearGrid();
-        drawGrid();
+        drawGrid(worldMap);
         drawWorldElements(worldMap, day);
     }
 
@@ -342,7 +343,7 @@ public class SimulationPresenter implements Initializable {
         gc.restore();
     }
 
-    private void drawGrid(){
+    private void drawGrid(WorldMap worldMap){
         gc.save();
 
         gc.setFill(Color.BLACK);
@@ -362,7 +363,7 @@ public class SimulationPresenter implements Initializable {
 
         //coords
         gc.setFont(new Font("Arial", coordsFontSize));
-        drawCoords();
+        drawCoords(worldMap);
 
         gc.restore();
     }
@@ -397,10 +398,11 @@ public class SimulationPresenter implements Initializable {
         simulation.stopSimulation();
     }
 
-    private void drawCoords() {
+    private void drawCoords(WorldMap worldMap) {
         double y = gridOffset;
+        int i = worldMap.getHeight() - 1;
         while (y < mapCanvas.getHeight() - gridOffset) {
-            gc.fillText(String.valueOf((int) ((mapCanvas.getHeight() - gridOffset - y) / cellSize - 1)),
+            gc.fillText(String.valueOf(i--),
                     gridOffset / 2 - fontSize/2,
                     y + cellSize / 2 + borderWidth + fontSize / 4
             );
@@ -408,9 +410,10 @@ public class SimulationPresenter implements Initializable {
         }
 
         double x = gridOffset;
+        int j = 0;
         while (x < mapCanvas.getWidth() - gridOffset) {
             gc.fillText(
-                    String.valueOf((int) ((x - gridOffset) / cellSize)),
+                    String.valueOf(j++),
                     x + cellSize / 2 + borderWidth - fontSize / 2,
                     mapCanvas.getHeight() - gridOffset / 2 + fontSize/4
             );
@@ -448,9 +451,11 @@ public class SimulationPresenter implements Initializable {
         graphics.setFill(color);
     }
 
-    private void updateFields(){
-        double cellWidth = (mapCanvas.getWidth() - 2 * gridOffset) / worldMap.getWidth();
-        double cellHeight = (mapCanvas.getHeight() - 2 * gridOffset) / worldMap.getHeight();
+    private void adjustCellSize(){
+//        double cellWidth = (mapCanvas.getWidth() - 2 * gridOffset) / worldMap.getWidth();
+//        double cellHeight = (mapCanvas.getHeight() - 2 * gridOffset) / worldMap.getHeight();
+        double cellWidth = mapCanvas.getWidth() / (worldMap.getWidth() + 3);
+        double cellHeight = mapCanvas.getHeight() / (worldMap.getHeight() + 3);
         cellSize = Math.min(cellWidth, cellHeight);
 
         borderWidth = cellSize/24.0;
@@ -459,6 +464,9 @@ public class SimulationPresenter implements Initializable {
         fontSize = cellSize*0.3;
         energyBarWidth = cellSize*0.8;
         energyBarHeight =  energyBarWidth *0.15;
+
+        mapCanvas.setWidth(worldMap.getWidth() * cellSize + 2 * gridOffset);
+        mapCanvas.setHeight(worldMap.getHeight() * cellSize + 2 * gridOffset);
     }
 
     private void handleCanvasClick(double mouseX, double mouseY){
@@ -496,7 +504,7 @@ public class SimulationPresenter implements Initializable {
             presenter.showAnimalStats(animal, worldMap, simulation);
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
         }
     }
 

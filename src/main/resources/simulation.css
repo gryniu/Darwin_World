@@ -115,3 +115,7 @@ NumberAxis {
     -fx-font-size: 11px;
     -fx-text-fill: #34495e;
 }
+
+.right-panel {
+    -fx-padding: 0 0 0 20px; /* space from center */
+}
