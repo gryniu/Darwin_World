@@ -5,6 +5,7 @@ import java.util.List;
 
 public class SimulationConfig {
     public final boolean isSeasonal;
+    public final boolean isAnimalAdd;
     public final int mapWidth;
     public final int mapHeight;
     public final int startPlantCount;
@@ -24,6 +25,7 @@ public class SimulationConfig {
 
     private SimulationConfig(Builder b) {
         this.isSeasonal = b.isSeasonal;
+        this.isAnimalAdd = b.isAnimalAdd;
         this.mapWidth = b.mapWidth;
         this.mapHeight = b.mapHeight;
         this.startPlantCount = b.startPlantCount;
@@ -48,6 +50,7 @@ public class SimulationConfig {
 
     public static class Builder {
         private boolean isSeasonal;
+        private boolean isAnimalAdd;
         private int mapWidth;
         private int mapHeight;
         private int startPlantCount;
@@ -65,7 +68,8 @@ public class SimulationConfig {
         private int minTemperature;
         private int distanceRequiredToHeat;
 
-        public Builder isSeasonal(boolean v) {isSeasonal = v; return this;}
+        public Builder isSeasonal(boolean v) { isSeasonal = v; return this; }
+        public Builder isAnimalAdd(boolean v) { isAnimalAdd = v; return this; };
         public Builder mapWidth(int v) { mapWidth = v; return this; }
         public Builder mapHeight(int v) { mapHeight = v; return this; }
         public Builder startPlantCount(int v) { startPlantCount = v; return this; }

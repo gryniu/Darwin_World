@@ -176,4 +176,8 @@ public class Simulation implements Runnable{
     public MapStats getStats(int day){
         return simulationStats.get(day);
     }
+
+    public int getCurrentDay() {
+        return day;
+    }
 }

@@ -269,4 +269,12 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
         );
         return new Vector2d(x, y);
     }
+
+    public AnimalOptions getDefaultAnimalOptions() {
+        return defaultAnimalOptions;
+    }
+
+    public MapOptions getMapOptions() {
+        return mapOptions;
+    }
 }

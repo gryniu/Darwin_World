@@ -24,6 +24,7 @@ public class MainWindowPresenter implements Initializable {
     private final String CONFIG_PATH = "config";
     private final String PRESET_FILE_ENDING = "_preset.properties";
     BooleanProperty isSeasonal = new SimpleBooleanProperty(true);
+    BooleanProperty isAnimalAdd = new SimpleBooleanProperty(false);
 
     @FXML
     private GridPane seasonalGridPane;
@@ -31,6 +32,8 @@ public class MainWindowPresenter implements Initializable {
     private CheckBox isSeasonalCheckBox;
     @FXML
     private CheckBox exportCsvCheckBox;
+    @FXML
+    private CheckBox isAnimalAddCheckBox;
     @FXML
     private Button deletePresetsButton;
     @FXML
@@ -92,6 +95,7 @@ public class MainWindowPresenter implements Initializable {
 
         isSeasonalCheckBox.selectedProperty().bindBidirectional(isSeasonal);
         seasonalGridPane.visibleProperty().bind(isSeasonal);
+        isAnimalAddCheckBox.selectedProperty().bindBidirectional(isAnimalAdd);
     }
 
     private void startSimulation(){
@@ -141,6 +145,7 @@ public class MainWindowPresenter implements Initializable {
                 .minTemperature(parse(minTemperatureField))
                 .distanceRequiredToHeat(parse(distanceRequiredToHeatField))
                 .isSeasonal(isSeasonal.get())
+                .isAnimalAdd(isAnimalAdd.get())
                 .build();
     }
 
