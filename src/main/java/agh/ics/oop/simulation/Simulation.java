@@ -108,7 +108,8 @@ public class Simulation implements Runnable{
 
     public void removeMapChangeListener(SimulationListener listener) {
         synchronized (lock) {
-            mapChangeListeners.remove(listener);
+            boolean removed = mapChangeListeners.remove(listener);
+            if(!removed) throw new RuntimeException("Nie udało się usunąć listenera");
         }
     }
 

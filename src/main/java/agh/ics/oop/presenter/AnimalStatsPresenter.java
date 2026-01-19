@@ -1,5 +1,6 @@
 package agh.ics.oop.presenter;
 
+import agh.ics.oop.model.SimulationListener;
 import agh.ics.oop.simulation.Simulation;
 import agh.ics.oop.model.RealWorldMap;
 import agh.ics.oop.model.Animal;
@@ -27,12 +28,15 @@ public class AnimalStatsPresenter {
 
     private Animal animal;
     private Simulation simulation;
+    private SimulationListener listener;
 
-    public void showAnimalStats(Animal animal, RealWorldMap worldMap, Simulation simulation){
+    public void showAnimalStats(Animal animal,RealWorldMap worldMap, Simulation simulation){
         this.animal = animal;
         this.simulation = simulation;
         if (animal.isAlive()) deathDayField.setText("-");
         updateTextFields(worldMap, 0, true);
+        listener = this::updateTextFields;
+        simulation.addMapChangeListener(listener);
     }
 
 
@@ -56,7 +60,7 @@ public class AnimalStatsPresenter {
     }
 
     public void closeStatsWindow(){
-        simulation.removeMapChangeListener(this::updateTextFields);
+        simulation.removeMapChangeListener(listener);
     }
 
 }

@@ -494,7 +494,6 @@ public class SimulationPresenter implements Initializable {
             stage.show();
 
             presenter.showAnimalStats(animal, worldMap, simulation);
-            simulation.addMapChangeListener(presenter::updateTextFields);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
