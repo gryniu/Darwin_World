@@ -135,8 +135,7 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
     public void removeDeadAnimals(){
         for (var animal: animals.getAll()){
             if(animal.getEnergy()<=0){
-                animal.setAlive(false);
-                animal.setDeathDay(day);
+                animal.die(day);
                 animals.removeAnimal(animal);
                 if(genCountListener != null)
                     genCountListener.change(animal.getGen(), -1);
@@ -156,8 +155,6 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
                             for (int i = 0; i<items.size()-1; i+=2){
                                 Animal firstPartner = items.get(i);
                                 Animal secondPartner = items.get(i+1);
-                                if (!Animal.canReproduce(firstPartner, secondPartner))
-                                    continue;
                                 firstPartner.sex(secondPartner, day).ifPresent(kidAnimalData -> {
                                     Animal child = new Animal(
                                             position,

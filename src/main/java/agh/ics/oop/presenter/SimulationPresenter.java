@@ -138,6 +138,7 @@ public class SimulationPresenter implements Initializable {
                 canRewind.set(false);
                 canAddAnimal.set(false);
                 simulationPaused.set(false);
+                animalAddCheckBox.setSelected(false);
             }
         });
 
@@ -450,7 +451,7 @@ public class SimulationPresenter implements Initializable {
         }
     }
 
-    private void drawEnergyBar(GraphicsContext gc, AbstractAnimal animal, MapStats mapStats, double centerX, double centerY) {
+    private void drawEnergyBar(GraphicsContext gc, HasEnergy animal, MapStats mapStats, double centerX, double centerY) {
         int p85 =  mapStats.simulationEnergyPercentiles().p85();
         int median = mapStats.simulationEnergyPercentiles().p50();
 
