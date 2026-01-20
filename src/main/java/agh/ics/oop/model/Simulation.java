@@ -5,29 +5,29 @@ import java.util.*;
 public class Simulation implements Runnable{
     //symulacja
     private final RealWorldMap worldMap;
-    private int day = 0;
     private final int simulationSpeed;
-    private final List<MapStats> simulationStats;
 
     //logika asynchroniczna
     private Thread simulationThread;
-    private final List<SimulationListener> mapChangeListeners = new ArrayList<>();
+    private final List<SimulationListener> simulationChangeListeners = new ArrayList<>();
     private boolean paused = true;
     private boolean running = true;
     private final Object lock = new Object();
 
     //cofanie
     private int rewindedDays = 0;
+    private WorldStatistics worldStatistics;
 
     public Simulation(RealWorldMap worldMap, int simulationSpeed) {
         this.worldMap = worldMap;
         this.simulationSpeed = simulationSpeed;
-        this.simulationStats = new ArrayList<>(List.of(worldMap.getMapStats()));
+        this.worldStatistics = new WorldStatistics(worldMap);
     }
 
     @Override
     public void run() {
         System.out.println("Symulacja rozpoczęta");
+        notifyListeners();
 
         try {
             while (isRunning()) {
@@ -43,7 +43,7 @@ public class Simulation implements Runnable{
                     break;
                 }
 
-                System.out.println("Dzień " + day + " zakończony");
+                System.out.println("Dzień " + worldMap.getDay() + " zakończony");
 
                 Thread.sleep(simulationSpeed);
             }
@@ -69,44 +69,34 @@ public class Simulation implements Runnable{
             return false;
         }
 
-        worldMap.removeDeadAnimals(day);
+        worldMap.removeDeadAnimals();
         worldMap.moveAllAnimals();
         worldMap.eatAllPossiblePlants();
-        worldMap.reproducePopulation(day);
+        worldMap.reproducePopulation();
         worldMap.decreaseEnergyAllAnimals();
         worldMap.createNewPlants();
-        day++;
 
-        simulationStats.add(worldMap.getMapStats());
         notifyListeners();
         return true;
     }
 
     private void notifyListeners() {
         synchronized (lock) {
-            for (SimulationListener listener : mapChangeListeners) {
-                listener.change(worldMap, day, true);
+            for (SimulationListener listener : simulationChangeListeners) {
+                listener.change(worldMap, worldStatistics.getMapStats(), worldMap.getDay(), true);
             }
         }
     }
 
-    private void notifyListeners(int day, FakeWorldMap otherWorldMap) {
+    public void addSimulationChangeListener(SimulationListener listener) {
         synchronized (lock) {
-            for (SimulationListener listener : mapChangeListeners) {
-                listener.change(otherWorldMap, day, false);
-            }
+            simulationChangeListeners.add(listener);
         }
     }
 
-    public void addMapChangeListener(SimulationListener listener) {
+    public void removeSimulationChangeListener(SimulationListener listener) {
         synchronized (lock) {
-            mapChangeListeners.add(listener);
-        }
-    }
-
-    public void removeMapChangeListener(SimulationListener listener) {
-        synchronized (lock) {
-            boolean removed = mapChangeListeners.remove(listener);
+            boolean removed = simulationChangeListeners.remove(listener);
             if(!removed) throw new RuntimeException("Nie udało się usunąć listenera");
         }
     }
@@ -117,7 +107,6 @@ public class Simulation implements Runnable{
             paused = isPaused;
 
             System.out.println("Zmiana pauzy: " + wasPaused + " -> " + isPaused);
-
 
             if (wasPaused && !isPaused) {
                 rewindedDays = 0;
@@ -139,8 +128,6 @@ public class Simulation implements Runnable{
     }
 
     public void startSimulation(){
-        addMapChangeListener(new HistoryLogger());
-
         simulationThread = new Thread(this);
         simulationThread.setDaemon(true);
         simulationThread.start();
@@ -155,25 +142,15 @@ public class Simulation implements Runnable{
             paused = false;
             lock.notifyAll();
         }
-
-        HistoryFileHandler.deleteHistory(worldMap.getId());
         if (simulationThread != null && simulationThread.isAlive()) {
             simulationThread.interrupt();
         }
     }
 
-    public void rewind(boolean goBack) {
-        if(!isPaused()) throw new RuntimeException("Nie można przewinąć niezatrzymanej symulacji.");
-        if(goBack)
-            rewindedDays = Math.min(day-1, rewindedDays + 1);
-        else
-            rewindedDays = Math.max(0, rewindedDays - 1);
-
-        FakeWorldMap fakeWorldMap = new FakeWorldMap(worldMap.getId(), day - rewindedDays, worldMap.getWidth(), worldMap.getHeight());
-        notifyListeners(day - rewindedDays, fakeWorldMap);
+    public int getEnergyPercentile(int percentile) {
+        return worldStatistics.getEnergyPercentile(percentile);
     }
-
-    public MapStats getStats(int day){
-        return simulationStats.get(day);
+    public FieldCategory getFieldCategory(Vector2d position) {
+        return worldStatistics.getFieldCategory(position);
     }
 }

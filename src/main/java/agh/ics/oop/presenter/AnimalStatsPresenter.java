@@ -1,10 +1,6 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.model.SimulationListener;
-import agh.ics.oop.model.Simulation;
-import agh.ics.oop.model.RealWorldMap;
-import agh.ics.oop.model.Animal;
-import agh.ics.oop.model.WorldMap;
+import agh.ics.oop.model.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 
@@ -30,15 +26,19 @@ public class AnimalStatsPresenter {
     private Simulation simulation;
     private SimulationListener listener;
 
-    public void showAnimalStats(Animal animal,RealWorldMap worldMap, Simulation simulation){
+    public void showAnimalStats(Animal animal, RealWorldMap worldMap, Simulation simulation){
         this.animal = animal;
         this.simulation = simulation;
         if (animal.isAlive()) deathDayField.setText("-");
-        updateTextFields(worldMap, 0, true);
+        updateTextFields(worldMap, worldMap.getDay(), true);
         listener = this::updateTextFields;
-        simulation.addMapChangeListener(listener);
+        simulation.addSimulationChangeListener(listener);
     }
 
+
+    public void updateTextFields(WorldMap worldMap, MapStats mapStats, int day, boolean isLive){
+        updateTextFields(worldMap, day, isLive);
+    }
 
     public void updateTextFields(WorldMap worldMap, int day, boolean isLive){
         if(!isLive) return;
@@ -60,7 +60,7 @@ public class AnimalStatsPresenter {
     }
 
     public void closeStatsWindow(){
-        simulation.removeMapChangeListener(listener);
+        simulation.removeSimulationChangeListener(listener);
     }
 
 }

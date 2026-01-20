@@ -62,6 +62,7 @@ public class SimulationPresenter implements Initializable {
     private Label averageChildrenLabel;
 
     private Simulation simulation;
+    private SimulationHistory simulationHistory;
     private RealWorldMap worldMap;
 
     public static final String RESET = "\u001B[0m";
@@ -100,6 +101,11 @@ public class SimulationPresenter implements Initializable {
     private List<Image> animalImages;
     private Image plantImage;
 
+    private List<Color> summerColors = List.of(Color.valueOf("#78D23D"), Color.valueOf("#58BB43"), Color.valueOf("#3AA346"));
+    private List<Color> winterColors = List.of(Color.valueOf("#9ECAE1"), Color.valueOf("#6BAED8"), Color.valueOf("#4292C6"));
+
+    private int visibleDay = 0;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         animalImages = new ArrayList<>();
@@ -134,13 +140,13 @@ public class SimulationPresenter implements Initializable {
 
         backButton.setOnAction(e -> {
             if (simulation != null) {
-                simulation.rewind(true);
+                simulationHistory.goBackTo(visibleDay-1);
             }
         });
 
         forwardButton.setOnAction(e -> {
             if (simulation != null) {
-                simulation.rewind(false);
+                simulationHistory.goBackTo(visibleDay+1);
             }
         });
 
@@ -189,14 +195,15 @@ public class SimulationPresenter implements Initializable {
         adjustCellSize();
 
         simulation = new Simulation(worldMap, 200);
-        Platform.runLater(this::updateCheckboxes);
+        simulationHistory = new SimulationHistory(worldMap);
+        simulationHistory.addSimulationChangeListener(this::handleSimulationChange);
 
         // poczatkowe rysowanie mapy
-        handleSimulationChange(this.worldMap, 0, true);
-        simulation.addMapChangeListener(this::handleSimulationChange);
+        simulation.addSimulationChangeListener(simulationHistory::update);
+        simulation.addSimulationChangeListener(this::handleSimulationChange);
 
         if (saveToCsv)
-            simulation.addMapChangeListener(new CsvLogger(worldMap));
+            simulation.addSimulationChangeListener(new CsvLogger(worldMap));
 
         simulation.startSimulation();
 
@@ -206,13 +213,15 @@ public class SimulationPresenter implements Initializable {
         energySeries.setName("Średnia Energia");
         lifespanSeries.setName("Średnia długość życia");
         childrenSeries.setName("Średnia liczba dzieci");
+
+        Platform.runLater(this::updateCheckboxes);
     }
 
-    public void handleSimulationChange(WorldMap worldMap, int day, boolean isLive){
+    public void handleSimulationChange(WorldMap worldMap, MapStats mapStats, int day, boolean isLive){
+        visibleDay = day;
         javafx.application.Platform.runLater(() -> {
-            drawMap(worldMap, day);
+            drawMap(worldMap, mapStats, day);
 
-            MapStats mapStats = simulation.getStats(day);
             updateLabels(mapStats, day);
             if(isLive)
                 updateLineChart(mapStats, day);
@@ -304,13 +313,13 @@ public class SimulationPresenter implements Initializable {
         popularGenotypeLabel.setText(mapStats.mostPopularGenotype());
     }
 
-    private void drawMap(WorldMap worldMap, int day) {
+    private void drawMap(WorldMap worldMap, MapStats mapStats,  int day) {
         clearGrid();
         drawGrid(worldMap);
-        drawWorldElements(worldMap, day);
+        drawWorldElements(worldMap, mapStats, day);
     }
 
-    private void drawWorldElements(WorldMap worldMap, int day){
+    private void drawWorldElements(WorldMap worldMap, MapStats mapStats, int day){
         gc.save();
         gc.setStroke(Color.BLACK);
         configureFont(gc, fontSize, Color.BLACK);
@@ -330,13 +339,13 @@ public class SimulationPresenter implements Initializable {
 
             if (worldElement instanceof AbstractAnimal abstractAnimal) {
                 gc.save();
-                if (Objects.equals(abstractAnimal.getGen().toString(), simulation.getStats(day).mostPopularGenotype())){
+                if (Objects.equals(abstractAnimal.getGen().toString(), mapStats.mostPopularGenotype())){
                     gc.setFill(Color.rgb(255, 0, 255, 0.5));
                     gc.fillOval(posX, posY, cellSize, cellSize);
                 }
                 gc.drawImage(animalImages.get(abstractAnimal.getOrientation().ordinal()), posX, posY, cellSize, cellSize);
                 gc.restore();
-                drawEnergyBar(gc, abstractAnimal, centerX, centerY, day);
+                drawEnergyBar(gc, abstractAnimal, centerX, centerY);
 
             }else gc.drawImage(plantImage, posX, posY, cellSize, cellSize);
         }
@@ -378,14 +387,10 @@ public class SimulationPresenter implements Initializable {
 
                 Vector2d worldPosition = new Vector2d(canvasCol, canvasRow);
 
-                Color fieldColor;
-                if (this.worldMap instanceof SeasonalWorldMap seasonalWorldMap) {
-                    fieldColor = seasonalWorldMap.getColorOfField(worldPosition);
-                } else {
-                    fieldColor = worldMap.getColorOfField(worldPosition);
-                }
+                FieldCategory fieldCategory = simulation.getFieldCategory(worldPosition);
+                boolean isWinter = (worldMap instanceof SeasonalWorldMap seasonalWorldMap) && seasonalWorldMap.isWinter();
 
-                gc.setFill(fieldColor);
+                gc.setFill(isWinter ? winterColors.get(fieldCategory.ordinal()) : summerColors.get(fieldCategory.ordinal()));
                 gc.fillRect(gridOffset + canvasCol * cellSize,
                         gridOffset + canvasRow * cellSize,
                         cellSize, cellSize);
@@ -396,6 +401,7 @@ public class SimulationPresenter implements Initializable {
 
     public void closeSimulation() {
         simulation.stopSimulation();
+        HistoryFileHandler.deleteHistory(worldMap.getId());
     }
 
     private void drawCoords(WorldMap worldMap) {
@@ -421,9 +427,9 @@ public class SimulationPresenter implements Initializable {
         }
     }
 
-    private void drawEnergyBar(GraphicsContext gc, AbstractAnimal animal, double centerX, double centerY, int day) {
-        int p85 = simulation.getStats(day).p85();
-        int median = simulation.getStats(day).p50();
+    private void drawEnergyBar(GraphicsContext gc, AbstractAnimal animal, double centerX, double centerY) {
+        int p85 = simulation.getEnergyPercentile(85);
+        int median = simulation.getEnergyPercentile(50);
 
         double ratio = animal.getEnergyRatio(median, p85);
         double width = energyBarWidth * ratio;
