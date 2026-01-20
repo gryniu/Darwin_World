@@ -14,9 +14,7 @@ public class Simulation implements Runnable{
     private boolean running = true;
     private final Object lock = new Object();
 
-    //cofanie
-    private int rewindedDays = 0;
-    private WorldStatistics worldStatistics;
+    private final WorldStatistics worldStatistics;
 
     public Simulation(RealWorldMap worldMap, int simulationSpeed) {
         this.worldMap = worldMap;
@@ -109,7 +107,6 @@ public class Simulation implements Runnable{
             System.out.println("Zmiana pauzy: " + wasPaused + " -> " + isPaused);
 
             if (wasPaused && !isPaused) {
-                rewindedDays = 0;
                 lock.notify();
             }
         }
@@ -148,9 +145,6 @@ public class Simulation implements Runnable{
     }
 
     public MapStats getMapStats() {return worldStatistics.getMapStats();};
-    public int getEnergyPercentile(int percentile) {
-        return worldStatistics.getEnergyPercentile(percentile);
-    }
     public FieldCategory getFieldCategory(Vector2d position) {
         return worldStatistics.getFieldCategory(position);
     }

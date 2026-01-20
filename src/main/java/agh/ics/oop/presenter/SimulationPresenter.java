@@ -365,7 +365,7 @@ public class SimulationPresenter implements Initializable {
                 }
                 gc.drawImage(animalImages.get(abstractAnimal.getOrientation().ordinal()), posX, posY, cellSize, cellSize);
                 gc.restore();
-                drawEnergyBar(gc, abstractAnimal, centerX, centerY);
+                drawEnergyBar(gc, abstractAnimal, mapStats, centerX, centerY);
 
             }else gc.drawImage(plantImage, posX, posY, cellSize, cellSize);
         }
@@ -447,9 +447,9 @@ public class SimulationPresenter implements Initializable {
         }
     }
 
-    private void drawEnergyBar(GraphicsContext gc, AbstractAnimal animal, double centerX, double centerY) {
-        int p85 = simulation.getEnergyPercentile(85);
-        int median = simulation.getEnergyPercentile(50);
+    private void drawEnergyBar(GraphicsContext gc, AbstractAnimal animal, MapStats mapStats, double centerX, double centerY) {
+        int p85 =  mapStats.simulationEnergyPercentiles().p85();
+        int median = mapStats.simulationEnergyPercentiles().p50();
 
         double ratio = animal.getEnergyRatio(median, p85);
         double width = energyBarWidth * ratio;
