@@ -1,7 +1,5 @@
 package agh.ics.oop.model;
 
-import javafx.scene.paint.Color;
-
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -82,7 +80,6 @@ public class WorldStatistics {
     }
 
     public MapStats getMapStats(){
-        System.out.println(worldMap.getDay() + getMostPopularGenotype() + genCounter.get(getMostPopularGenotype()));
         return new MapStats(worldMap.getAnimalsCount(), worldMap.getPlantsCount(), worldMap.getFreeFieldsCount(), getAverageEnergy(), getAverageLifespan(), getAverageChildren(), getMostPopularGenotype(), new SimulationEnergyPercentiles(getEnergyPercentile(50), getEnergyPercentile(85)));
     }
 
@@ -107,13 +104,6 @@ public class WorldStatistics {
                 .collect(Collectors.averagingInt(Animal::getNumOfKids));
     }
 
-
-//    public FieldCategory getFieldCategory(Vector2d fieldPosition){
-//        Long plantsFrequency = plantsFrequencyCounter.getOrDefault(fieldPosition,0L);
-//        if (plantsFrequency < maxNumOfPlantsOnPosition*.33) return Color.valueOf("#78D23D");
-//        if (plantsFrequency < maxNumOfPlantsOnPosition*.75) return Color.valueOf("#58BB43");
-//        return Color.valueOf("#3AA346");
-//    }
     public FieldCategory getFieldCategory(Vector2d fieldPosition){
         Long plantsFrequency = plantsFrequencyCounter.getOrDefault(fieldPosition,0L);
         if (plantsFrequency < maxNumOfPlantsOnPosition*.33) return FieldCategory.NORMAL;

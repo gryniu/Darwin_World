@@ -3,17 +3,15 @@ package agh.ics.oop.model;
 import java.util.*;
 
 public class Animal extends AbstractAnimal{
-    private final int dayOfBirth;
-    private int numOfKids = 0;
     private int plantConsumedCounter = 0;
-    private boolean isAlive;
-    private int deathDay;
-    private final List<Animal> listOfKids = new ArrayList<>();
-    private int numOfLivedDays;
+    // niby mozna by bylo do osobnej klasy dać plant Counter zeby nie lamac srp, ale to przesada
 
     private final Iterator<Integer> genIterator;
-    private final EnergyOptions energyOptions;
+
     private final AnimalOptions animalOptions;
+    private final EnergyComponent energyComponent;
+    private final LifeComponent lifeComponent;
+    private final ReproductionComponent reproductionComponent;
 
     public Animal(Vector2d position, AnimalOptions animalOptions, int energyStart, int dayOfBirth) {
         this(position,animalOptions,
@@ -21,65 +19,77 @@ public class Animal extends AbstractAnimal{
                         energyStart, dayOfBirth));
     }
     public Animal(Vector2d position, AnimalOptions animalOptions, AnimalData animalData) {
-        this.dayOfBirth = animalData.dayOfBirth();
+        this.lifeComponent = new LifeComponent(animalData.dayOfBirth());
+        this.reproductionComponent = new ReproductionComponent();
+        this.energyComponent = new EnergyComponent(animalData.energyStart(), animalOptions.energyOptions());
+
         this.orientation = MapDirection.getRandomDirection();
         this.position = position;
         this.gen = animalData.gen();
         this.genIterator = gen.iterator();
         this.animalOptions = animalOptions;
-        this.energyOptions = animalOptions.energyOptions();
-        this.energy = animalData.energyStart();
-        this.isAlive = true;
-        this.numOfLivedDays = 0;
     }
 
-
-    public int giveEnergyToKid(){
-        int energyGiven = Math.min(energy, energyOptions.energyToKid());
-        energy -= energyGiven;
-        return energyGiven;
+    // energy
+    public void eat(double energyFromPlantMultiplier){
+        plantConsumedCounter++;
+        energyComponent.eat(energyFromPlantMultiplier);
     }
 
+    public void decreaseDailyEnergy(double energyDecreaseMultiplier){
+        energyComponent.dailyLoss(energyDecreaseMultiplier);
+    }
+
+    public EnergyComponent getEnergyComponent() {
+        return energyComponent;
+    }
+
+    @Override
+    public int getEnergy() {
+        return energyComponent.getEnergy();
+    }
+
+    // life
+    public boolean isAlive() { return lifeComponent.isAlive();}
+
+    public int getNumOfLivedDays() { return lifeComponent.getNumOfLivedDays(); }
+
+    public void increaseNumOfLivedDays() { lifeComponent.nextDay(); }
+
+    public void die(int day){ lifeComponent.die(day);}
+
+    public int getDeathDay() { return lifeComponent.getDeathDay(); }
+
+    public int getDayOfBirth() { return lifeComponent.getDayOfBirth();}
+
+    // reproduction
     public Optional<AnimalData> sex(Animal partner, int day){
-        if (!canReproduce(this,partner))
+        if (!energyComponent.canReproduce() && partner.getEnergyComponent().canReproduce())
             return Optional.empty();
-        int kidStartingEnergy = giveEnergyToKid() + partner.giveEnergyToKid();
+        int kidStartingEnergy = energyComponent.giveEnergyToKid() + partner.getEnergyComponent().giveEnergyToKid();
 
         Gen kidGen = Gen.mixGens(this, partner);
         kidGen.randomize(animalOptions.minMutationNum(), animalOptions.maxMutationNum());
 
-        increaseNumOfKids();
-        partner.increaseNumOfKids();
+        reproductionComponent.increaseNumOfKids();
+        partner.getReproductionComponent().increaseNumOfKids();
         return Optional.of(new AnimalData(kidGen, kidStartingEnergy, day));
     }
 
-    public void decreaseDailyEnergy(double energyDecreaseMultiplier){
-        energy = Math.max(0,energy - (int)(energyOptions.dailyEnergyLoss()*energyDecreaseMultiplier));
+    public int getNumOfKids() {
+        return reproductionComponent.getNumOfKids();
     }
 
-    public AnimalOptions animalOptions() {
-        return animalOptions;
+    public void addKid(Animal child) { reproductionComponent.addChild(child);}
+
+    public int getNumOfDescendants() {
+        return reproductionComponent.getNumOfDescendants();
     }
 
-
-    public void eat(double energyFromPlantMultiplier){
-        plantConsumedCounter++;
-        energy += (int)(energyOptions.energyFromPlant()*energyFromPlantMultiplier);
-    }
-
-    public boolean isFeed(){
-        return energy >= energyOptions.energyToReproduce();
-    }
-
-
+    // position and rotation
     public void setPosition(Vector2d position) {
         this.position = position;
     }
-
-    public static boolean canReproduce(Animal firstPartner, Animal secondPartner){
-        return firstPartner.isFeed() && secondPartner.isFeed();
-    }
-
 
 
     public void rotate(){
@@ -90,39 +100,23 @@ public class Animal extends AbstractAnimal{
         orientation = orientation.opposite();
     }
 
-    public int getDayOfBirth() {
-        return dayOfBirth;
-    }
-
-    public int getNumOfKids() {
-        return numOfKids;
-    }
-
-    public void increaseNumOfKids(){
-        numOfKids++;
-    }
-
+    // plant counter
     public int getPlantConsumedCounter() { return plantConsumedCounter; }
 
-    public void setAlive(boolean alive) { isAlive = alive; }
-
-    public boolean isAlive() { return isAlive ;}
-
-
-    public int getNumOfLivedDays() { return numOfLivedDays; }
-
-    public void increaseNumOfLivedDays() { numOfLivedDays++; }
-
-    public void setDeathDay(int deathDay) {this.deathDay = deathDay;}
-
-    public int getDeathDay() {return deathDay;}
-
-    public void addKid(Animal kid) { listOfKids.add(kid); }
-
-    public int getNumOfDescendants() {
-        int res = numOfKids;
-        for (Animal kid: listOfKids)
-            res += kid.getNumOfDescendants();
-        return res;
+    // datatostring
+    @Override
+    public String dataToString() {
+        return position.dataToString() + "," + orientation.dataToString() + "," + energyComponent.getEnergy() + "," + gen;
     }
+
+    // inne gettery
+    public AnimalOptions animalOptions() {
+        return animalOptions;
+    }
+
+    public ReproductionComponent getReproductionComponent() {
+        return reproductionComponent;
+    }
+
+
 }

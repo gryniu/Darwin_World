@@ -117,6 +117,7 @@ public class SimulationPresenter implements Initializable {
                 canRewind.set(false);
                 canAddAnimal.set(false);
                 simulationPaused.set(false);
+                animalAddCheckBox.setSelected(false);
             }
         });
 
