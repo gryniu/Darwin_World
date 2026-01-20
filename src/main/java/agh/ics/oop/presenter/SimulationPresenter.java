@@ -113,6 +113,10 @@ public class SimulationPresenter implements Initializable {
 
     private int visibleDay = 0;
 
+    private AnimalOptions animalOptions;
+    private MapOptions mapOptions;
+    private EnergyOptions energyOptions;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         animalImages = new ArrayList<>();
@@ -173,7 +177,7 @@ public class SimulationPresenter implements Initializable {
     }
 
     public void startSimulation(SimulationConfig config, boolean saveToCsv) {
-        MapOptions mapOptions = new MapOptions(
+        mapOptions = new MapOptions(
                 config.mapHeight,
                 config.mapWidth,
                 config.startPlantCount,
@@ -182,18 +186,19 @@ public class SimulationPresenter implements Initializable {
                 config.energyFromPlant
         );
 
-        EnergyOptions energyOptions = new EnergyOptions(
+        energyOptions = new EnergyOptions(
                 config.energyFromPlant,
                 config.energyLossPerDay,
                 config.energyToReproduce,
                 config.energyToKid);
 
-        AnimalOptions animalOptions = new AnimalOptions(
+        animalOptions = new AnimalOptions(
                 energyOptions,
                 config.minMutations,
                 config.maxMutations,
                 config.genomeLength
         );
+
 
         if(config.isSeasonal) {
             SeasonsOptions seasonsOptions = new SeasonsOptions(
@@ -514,11 +519,11 @@ public class SimulationPresenter implements Initializable {
 
     private void handleAnimalAdd(Vector2d position){
         Animal animalToAdd = new Animal(position
-                ,worldMap.getDefaultAnimalOptions()
-                ,worldMap.getMapOptions().energyStart()
-                ,simulation.getCurrentDay());
+                ,animalOptions
+                ,mapOptions.energyStart()
+                ,worldMap.getDay());
         worldMap.place(animalToAdd);
-        drawMap(worldMap,simulation.getCurrentDay());
+        drawMap(worldMap, simulation.getMapStats(), worldMap.getDay());
     }
 
     private void handleShowAnimalStats(Vector2d position){

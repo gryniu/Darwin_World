@@ -147,14 +147,11 @@ public class Simulation implements Runnable{
         }
     }
 
+    public MapStats getMapStats() {return worldStatistics.getMapStats();};
     public int getEnergyPercentile(int percentile) {
         return worldStatistics.getEnergyPercentile(percentile);
     }
     public FieldCategory getFieldCategory(Vector2d position) {
         return worldStatistics.getFieldCategory(position);
-    }
-
-    public int getCurrentDay() {
-        return day;
     }
 }
