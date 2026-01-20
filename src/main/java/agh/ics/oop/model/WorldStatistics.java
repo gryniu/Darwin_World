@@ -25,7 +25,7 @@ public class WorldStatistics {
         worldMap.setDeadAnimalListener(this::updateDeadAnimalsCounter);
     }
 
-    public int getEnergyPercentile(int percentile) {
+    public int getEnergyPercentile(int percentile) { // todo: poprawic , wywala blad getallanimals <- getall
         if (percentile < 0 || percentile > 100) throw new IllegalArgumentException("Percentile must be in [0,100]");
         List<Animal> animals = worldMap.getAllAnimals();
         if (animals.isEmpty()) return 0;
