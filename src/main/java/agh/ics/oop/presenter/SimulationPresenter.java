@@ -145,7 +145,8 @@ public class SimulationPresenter implements Initializable {
             if (simulation != null) {
                 simulation.setPausedSimulation(true);
                 canRewind.set(true);
-                canAddAnimal.set(true);
+                if (visibleDay == worldMap.getDay()) canAddAnimal.set(true);
+
                 simulationPaused.set(true);
             }
         });
@@ -159,6 +160,8 @@ public class SimulationPresenter implements Initializable {
         backButton.setOnAction(e -> {
             if (simulation != null) {
                 simulationHistory.goBackTo(visibleDay-1);
+                canAddAnimal.set(false);
+                animalAddCheckBox.setSelected(false);
             }
         });
 
