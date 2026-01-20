@@ -14,17 +14,17 @@ public class CsvLogger implements SimulationListener{
         file = new File(homeDir, "%s.csv".formatted(worldMap.getId()));
 
         try (FileWriter writer = new FileWriter(file)) {
-            writer.append("Day,").append(worldMap.getMapStats().getLabel());
+            writer.append("Day,").append(MapStats.getLabel());
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
     @Override
-    public void change(WorldMap worldMap, int day, boolean isLive) {
-        if (isLive && worldMap instanceof RealWorldMap realWorldMap) {
+    public void change(WorldMap worldMap, MapStats mapStats, int day, boolean isLive) {
+        if (isLive) {
             try (FileWriter writer = new FileWriter(file, true)) {
-                writer.append(String.valueOf(day)).append(",").append(realWorldMap.getMapStats().getRow());
+                writer.append(String.valueOf(day)).append(",").append(mapStats.getRow());
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }

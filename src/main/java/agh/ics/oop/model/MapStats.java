@@ -7,9 +7,7 @@ public record MapStats(
         double averageEnergy,
         double averageLifespan,
         double averageChildren,
-        String mostPopularGenotype,
-        int p85,
-        int p50
+        String mostPopularGenotype
 ) {
     public String animalsCountStr() {
         return String.valueOf(animalsCount);
@@ -37,7 +35,7 @@ public record MapStats(
 
     public String mostPopularGenotype() { return mostPopularGenotype ;}
 
-    public String getLabel(){
+    public static String getLabel(){
         return "animalsCount,plantsCount,freeFieldsCount,averageEnergy,averageLifespan,averageChildren,mostPopularGenotype\n";
     }
 

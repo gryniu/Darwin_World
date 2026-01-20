@@ -2,16 +2,12 @@ package agh.ics.oop.model;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 public class RealWorldMap extends AbstractWorldMap<Animal> {
     protected final UUID id;
 
     private final PlantsGenerator plantsGenerator;
     private final Iterator<Vector2d> plantsGeneratorIterator;
-
-    private long deadAnimalsCounter = 0L;
-    private long totalLifespanYears = 0L;
 
     private final AnimalOptions defaultAnimalOptions;
     private final MapOptions mapOptions;
@@ -21,6 +17,12 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
     protected double energyDecreaseMultiplier = 1;
     protected double plantNumMultiplier = 1;
 
+    private PlantGrowListener plantGrowListener;
+    private GenCountListener genCountListener;
+    private DeadAnimalListener deadAnimalListener;
+
+    private int day = 0;
+
     public RealWorldMap(MapOptions mapOptions, AnimalOptions defaultAnimalOptions){
         super(mapOptions.mapWidth(), mapOptions.mapHeight());
 
@@ -28,18 +30,17 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
         plantNumEveryDay = mapOptions.plantNumEveryDay();
         this.defaultAnimalOptions = defaultAnimalOptions;
         this.mapOptions = mapOptions;
-        this.maxNumOfPlantsOnPosition = (long) (mapOptions.startingNumOfPlants()/4);
         plantsGenerator = new PlantsGenerator(width, height);
         plantsGeneratorIterator = plantsGenerator.iterator();
 
         createAnimalsOnRandomPositions();
-
         createPlants(mapOptions.startingNumOfPlants());
     }
 
     public void place(Animal animal) {
         animals.addAnimal(animal);
-        increaseGenotypeCounter(animal);
+        if(genCountListener != null)
+            genCountListener.change(animal.getGen(), 1);
     }
 
     @Override
@@ -101,14 +102,15 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
     public void createNewPlants(){
         plantsGenerator.reShuffle();
         createPlants((int)(plantNumEveryDay*plantNumMultiplier));
+        day++;
     }
 
     private void createPlants(int n){
         int created = 0;
         while (created < n && plantsGeneratorIterator.hasNext()) {
             Vector2d position = plantsGeneratorIterator.next();
-            plantsFrequencyCounter.put(position, 1 + plantsFrequencyCounter.getOrDefault(position,0L));
-            maxNumOfPlantsOnPosition = Math.max(maxNumOfPlantsOnPosition, plantsFrequencyCounter.get(position));
+            if(plantGrowListener != null)
+                plantGrowListener.change(position, 1);
             plants.put(position, new Plant(position));
             created++;
         }
@@ -130,20 +132,21 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
         }
     }
 
-    public void removeDeadAnimals(int day){
+    public void removeDeadAnimals(){
         for (var animal: animals.getAll()){
             if(animal.getEnergy()<=0){
                 animal.setAlive(false);
                 animal.setDeathDay(day);
                 animals.removeAnimal(animal);
-                decreaseGenotypeCounter(animal);
-                deadAnimalsCounter++;
-                totalLifespanYears += day - animal.getDayOfBirth();
+                if(genCountListener != null)
+                    genCountListener.change(animal.getGen(), -1);
+                if(deadAnimalListener != null)
+                    deadAnimalListener.change(animal, 1);
             }
         }
     }
 
-    public void reproducePopulation(int day){
+    public void reproducePopulation(){
         List<Animal> newborns = new ArrayList<>();
 
         animals.getPositions().forEach(position ->
@@ -194,68 +197,10 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
             place(new Animal(getRandomPosition(), defaultAnimalOptions, mapOptions.energyStart(), 0));
     }
 
-    private int getFreeFieldsCount(){
+    public int getFreeFieldsCount(){
         Set<Vector2d> takenFields = new HashSet<>(animals.getPositions());
         takenFields.addAll(plants.keySet());
         return width*height - takenFields.size();
-    }
-
-
-    private String getMostPopularGenotype(){
-        if (genotypeCounter.isEmpty()) {
-            return "-";
-        }
-
-        int maxCounter = genotypeCounter.values()
-                .stream()
-                .mapToInt(Integer::intValue)
-                .max()
-                .orElse(0);
-
-        if(maxCounter < 2) return "-";
-
-        return genotypeCounter
-                .keySet()
-                .stream()
-                .filter(key -> genotypeCounter.get(key) == maxCounter)
-                .findFirst()
-                .orElse("-");
-    }
-
-    private Double getAverageEnergy(){
-        return animals.getAll()
-                .stream()
-                .collect(Collectors.averagingInt(Animal::getEnergy));
-    }
-
-    private void increaseGenotypeCounter(Animal animal){
-        String gen = animal.getGen().toString();
-        genotypeCounter.put(gen, genotypeCounter.getOrDefault(gen, 0) + 1);
-    }
-
-    private void decreaseGenotypeCounter(Animal animal){
-        String genotyp = animal.getGen().toString();
-        if (genotypeCounter.get(genotyp) == 1) {
-            genotypeCounter.remove(genotyp);
-            return;
-        }
-        genotypeCounter.put(genotyp, genotypeCounter.get(genotyp) - 1);
-    }
-
-    private double getAverageLifespan(){
-        if (deadAnimalsCounter == 0) return 0.0;
-        return (double) totalLifespanYears / deadAnimalsCounter;
-    }
-
-    private double getAverageChildren(){
-        return animals.getAll()
-                .stream()
-                .collect(Collectors.averagingInt(Animal::getNumOfKids));
-    }
-
-
-    public MapStats getMapStats(){
-        return new MapStats(getAnimalsCount(), getPlantsCount(), getFreeFieldsCount(), getAverageEnergy(), getAverageLifespan(), getAverageChildren(), getMostPopularGenotype(),getEnergyPercentile(85),getEnergyPercentile(50));
     }
 
     private Vector2d getRandomPosition() {
@@ -270,11 +215,19 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
         return new Vector2d(x, y);
     }
 
-    public AnimalOptions getDefaultAnimalOptions() {
-        return defaultAnimalOptions;
+    public void setPlantGrowListener(PlantGrowListener plantGrowListener) {
+        this.plantGrowListener = plantGrowListener;
     }
 
-    public MapOptions getMapOptions() {
-        return mapOptions;
+    public void setGenCountListener(GenCountListener genCountListener) {
+        this.genCountListener = genCountListener;
+    }
+
+    public void setDeadAnimalListener(DeadAnimalListener deadAnimalListener) {
+        this.deadAnimalListener = deadAnimalListener;
+    }
+
+    public int getDay(){
+        return day;
     }
 }

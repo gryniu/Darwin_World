@@ -103,16 +103,20 @@ public class SeasonalWorldMap extends RealWorldMap {
         handleEndOfADay();
     }
 
+    public boolean isWinter(){
+        return isWinter;
+    }
+
     public double getTemperature() {
         return temperature;
     } // todo: chcemy wyswietlac jaka jest temperatura na mapie
 
-    @Override
-    public Color getColorOfField(Vector2d fieldPosition){
-        if (!isWinter) return super.getColorOfField(fieldPosition);
-        Long plantsFrequency = plantsFrequencyCounter.getOrDefault(fieldPosition,0L);
-        if (plantsFrequency < maxNumOfPlantsOnPosition*.33) return Color.valueOf("#9ECAE1");
-        if (plantsFrequency < maxNumOfPlantsOnPosition*.75) return Color.valueOf("#6BAED8");
-        return Color.valueOf("#4292C6");
-    }
+//    @Override
+//    public Color getColorOfField(Vector2d fieldPosition){
+//        if (!isWinter) return super.getColorOfField(fieldPosition);
+//        Long plantsFrequency = plantsFrequencyCounter.getOrDefault(fieldPosition,0L);
+//        if (plantsFrequency < maxNumOfPlantsOnPosition*.33) return Color.valueOf("#9ECAE1");
+//        if (plantsFrequency < maxNumOfPlantsOnPosition*.75) return Color.valueOf("#6BAED8");
+//        return Color.valueOf("#4292C6");
+//    }
 }
