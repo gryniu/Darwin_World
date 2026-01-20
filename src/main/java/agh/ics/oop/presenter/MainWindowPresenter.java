@@ -1,6 +1,8 @@
 package agh.ics.oop.presenter;
 
+import agh.ics.oop.model.PresetManager;
 import agh.ics.oop.model.SimulationConfig;
+import agh.ics.oop.model.SimulationLauncher;
 import agh.ics.oop.model.WrongFieldStateException;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -17,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
@@ -78,6 +81,7 @@ public class MainWindowPresenter implements Initializable {
     private TextField distanceRequiredToHeatField;
     @FXML
     private Button startSimulationButton;
+    private final PresetManager presetManager = new PresetManager(CONFIG_PATH, PRESET_FILE_ENDING);
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loadPresetsList();
@@ -102,27 +106,16 @@ public class MainWindowPresenter implements Initializable {
         try{
             SimulationConfig simulationConfig = readConfig();
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Simulation.fxml"));
-            BorderPane viewRoot = loader.load();
-            SimulationPresenter presenter = loader.getController();
-
-            Stage stage = new Stage();
-            stage.setOnCloseRequest(event -> {
-                presenter.closeSimulation();
-            });
-            configureStage(stage, viewRoot);
-            stage.show();
-
-            presenter.startSimulation(simulationConfig, exportCsvCheckBox.isSelected());
+            new SimulationLauncher().launchSimulation(simulationConfig,exportCsvCheckBox.isSelected());
         }
         catch (NumberFormatException e){
-            showNumberFormatExceptionAlert(e);
+            showAlert("Błąd walidacji", "Nieprawidłowe parametry symulacji", String.join("\n• ", "Wpisane Parametry nie są liczbami"));
         }
         catch (WrongFieldStateException e){
-            showValidationErrorAlert(e);
+            showAlert("Błąd walidacji", "Nieprawidłowe parametry symulacji", e.getMessage());
         }
         catch (IOException e) {
-            showIOExceptionAlert(e);
+            showAlert("Błąd","", "Nie udało się uruchomić okna symulacji");
         }
     }
 
@@ -153,59 +146,13 @@ public class MainWindowPresenter implements Initializable {
         return Integer.parseInt(field.getText().trim());
     }
 
-
-
-    private void showValidationErrorAlert(WrongFieldStateException e) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Błąd walidacji");
-        alert.setHeaderText("Nieprawidłowe parametry symulacji");
-        String errorMessage = String.join("\n• ", e.getErrors());
-
-        alert.setContentText("Błędy wystąpiły na polach:\n• " + errorMessage);
-
-        alert.showAndWait();
-    }
-
-    private void showIOExceptionAlert(IOException e){
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Błąd");
-        alert.setHeaderText("Nie udało się uruchomić okna symulacji");
-        alert.setContentText(e.getMessage());
-        alert.showAndWait();
-    }
-
-    private void showNumberFormatExceptionAlert(NumberFormatException e) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Błąd walidacji");
-        alert.setHeaderText("Nieprawidłowe parametry symulacji");
-
-        String errorMessage = String.join("\n• ", "Wpisane Parametry nie są liczbami");
-
-        alert.setContentText(errorMessage);
-
-        alert.showAndWait();
-    }
-
-    private void configureStage(Stage primaryStage, BorderPane viewRoot) {
-        // stworzenie sceny (panelu do wyświetlania wraz zawartoscia z FXML)
-        var scene = new Scene(viewRoot);
-
-        // ustawienie sceny w oknie
-        primaryStage.setScene(scene);
-
-        // konfiguracja okna
-        primaryStage.setTitle("Simulation app");
-    }
-
     private void saveSimulationPreset() {
         try {
             String fileName = savePresetsTextField.getText().trim();
-            if (fileName.isEmpty()) throw new Exception("File name cannot be empty!");
-            if (loadPresetsComboBox.getItems().contains(fileName)) throw new Exception("File with name %s already exists!".formatted(fileName));
+            if (fileName.isEmpty()) throw new Exception("Nazwa pliku nie może być pusta!");
+            if (loadPresetsComboBox.getItems().contains(fileName)) throw new Exception("Preset o tej nazwie już istnieje!");
 
             Properties props = new Properties();
-            readConfig();
-
             props.setProperty("isSeasonal", Boolean.toString(isSeasonal.get()));
             props.setProperty("mapWidth", mapWidthField.getText());
             props.setProperty("mapHeight", mapHeightField.getText());
@@ -224,69 +171,47 @@ public class MainWindowPresenter implements Initializable {
             props.setProperty("minTemperature", minTemperatureField.getText());
             props.setProperty("distanceRequiredToHeat", distanceRequiredToHeatField.getText());
 
-
-            File dir = new File(CONFIG_PATH);
-            if (!dir.exists()) dir.mkdirs();
-
-            File file = new File(dir, fileName + PRESET_FILE_ENDING);
-
-            try (var fos = new java.io.FileOutputStream(file)) {
-                props.store(fos, "Simulation preset saved by user");
-                System.out.println("Zapisano preset do: " + file.getName());
-            }
+            presetManager.savePreset(fileName, props);
 
             if (!loadPresetsComboBox.getItems().contains(fileName)) {
                 loadPresetsComboBox.getItems().add(fileName);
             }
-
+            showAlert("Sukces", "Preset zapisany", "Zapisano preset: " + fileName);
         } catch (Exception e) {
-            var alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Błąd zapisu");
-            alert.setHeaderText("Nie udało się zapisać presetu symulacji");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            showAlert("Błąd zapisu", "Nie udało się zapisać presetu", e.getMessage());
         }
+    }
+
+
+    private void showAlert(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
     private void deleteSimulationPreset() {
         try {
-            String selectedPreset = (String)loadPresetsComboBox.getValue();
-            if (selectedPreset == null)  throw new Exception("Preset not selected");;
+            String selectedPreset = (String) loadPresetsComboBox.getValue();
+            if (selectedPreset == null) throw new Exception("Preset nie został wybrany");
 
-            File dir = new File(CONFIG_PATH);
-            if (!dir.exists()) dir.mkdirs();
-
-            File file = new File(dir, selectedPreset + PRESET_FILE_ENDING);
-            file.delete();
-
+            presetManager.deletePreset(selectedPreset);
             loadPresetsComboBox.getItems().remove(selectedPreset);
+            showAlert("Sukces", "Preset usunięty", "Usunięto preset: " + selectedPreset);
         } catch (Exception e) {
-            var alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Nie udało się usunąć");
-            alert.setHeaderText("Nie udało się odczytać presetu symulacji");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            showAlert("Błąd", "Nie udało się usunąć presetu", e.getMessage());
         }
     }
 
     private void loadSimulationPreset() {
         try {
-            String selectedPreset = (String)loadPresetsComboBox.getValue();
-            if (selectedPreset == null)  return;
+            String selectedPreset = (String) loadPresetsComboBox.getValue();
+            if (selectedPreset == null) return;
 
-            File dir = new File(CONFIG_PATH);
-            if (!dir.exists()) dir.mkdirs();
+            Properties props = presetManager.loadPreset(selectedPreset);
 
-            File file = new File(dir, selectedPreset + PRESET_FILE_ENDING);
-
-            Properties props = new Properties();
-            try (var fis = new java.io.FileInputStream(file)) {
-                props.load(fis);
-            }
-
-            // wczytujemy wartości do pól
             isSeasonal.set(Boolean.parseBoolean(props.getProperty("isSeasonal", "true")));
-            System.out.println(isSeasonal);
             mapWidthField.setText(props.getProperty("mapWidth", ""));
             mapHeightField.setText(props.getProperty("mapHeight", ""));
             startPlantCountField.setText(props.getProperty("startPlantCount", ""));
@@ -306,34 +231,18 @@ public class MainWindowPresenter implements Initializable {
 
             System.out.println("Preset loaded: " + selectedPreset);
         } catch (Exception e) {
-            var alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Błąd odczytu");
-            alert.setHeaderText("Nie udało się odczytać presetu symulacji");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            showAlert("Błąd odczytu", "Nie udało się odczytać presetu", e.getMessage());
         }
     }
 
+
     public void loadPresetsList() {
         try {
-            File dir = new File(CONFIG_PATH);
-            if (!dir.exists()) dir.mkdirs();
-
             loadPresetsComboBox.getItems().clear();
-
-            Files.list(dir.toPath())
-                    .filter(p -> p.getFileName().toString().endsWith(PRESET_FILE_ENDING))
-                    .forEach(preset -> {
-                        String fileName = preset.getFileName().toString();
-                        fileName = fileName.substring(0, fileName.length() - PRESET_FILE_ENDING.length());
-                        loadPresetsComboBox.getItems().add(fileName);
-                    });
+            List<String> presets = presetManager.listPresets();
+            loadPresetsComboBox.getItems().addAll(presets);
         } catch (Exception e) {
-            var alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Błąd");
-            alert.setHeaderText("Nie udało się załadować presetów");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            showAlert("Błąd", "Nie udało się załadować presetów", e.getMessage());
         }
     }
 }

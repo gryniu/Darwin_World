@@ -1,16 +1,11 @@
 package agh.ics.oop.model;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 // todo: opisac bledy
 public class WrongFieldStateException extends Exception {
-    private final List<String> missingFields;
     public WrongFieldStateException(List<String> missingFields) {
-        super("Missing or invalid fields: " + missingFields);
-        this.missingFields = missingFields;
-    }
-
-    public List<String> getErrors(){
-        return missingFields;
+        super(String.join("\n", missingFields));
     }
 }
