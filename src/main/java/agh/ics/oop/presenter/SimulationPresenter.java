@@ -61,6 +61,9 @@ public class SimulationPresenter implements Initializable {
     @FXML
     private Label averageChildrenLabel;
 
+    @FXML CheckBox animalAddCheckBox;
+    @FXML Label messageLabel;
+
     private Simulation simulation;
     private SimulationHistory simulationHistory;
     private RealWorldMap worldMap;
@@ -79,6 +82,10 @@ public class SimulationPresenter implements Initializable {
     private GraphicsContext gc;
 
     BooleanProperty canRewind = new SimpleBooleanProperty(false);
+    BooleanProperty canAddAnimal = new SimpleBooleanProperty(false);
+    BooleanProperty simulationPaused = new SimpleBooleanProperty(false);
+
+
 
     @FXML private LineChart<Number, Number> statisticsChart;
     @FXML private NumberAxis dayAxis;
@@ -125,6 +132,8 @@ public class SimulationPresenter implements Initializable {
             if (simulation != null) {
                 simulation.setPausedSimulation(false);
                 canRewind.set(false);
+                canAddAnimal.set(false);
+                simulationPaused.set(false);
             }
         });
 
@@ -132,11 +141,16 @@ public class SimulationPresenter implements Initializable {
             if (simulation != null) {
                 simulation.setPausedSimulation(true);
                 canRewind.set(true);
+                canAddAnimal.set(true);
+                simulationPaused.set(true);
             }
         });
 
         backButton.disableProperty().bind(canRewind.not());
         forwardButton.disableProperty().bind(canRewind.not());
+        animalAddCheckBox.disableProperty().bind(canAddAnimal.not());
+
+        messageLabel.visibleProperty().bind(animalAddCheckBox.selectedProperty().and(simulationPaused));
 
         backButton.setOnAction(e -> {
             if (simulation != null) {
@@ -155,6 +169,7 @@ public class SimulationPresenter implements Initializable {
 
             handleCanvasClick(event.getX(), event.getY());
         });
+
     }
 
     public void startSimulation(SimulationConfig config, boolean saveToCsv) {
@@ -189,9 +204,10 @@ public class SimulationPresenter implements Initializable {
         }else{
             this.worldMap = new RealWorldMap(mapOptions, animalOptions);
         }
-//        cellSize = Math.min(worldMap.getWidth(), worldMap.getHeight()) * (440.0/7.0);
 
-//        cellSize = 1200.0/(Math.max(worldMap.getHeight(), worldMap.getWidth()));
+        animalAddCheckBox.setVisible(config.isAnimalAdd);
+
+
         adjustCellSize();
 
         simulation = new Simulation(worldMap, 200);
@@ -229,7 +245,6 @@ public class SimulationPresenter implements Initializable {
     }
 
     private void updateCheckboxes() {
-
         animalsChartCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal) {
                 if (!statisticsChart.getData().contains(animalsSeries))
@@ -490,6 +505,23 @@ public class SimulationPresenter implements Initializable {
 
     private void handleMapFieldClick(int x, int y) {
         Vector2d position = new Vector2d(x, y);
+        if (animalAddCheckBox.isSelected())
+            handleAnimalAdd(position);
+        else
+            handleShowAnimalStats(position);
+
+    }
+
+    private void handleAnimalAdd(Vector2d position){
+        Animal animalToAdd = new Animal(position
+                ,worldMap.getDefaultAnimalOptions()
+                ,worldMap.getMapOptions().energyStart()
+                ,simulation.getCurrentDay());
+        worldMap.place(animalToAdd);
+        drawMap(worldMap,simulation.getCurrentDay());
+    }
+
+    private void handleShowAnimalStats(Vector2d position){
         Optional<List<Animal>> animalsOnPosition = worldMap.getAnimalsOrdered(position);
 
         if (animalsOnPosition.isEmpty() || animalsOnPosition.get().isEmpty()) return; // nie ma żadnego Animala na pozycji

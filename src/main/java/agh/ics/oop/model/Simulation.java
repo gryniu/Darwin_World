@@ -153,4 +153,8 @@ public class Simulation implements Runnable{
     public FieldCategory getFieldCategory(Vector2d position) {
         return worldStatistics.getFieldCategory(position);
     }
+
+    public int getCurrentDay() {
+        return day;
+    }
 }

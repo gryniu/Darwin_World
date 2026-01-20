@@ -76,6 +76,7 @@
         </GridPane>
         <VBox spacing="10" alignment="CENTER_LEFT">
             <CheckBox fx:id="exportCsvCheckBox" text="export stats to .csv"/>
+            <CheckBox fx:id="isAnimalAddCheckBox" text="Dodawanie Animali w trakcie symulacji"/>
         </VBox>
         <Button text="Uruchom nową symulację" fx:id="startSimulationButton" maxWidth="Infinity"/>
     </VBox>
