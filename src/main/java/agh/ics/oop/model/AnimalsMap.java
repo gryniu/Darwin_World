@@ -42,10 +42,6 @@ public class AnimalsMap<T extends WorldElement> {
         return animals.keySet();
     }
 
-    public Map<Vector2d, List<T>> getAnimalsHashMap() {
-        return animals;
-    }
-
     public int getAnimalsCount() {
         return animalsCount;
     }

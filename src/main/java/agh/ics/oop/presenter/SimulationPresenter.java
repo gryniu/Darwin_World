@@ -117,6 +117,8 @@ public class SimulationPresenter implements Initializable {
     private MapOptions mapOptions;
     private EnergyOptions energyOptions;
 
+    public MapStats latestMapStats;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         animalImages = new ArrayList<>();
@@ -244,11 +246,12 @@ public class SimulationPresenter implements Initializable {
     public void handleSimulationChange(WorldMap worldMap, MapStats mapStats, int day, boolean isLive){
         visibleDay = day;
         javafx.application.Platform.runLater(() -> {
-            drawMap(worldMap, mapStats, day);
-
+            drawMap(worldMap, mapStats);
             updateLabels(mapStats, day);
-            if(isLive)
+            if(isLive) {
                 updateLineChart(mapStats, day);
+                latestMapStats = mapStats;
+            }
         });
     }
 
@@ -336,13 +339,13 @@ public class SimulationPresenter implements Initializable {
         popularGenotypeLabel.setText(mapStats.mostPopularGenotype());
     }
 
-    private void drawMap(WorldMap worldMap, MapStats mapStats,  int day) {
+    private void drawMap(WorldMap worldMap, MapStats mapStats) {
         clearGrid();
         drawGrid(worldMap);
-        drawWorldElements(worldMap, mapStats, day);
+        drawWorldElements(worldMap, mapStats);
     }
 
-    private void drawWorldElements(WorldMap worldMap, MapStats mapStats, int day){
+    private void drawWorldElements(WorldMap worldMap, MapStats mapStats){
         gc.save();
         gc.setStroke(Color.BLACK);
         configureFont(gc, fontSize, Color.BLACK);
@@ -527,7 +530,7 @@ public class SimulationPresenter implements Initializable {
                 ,mapOptions.energyStart()
                 ,worldMap.getDay());
         worldMap.place(animalToAdd);
-        drawMap(worldMap, simulation.getMapStats(), worldMap.getDay());
+        drawMap(worldMap, latestMapStats);
     }
 
     private void handleShowAnimalStats(Vector2d position){

@@ -144,7 +144,6 @@ public class Simulation implements Runnable{
         }
     }
 
-    public MapStats getMapStats() {return worldStatistics.getMapStats();};
     public FieldCategory getFieldCategory(Vector2d position) {
         return worldStatistics.getFieldCategory(position);
     }
