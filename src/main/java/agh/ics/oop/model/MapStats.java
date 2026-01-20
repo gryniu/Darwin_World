@@ -7,7 +7,8 @@ public record MapStats(
         double averageEnergy,
         double averageLifespan,
         double averageChildren,
-        String mostPopularGenotype
+        String mostPopularGenotype,
+        SimulationEnergyPercentiles simulationEnergyPercentiles
 ) {
     public String animalsCountStr() {
         return String.valueOf(animalsCount);
