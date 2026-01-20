@@ -513,6 +513,7 @@ public class SimulationPresenter implements Initializable {
 
     private void handleMapFieldClick(int x, int y) {
         Vector2d position = new Vector2d(x, y);
+        if (visibleDay != worldMap.getDay()) return;
         if (animalAddCheckBox.isSelected())
             handleAnimalAdd(position);
         else
