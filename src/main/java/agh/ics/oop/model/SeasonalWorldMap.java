@@ -1,7 +1,5 @@
 package agh.ics.oop.model;
 
-import javafx.scene.paint.Color;
-
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -110,13 +108,4 @@ public class SeasonalWorldMap extends RealWorldMap {
     public double getTemperature() {
         return temperature;
     } // todo: chcemy wyswietlac jaka jest temperatura na mapie
-
-//    @Override
-//    public Color getColorOfField(Vector2d fieldPosition){
-//        if (!isWinter) return super.getColorOfField(fieldPosition);
-//        Long plantsFrequency = plantsFrequencyCounter.getOrDefault(fieldPosition,0L);
-//        if (plantsFrequency < maxNumOfPlantsOnPosition*.33) return Color.valueOf("#9ECAE1");
-//        if (plantsFrequency < maxNumOfPlantsOnPosition*.75) return Color.valueOf("#6BAED8");
-//        return Color.valueOf("#4292C6");
-//    }
 }

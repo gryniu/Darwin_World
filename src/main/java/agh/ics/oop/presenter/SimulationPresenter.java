@@ -3,6 +3,7 @@ package agh.ics.oop.presenter;
 import agh.ics.oop.model.Simulation;
 import agh.ics.oop.model.SimulationConfig;
 import agh.ics.oop.model.*;
+import agh.ics.oop.view.MapRenderer;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.application.Platform;
@@ -38,8 +39,6 @@ public class SimulationPresenter implements Initializable {
     private Button backButton;
 
     @FXML
-    private Canvas mapCanvas;
-    @FXML
     private Button startButton;
     @FXML
     private Button pauseButton;
@@ -71,15 +70,6 @@ public class SimulationPresenter implements Initializable {
     public static final String RESET = "\u001B[0m";
     public static final String RED_BOLD = "\u001B[1;31m";
 
-    // every cell is square
-    private double cellSize = 40.0; // every cell is square
-    private double borderWidth = 1.67;
-    private double gridOffset = cellSize * 1.5;
-    private double coordsFontSize = 20.0;
-    private double fontSize = cellSize*0.3;
-    private double energyBarWidth = cellSize*0.8;
-    private double energyBarHeight =  energyBarWidth *0.15;
-    private GraphicsContext gc;
 
     BooleanProperty canRewind = new SimpleBooleanProperty(false);
     BooleanProperty canAddAnimal = new SimpleBooleanProperty(false);
@@ -98,41 +88,28 @@ public class SimulationPresenter implements Initializable {
     @FXML private CheckBox childrenChartCheckBox;
     @FXML private CheckBox freeFieldsChartCheckBox;
 
+    @FXML
+    private Canvas mapCanvas;
+
     private final XYChart.Series<Number, Number> animalsSeries = new XYChart.Series<>();
     private final XYChart.Series<Number, Number> plantsSeries = new XYChart.Series<>();
     private final XYChart.Series<Number, Number> freeFieldsSeries = new XYChart.Series<>();
     private final XYChart.Series<Number, Number> energySeries = new XYChart.Series<>();
     private final XYChart.Series<Number, Number> lifespanSeries = new XYChart.Series<>();
     private final XYChart.Series<Number, Number> childrenSeries = new XYChart.Series<>();
-
-    private List<Image> animalImages;
-    private Image plantImage;
-
-    private List<Color> summerColors = List.of(Color.valueOf("#78D23D"), Color.valueOf("#58BB43"), Color.valueOf("#3AA346"));
-    private List<Color> winterColors = List.of(Color.valueOf("#9ECAE1"), Color.valueOf("#6BAED8"), Color.valueOf("#4292C6"));
-
     private int visibleDay = 0;
 
     private AnimalOptions animalOptions;
     private MapOptions mapOptions;
     private EnergyOptions energyOptions;
 
-    public MapStats latestMapStats;
+    private MapStats latestMapStats;
+    private MapRenderer mapRenderer;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        animalImages = new ArrayList<>();
-        for(int i = 0; i<8; i++){
-            animalImages.add(new Image(
-                            getClass().getResourceAsStream("/images/animal%d.png".formatted(i))
-                    ));
-        }
-        plantImage = new Image(getClass().getResourceAsStream("/images/plant.png"));
-;
         dayAxis.setAutoRanging(true);
         valueAxis.setAutoRanging(true);
-
-        gc = mapCanvas.getGraphicsContext2D();
 
         startButton.setOnAction(e -> {
             if (simulation != null) {
@@ -172,13 +149,6 @@ public class SimulationPresenter implements Initializable {
                 simulationHistory.goBackTo(visibleDay+1);
             }
         });
-
-        mapCanvas.setOnMouseClicked(event -> {
-            if (simulation == null || !simulation.isPaused()) return;
-
-            handleCanvasClick(event.getX(), event.getY());
-        });
-
     }
 
     public void startSimulation(SimulationConfig config, boolean saveToCsv) {
@@ -217,12 +187,12 @@ public class SimulationPresenter implements Initializable {
 
         animalAddCheckBox.setVisible(config.isAnimalAdd);
 
-
-        adjustCellSize();
-
         simulation = new Simulation(worldMap, 200);
         simulationHistory = new SimulationHistory(worldMap);
         simulationHistory.addSimulationChangeListener(this::handleSimulationChange);
+
+        mapRenderer = new MapRenderer(mapCanvas, simulation, worldMap);
+        mapRenderer.setMapFieldClickAction(this::handleMapFieldClick);
 
         // poczatkowe rysowanie mapy
         simulation.addSimulationChangeListener(simulationHistory::update);
@@ -246,7 +216,7 @@ public class SimulationPresenter implements Initializable {
     public void handleSimulationChange(WorldMap worldMap, MapStats mapStats, int day, boolean isLive){
         visibleDay = day;
         javafx.application.Platform.runLater(() -> {
-            drawMap(worldMap, mapStats);
+            mapRenderer.drawMap(worldMap, mapStats);
             updateLabels(mapStats, day);
             if(isLive) {
                 updateLineChart(mapStats, day);
@@ -311,7 +281,6 @@ public class SimulationPresenter implements Initializable {
         });
     }
 
-
     private void updateLineChart(MapStats mapStats, int day) {
         animalsSeries.getData().add(new XYChart.Data<>(day, mapStats.animalsCount()));
 
@@ -327,7 +296,6 @@ public class SimulationPresenter implements Initializable {
 
     }
 
-
     private void updateLabels(MapStats mapStats, int day){
         dayLabel.setText(String.valueOf(day));
         animalCountLabel.setText(mapStats.animalsCountStr());
@@ -339,183 +307,12 @@ public class SimulationPresenter implements Initializable {
         popularGenotypeLabel.setText(mapStats.mostPopularGenotype());
     }
 
-    private void drawMap(WorldMap worldMap, MapStats mapStats) {
-        clearGrid();
-        drawGrid(worldMap);
-        drawWorldElements(worldMap, mapStats);
-    }
-
-    private void drawWorldElements(WorldMap worldMap, MapStats mapStats){
-        gc.save();
-        gc.setStroke(Color.BLACK);
-        configureFont(gc, fontSize, Color.BLACK);
-
-        for (WorldElement worldElement: worldMap.getAllMapElements()){
-            Vector2d pos = worldElement.position();
-
-            double centerX = gridOffset + pos.x() * cellSize + cellSize / 2;
-            double posX = gridOffset + pos.x() * cellSize;
-
-            // W JAVIEFX Y JEST NA GORZE!!11!11!
-            int worldY = pos.y();
-            int flippedY = worldMap.getHeight() - 1 - worldY;
-
-            double centerY = gridOffset + flippedY * cellSize + cellSize / 2;
-            double posY = gridOffset + flippedY * cellSize;
-
-            if (worldElement instanceof AbstractAnimal abstractAnimal) {
-                gc.save();
-                if (Objects.equals(abstractAnimal.getGen().toString(), mapStats.mostPopularGenotype())){
-                    gc.setFill(Color.rgb(255, 0, 255, 0.5));
-                    gc.fillOval(posX, posY, cellSize, cellSize);
-                }
-                gc.drawImage(animalImages.get(abstractAnimal.getOrientation().ordinal()), posX, posY, cellSize, cellSize);
-                gc.restore();
-                drawEnergyBar(gc, abstractAnimal, mapStats, centerX, centerY);
-
-            }else gc.drawImage(plantImage, posX, posY, cellSize, cellSize);
-        }
-        gc.restore();
-    }
-
-    private void drawGrid(WorldMap worldMap){
-        gc.save();
-
-        gc.setFill(Color.BLACK);
-        gc.setLineWidth(borderWidth);
-        // poziome
-        for (int row = 0; row <= worldMap.getHeight(); row++) {
-            double y = gridOffset + row * cellSize;
-            gc.strokeLine(gridOffset, y, gridOffset + worldMap.getWidth() * cellSize, y);
-        }
-
-        // pionowe
-        for (int col = 0; col <= worldMap.getWidth(); col++) {
-            double x = gridOffset + col * cellSize;
-            gc.strokeLine(x, gridOffset, x, gridOffset + worldMap.getHeight() * cellSize);
-        }
-
-
-        //coords
-        gc.setFont(new Font("Arial", coordsFontSize));
-        drawCoords(worldMap);
-
-        gc.restore();
-    }
-
-    private void clearGrid() {
-        gc.save();
-
-        gc.setFill(Color.WHITE);
-        gc.fillRect(0, 0, mapCanvas.getWidth(), mapCanvas.getHeight());
-        for (int canvasCol = 0; canvasCol < worldMap.getWidth(); canvasCol++) {
-            for (int canvasRow = 0; canvasRow < worldMap.getHeight(); canvasRow++) {
-
-                Vector2d worldPosition = new Vector2d(canvasCol, canvasRow);
-
-                FieldCategory fieldCategory = simulation.getFieldCategory(worldPosition);
-                boolean isWinter = (worldMap instanceof SeasonalWorldMap seasonalWorldMap) && seasonalWorldMap.isWinter();
-
-                gc.setFill(isWinter ? winterColors.get(fieldCategory.ordinal()) : summerColors.get(fieldCategory.ordinal()));
-                gc.fillRect(gridOffset + canvasCol * cellSize,
-                        gridOffset + canvasRow * cellSize,
-                        cellSize, cellSize);
-            }
-        }
-        gc.restore();
-    }
-
     public void closeSimulation() {
         simulation.stopSimulation();
         HistoryFileHandler.deleteHistory(worldMap.getId());
     }
 
-    private void drawCoords(WorldMap worldMap) {
-        double y = gridOffset;
-        int i = worldMap.getHeight() - 1;
-        while (y < mapCanvas.getHeight() - gridOffset) {
-            gc.fillText(String.valueOf(i--),
-                    gridOffset / 2 - fontSize/2,
-                    y + cellSize / 2 + borderWidth + fontSize / 4
-            );
-            y += cellSize;
-        }
-
-        double x = gridOffset;
-        int j = 0;
-        while (x < mapCanvas.getWidth() - gridOffset) {
-            gc.fillText(
-                    String.valueOf(j++),
-                    x + cellSize / 2 + borderWidth - fontSize / 2,
-                    mapCanvas.getHeight() - gridOffset / 2 + fontSize/4
-            );
-            x += cellSize;
-        }
-    }
-
-    private void drawEnergyBar(GraphicsContext gc, AbstractAnimal animal, MapStats mapStats, double centerX, double centerY) {
-        int p85 =  mapStats.simulationEnergyPercentiles().p85();
-        int median = mapStats.simulationEnergyPercentiles().p50();
-
-        double ratio = animal.getEnergyRatio(median, p85);
-        double width = energyBarWidth * ratio;
-
-        double x = centerX - cellSize / 2 + (cellSize - energyBarWidth) / 2;
-        double y = centerY + cellSize / 2 - energyBarHeight - 2.5;
-
-        gc.save();
-        gc.setFill(Color.LIGHTGRAY);
-        gc.fillRoundRect(x, y, energyBarWidth, energyBarHeight, energyBarHeight, energyBarHeight);
-
-        gc.setFill(animal.getEnergyColor(p85));
-        gc.fillRoundRect(x, y, width, energyBarHeight, energyBarHeight, energyBarHeight);
-
-        gc.setStroke(Color.DARKGRAY);
-        gc.strokeRoundRect(x, y, energyBarWidth, energyBarHeight, energyBarHeight, energyBarHeight);
-
-        gc.restore();
-    }
-
-    private void configureFont(GraphicsContext graphics, double size, Color color) {
-        graphics.setTextAlign(TextAlignment.CENTER);
-        graphics.setTextBaseline(VPos.CENTER);
-        graphics.setFont(new Font("Arial", size));
-        graphics.setFill(color);
-    }
-
-    private void adjustCellSize(){
-//        double cellWidth = (mapCanvas.getWidth() - 2 * gridOffset) / worldMap.getWidth();
-//        double cellHeight = (mapCanvas.getHeight() - 2 * gridOffset) / worldMap.getHeight();
-        double cellWidth = mapCanvas.getWidth() / (worldMap.getWidth() + 3);
-        double cellHeight = mapCanvas.getHeight() / (worldMap.getHeight() + 3);
-        cellSize = Math.min(cellWidth, cellHeight);
-
-        borderWidth = cellSize/24.0;
-        coordsFontSize = cellSize/2.0;
-        gridOffset = cellSize * 1.5;
-        fontSize = cellSize*0.3;
-        energyBarWidth = cellSize*0.8;
-        energyBarHeight =  energyBarWidth *0.15;
-
-        mapCanvas.setWidth(worldMap.getWidth() * cellSize + 2 * gridOffset);
-        mapCanvas.setHeight(worldMap.getHeight() * cellSize + 2 * gridOffset);
-    }
-
-    private void handleCanvasClick(double mouseX, double mouseY){
-        if (mouseX < gridOffset || mouseY < gridOffset) return;
-        if (mouseX > gridOffset + worldMap.getWidth() * cellSize) return;
-        if (mouseY > gridOffset + worldMap.getHeight() * cellSize) return;
-
-        int col = (int) ((mouseX-gridOffset)/cellSize);
-        int rowFromTop = (int) ((mouseY - gridOffset) / cellSize);
-
-        int row = worldMap.getHeight() - 1 - rowFromTop;
-
-        handleMapFieldClick(col, row);
-    }
-
-    private void handleMapFieldClick(int x, int y) {
-        Vector2d position = new Vector2d(x, y);
+    private void handleMapFieldClick(Vector2d position) {
         if (visibleDay != worldMap.getDay()) return;
         if (animalAddCheckBox.isSelected())
             handleAnimalAdd(position);
@@ -530,7 +327,7 @@ public class SimulationPresenter implements Initializable {
                 ,mapOptions.energyStart()
                 ,worldMap.getDay());
         worldMap.place(animalToAdd);
-        drawMap(worldMap, latestMapStats);
+        mapRenderer.drawMap(worldMap, latestMapStats);
     }
 
     private void handleShowAnimalStats(Vector2d position){
