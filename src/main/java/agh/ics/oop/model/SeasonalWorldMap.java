@@ -27,39 +27,6 @@ public class SeasonalWorldMap extends RealWorldMap {
         energyFromPlantMultiplier = SUMMER_ENERGY_FROM_PLANT_MULTIPLIER;
     }
 
-    private void handleEndOfADay(){
-        dayOfCurrentSeason++;
-        if (dayOfCurrentSeason >= seasonsOptions.seasonLength()){
-            isWinter = !isWinter;
-            dayOfCurrentSeason = 0;
-            if (isWinter) {
-                plantNumMultiplier = 1;
-                energyFromPlantMultiplier = 1;
-            }else{
-                plantNumMultiplier = SUMMER_PLANT_NUM_MULTIPLIER;
-                energyFromPlantMultiplier = SUMMER_ENERGY_FROM_PLANT_MULTIPLIER;
-                temperature = SUMMER_TEMPERATURE;
-                energyDecreaseMultiplier = 1;
-            }
-        }
-
-        if(isWinter){
-            int middleDay = seasonsOptions.seasonLength()/2+1;
-            if(dayOfCurrentSeason < middleDay){
-                int dayLeftToMiddleDay = middleDay - dayOfCurrentSeason;
-                double dailyTemperatureLoss = (temperature - seasonsOptions.minTemperature())/dayLeftToMiddleDay;
-                temperature -= dailyTemperatureLoss;
-            }else {
-                int dayLeftToSummer = seasonsOptions.seasonLength() - dayOfCurrentSeason + 1;
-                double dailyTemperatureIncrement = (SUMMER_TEMPERATURE - temperature)/dayLeftToSummer;
-                temperature += dailyTemperatureIncrement;
-            }
-            double temperatureAmplitude = SUMMER_TEMPERATURE-seasonsOptions.minTemperature();
-
-            energyDecreaseMultiplier = 1 + (MAX_ENERGY_DECREASE_MULTIPLIER -1) * ((SUMMER_TEMPERATURE - temperature) / temperatureAmplitude);
-        }
-    }
-
     @Override
     public void decreaseEnergyAllAnimals(){
         List<Animal> currentAnimals = getAllAnimals();
@@ -94,18 +61,37 @@ public class SeasonalWorldMap extends RealWorldMap {
         }
     }
 
+    public void handleEndOfADay(){
+        super.handleEndOfADay();
+        dayOfCurrentSeason++;
+        if (dayOfCurrentSeason >= seasonsOptions.seasonLength()){
+            isWinter = !isWinter;
+            dayOfCurrentSeason = 0;
+            if (isWinter) {
+                plantNumMultiplier = 1;
+                energyFromPlantMultiplier = 1;
+            }else{
+                plantNumMultiplier = SUMMER_PLANT_NUM_MULTIPLIER;
+                energyFromPlantMultiplier = SUMMER_ENERGY_FROM_PLANT_MULTIPLIER;
+                temperature = SUMMER_TEMPERATURE;
+                energyDecreaseMultiplier = 1;
+            }
+        }
 
-    @Override
-    public void createNewPlants(){
-        super.createNewPlants();
-        handleEndOfADay();
+        if(isWinter){
+            int middleDay = seasonsOptions.seasonLength()/2+1;
+            if(dayOfCurrentSeason < middleDay){
+                int dayLeftToMiddleDay = middleDay - dayOfCurrentSeason;
+                double dailyTemperatureLoss = (temperature - seasonsOptions.minTemperature())/dayLeftToMiddleDay;
+                temperature -= dailyTemperatureLoss;
+            }else {
+                int dayLeftToSummer = seasonsOptions.seasonLength() - dayOfCurrentSeason + 1;
+                double dailyTemperatureIncrement = (SUMMER_TEMPERATURE - temperature)/dayLeftToSummer;
+                temperature += dailyTemperatureIncrement;
+            }
+            double temperatureAmplitude = SUMMER_TEMPERATURE-seasonsOptions.minTemperature();
+
+            energyDecreaseMultiplier = 1 + (MAX_ENERGY_DECREASE_MULTIPLIER -1) * ((SUMMER_TEMPERATURE - temperature) / temperatureAmplitude);
+        }
     }
-
-    public boolean isWinter(){
-        return isWinter;
-    }
-
-    public double getTemperature() {
-        return temperature;
-    } // todo: chcemy wyswietlac jaka jest temperatura na mapie
 }

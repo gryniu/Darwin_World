@@ -17,9 +17,9 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
     protected double energyDecreaseMultiplier = 1;
     protected double plantNumMultiplier = 1;
 
-    private PlantGrowListener plantGrowListener;
-    private GenCountListener genCountListener;
-    private DeadAnimalListener deadAnimalListener;
+    private WorldMapListener<Plant> plantGrowListener;
+    private WorldMapListener<Gen> genCountListener;
+    private WorldMapListener<Animal> deadAnimalListener;
 
     public RealWorldMap(MapOptions mapOptions, AnimalOptions defaultAnimalOptions){
         super(mapOptions.mapWidth(), mapOptions.mapHeight());
@@ -101,16 +101,16 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
     public void createNewPlants(){
         plantsGenerator.reShuffle();
         createPlants((int)(plantNumEveryDay*plantNumMultiplier));
-        day++;
     }
 
     private void createPlants(int n){
         int created = 0;
         while (created < n && plantsGeneratorIterator.hasNext()) {
             Vector2d position = plantsGeneratorIterator.next();
+            Plant plant = new Plant(position);
+            plants.put(position, plant);
             if(plantGrowListener != null)
-                plantGrowListener.change(position, 1);
-            plants.put(position, new Plant(position));
+                plantGrowListener.change(plant, 1);
             created++;
         }
     }
@@ -211,15 +211,19 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
         return new Vector2d(x, y);
     }
 
-    public void setPlantGrowListener(PlantGrowListener plantGrowListener) {
+    public void setPlantGrowListener(WorldMapListener<Plant> plantGrowListener) {
         this.plantGrowListener = plantGrowListener;
     }
 
-    public void setGenCountListener(GenCountListener genCountListener) {
+    public void setGenCountListener(WorldMapListener<Gen> genCountListener) {
         this.genCountListener = genCountListener;
     }
 
-    public void setDeadAnimalListener(DeadAnimalListener deadAnimalListener) {
+    public void setDeadAnimalListener(WorldMapListener<Animal> deadAnimalListener) {
         this.deadAnimalListener = deadAnimalListener;
+    }
+
+    public void handleEndOfADay() {
+        day++;
     }
 }

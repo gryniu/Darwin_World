@@ -73,6 +73,7 @@ public class Simulation implements Runnable{
         worldMap.reproducePopulation();
         worldMap.decreaseEnergyAllAnimals();
         worldMap.createNewPlants();
+        worldMap.handleEndOfADay();
 
         notifyListeners();
         return true;
