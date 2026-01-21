@@ -86,7 +86,8 @@ public class WorldStatistics {
         return new MapStats(worldMap.getAnimalsCount(), worldMap.getPlantsCount(), worldMap.getFreeFieldsCount(), getAverageEnergy(), getAverageLifespan(), getAverageChildren(), getMostPopularGenotype(), new SimulationEnergyPercentiles(getEnergyPercentile(50), getEnergyPercentile(85)));
     }
 
-    private void updatePlantsCounter(Vector2d position, int count){
+    private void updatePlantsCounter(Plant plant, int count){
+        Vector2d position = plant.position();
         plantsFrequencyCounter.put(position, count + plantsFrequencyCounter.getOrDefault(position,0L));
         maxNumOfPlantsOnPosition = Math.max(maxNumOfPlantsOnPosition, plantsFrequencyCounter.get(position));
     }
