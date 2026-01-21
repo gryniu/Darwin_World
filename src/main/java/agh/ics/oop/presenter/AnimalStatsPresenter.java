@@ -1,6 +1,11 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.model.*;
+import agh.ics.oop.model.animal.Animal;
+import agh.ics.oop.model.map.MapStats;
+import agh.ics.oop.model.map.RealWorldMap;
+import agh.ics.oop.model.map.WorldMap;
+import agh.ics.oop.model.simulation.Simulation;
+import agh.ics.oop.model.simulation.SimulationListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 

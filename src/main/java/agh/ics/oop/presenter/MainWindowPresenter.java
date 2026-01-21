@@ -1,24 +1,18 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.model.PresetManager;
-import agh.ics.oop.model.SimulationConfig;
-import agh.ics.oop.model.SimulationLauncher;
-import agh.ics.oop.model.WrongFieldStateException;
+import agh.ics.oop.model.filesystem.PresetManager;
+import agh.ics.oop.model.simulation.SimulationConfig;
+import agh.ics.oop.view.SimulationLauncher;
+import agh.ics.oop.view.WrongFieldStateException;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.Properties;
 import java.util.ResourceBundle;

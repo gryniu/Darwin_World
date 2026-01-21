@@ -1,7 +1,10 @@
 package agh.ics.oop.view;
 
 import agh.ics.oop.model.*;
-import javafx.fxml.FXML;
+import agh.ics.oop.model.animal.AbstractAnimal;
+import agh.ics.oop.model.map.MapStats;
+import agh.ics.oop.model.map.WorldMap;
+import agh.ics.oop.model.simulation.Simulation;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;

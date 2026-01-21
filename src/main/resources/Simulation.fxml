@@ -17,8 +17,10 @@
                 <Button text="Pauza" fx:id="pauseButton"/>
                 <Button text="&gt;" fx:id="forwardButton"/>
             </HBox>
-            <CheckBox fx:id="animalAddCheckBox" text = "Dodaj Animala"/>
-            <Label fx:id="messageLabel" text = "Kliknij na mapie, gdzie chcesz umieścić zwierzęta."/>
+            <HBox spacing="10" alignment="CENTER">
+                <CheckBox fx:id="animalAddCheckBox" text = "Dodaj Animala"/>
+                <Label fx:id="messageLabel" text = "Kliknij na mapie, gdzie chcesz umieścić zwierzęta."/>
+            </HBox>
         </VBox>
     </center>
 
