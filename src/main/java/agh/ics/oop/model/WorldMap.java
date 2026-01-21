@@ -21,4 +21,6 @@ public interface WorldMap{
 
     int getWidth();
     int getHeight();
+
+    int getDay();
 }

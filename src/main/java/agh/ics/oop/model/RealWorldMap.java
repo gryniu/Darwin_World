@@ -21,11 +21,10 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
     private GenCountListener genCountListener;
     private DeadAnimalListener deadAnimalListener;
 
-    private int day = 0;
-
     public RealWorldMap(MapOptions mapOptions, AnimalOptions defaultAnimalOptions){
         super(mapOptions.mapWidth(), mapOptions.mapHeight());
 
+        day = 0;
         id = UUID.randomUUID();
         plantNumEveryDay = mapOptions.plantNumEveryDay();
         this.defaultAnimalOptions = defaultAnimalOptions;
@@ -222,9 +221,5 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
 
     public void setDeadAnimalListener(DeadAnimalListener deadAnimalListener) {
         this.deadAnimalListener = deadAnimalListener;
-    }
-
-    public int getDay(){
-        return day;
     }
 }

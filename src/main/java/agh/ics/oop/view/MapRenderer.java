@@ -14,11 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class MapRenderer {
     private final Simulation simulation;
     private final WorldMap initMap;
     private final Canvas canvas;
+    private final Function<Integer, Boolean> detectWinter;
 
     // every cell is square
     private double cellSize = 40.0; // every cell is square
@@ -41,10 +43,11 @@ public class MapRenderer {
 
 
 
-    public MapRenderer(Canvas mapCanvas, Simulation simulation, WorldMap initMap){
+    public MapRenderer(Canvas mapCanvas, Simulation simulation, WorldMap initMap, Function<Integer, Boolean> detectWinter){
         this.canvas = mapCanvas;
         this.simulation = simulation;
         this.initMap = initMap;
+        this.detectWinter = detectWinter;
         animalImages = new ArrayList<>();
         gc = mapCanvas.getGraphicsContext2D();
 
@@ -143,7 +146,7 @@ public class MapRenderer {
                 Vector2d worldPosition = new Vector2d(canvasCol, canvasRow);
 
                 FieldCategory fieldCategory = simulation.getFieldCategory(worldPosition);
-                boolean isWinter = (worldMap instanceof SeasonalWorldMap seasonalWorldMap) && seasonalWorldMap.isWinter();
+                boolean isWinter = detectWinter.apply(worldMap.getDay());
 
                 gc.setFill(isWinter ? winterColors.get(fieldCategory.ordinal()) : summerColors.get(fieldCategory.ordinal()));
                 gc.fillRect(gridOffset + canvasCol * cellSize,

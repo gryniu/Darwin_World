@@ -6,6 +6,7 @@ public class FakeWorldMap extends AbstractWorldMap<FakeAnimal> {
 
     public FakeWorldMap(UUID id, int day, int width, int height) {
         super(width, height);
+        super.day = day;
 
         //importowanie animali
         for (var animal : HistoryFileHandler.importAnimals(id, day)) {

@@ -8,6 +8,7 @@ public abstract class AbstractWorldMap<T extends AbstractAnimal> implements Worl
 
     protected final int width;
     protected final int height;;
+    protected int day;
 
     public AbstractWorldMap(int width, int height){
         this.width = width;
@@ -55,5 +56,9 @@ public abstract class AbstractWorldMap<T extends AbstractAnimal> implements Worl
         elements.addAll(getPlants());
         elements.addAll(getAllAnimals());
         return elements;
+    }
+
+    public int getDay(){
+        return day;
     }
 }
