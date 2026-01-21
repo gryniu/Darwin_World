@@ -30,6 +30,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Function;
 
 public class SimulationPresenter implements Initializable {
     @FXML
@@ -175,14 +176,18 @@ public class SimulationPresenter implements Initializable {
         );
 
 
+        Function<Integer, Boolean> detectWinter;
+
         if(config.isSeasonal) {
             SeasonsOptions seasonsOptions = new SeasonsOptions(
                     config.seasonLength,
                     config.minTemperature,
                     config.distanceRequiredToHeat);
             this.worldMap = new SeasonalWorldMap(mapOptions, animalOptions, seasonsOptions);
+            detectWinter = (day) -> (day / seasonsOptions.seasonLength()) % 2 == 1;
         }else{
             this.worldMap = new RealWorldMap(mapOptions, animalOptions);
+            detectWinter = (day) -> Boolean.FALSE;
         }
 
         animalAddCheckBox.setVisible(config.isAnimalAdd);
@@ -191,7 +196,8 @@ public class SimulationPresenter implements Initializable {
         simulationHistory = new SimulationHistory(worldMap);
         simulationHistory.addSimulationChangeListener(this::handleSimulationChange);
 
-        mapRenderer = new MapRenderer(mapCanvas, simulation, worldMap);
+
+        mapRenderer = new MapRenderer(mapCanvas, simulation, worldMap, detectWinter);
         mapRenderer.setMapFieldClickAction(this::handleMapFieldClick);
 
         // poczatkowe rysowanie mapy
