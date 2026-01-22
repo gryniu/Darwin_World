@@ -74,6 +74,7 @@ public class Simulation implements Runnable{
 
         worldMap.removeDeadAnimals();
         worldMap.moveAllAnimals();
+        worldMap.rotateAllAnimals();
         worldMap.eatAllPossiblePlants();
         worldMap.reproducePopulation();
         worldMap.decreaseEnergyAllAnimals();
@@ -150,7 +151,7 @@ public class Simulation implements Runnable{
         }
     }
 
-    public FieldCategory getFieldCategory(Vector2d position) {
-        return worldStatistics.getFieldCategory(position);
+    public WorldStatistics getSimulationStatistics(){
+        return worldStatistics;
     }
 }

@@ -148,7 +148,7 @@ public class MapRenderer {
 
                 Vector2d worldPosition = new Vector2d(canvasCol, canvasRow);
 
-                FieldCategory fieldCategory = simulation.getFieldCategory(worldPosition);
+                FieldCategory fieldCategory = simulation.getSimulationStatistics().getFieldCategory(worldPosition);
                 boolean isWinter = detectWinter.apply(worldMap.getDay());
 
                 gc.setFill(isWinter ? winterColors.get(fieldCategory.ordinal()) : summerColors.get(fieldCategory.ordinal()));

@@ -58,11 +58,14 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
         return getAnimals(position)
                 .map(items -> items
                         .stream()
-                        .sorted(Comparator
-                                .comparingInt(Animal::getEnergy).reversed()
-                                .thenComparingInt(Animal::getDayOfBirth)
-                                 .thenComparingInt(Animal::getNumOfKids).reversed()
-                                .thenComparingDouble(animal -> ThreadLocalRandom.current().nextDouble())
+                        .sorted(
+                                Comparator
+                                        .comparingInt(Animal::getEnergy).reversed()
+                                        .thenComparingInt(Animal::getDayOfBirth)
+                                        .thenComparing(
+                                                Comparator.comparingInt(Animal::getNumOfKids).reversed()
+                                        )
+                                        .thenComparingDouble(a -> ThreadLocalRandom.current().nextDouble())
                         )
                         .toList());
     }
@@ -75,13 +78,17 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
     public List<Animal> getAllAnimalsOrdered() {
         return getAllAnimals()
                 .stream()
-                .sorted(Comparator
-                            .comparingInt(Animal::getEnergy).reversed()
-                            .thenComparing(Animal::getDayOfBirth)
-                            .thenComparing(Animal::getNumOfKids).reversed()
-                            .thenComparingDouble(animal -> ThreadLocalRandom.current().nextDouble())
-                    )
-                    .toList();
+                .sorted(
+                        Comparator
+                                .comparingInt(Animal::getEnergy).reversed()
+                                .thenComparingInt(Animal::getDayOfBirth)
+                                .thenComparing(
+                                        Comparator.comparingInt(Animal::getNumOfKids).reversed()
+                                )
+                                .thenComparingDouble(a -> ThreadLocalRandom.current().nextDouble())
+                )
+
+                .toList();
     }
 
     public UUID getId(){
@@ -182,8 +189,12 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
     public void moveAllAnimals(){
         for (Animal animal: getAllAnimals()){
             move(animal);
+        }
+    }
+
+    public void rotateAllAnimals(){
+        for (Animal animal: getAllAnimals()){
             animal.rotate();
-            animal.increaseNumOfLivedDays();
         }
     }
 
@@ -218,19 +229,22 @@ public class RealWorldMap extends AbstractWorldMap<Animal> {
         return new Vector2d(x, y);
     }
 
-    public void setPlantGrowListener(WorldMapListener<Plant> plantGrowListener) {
+    protected void setPlantGrowListener(WorldMapListener<Plant> plantGrowListener) {
         this.plantGrowListener = plantGrowListener;
     }
 
-    public void setGenCountListener(WorldMapListener<Gen> genCountListener) {
+    protected void setGenCountListener(WorldMapListener<Gen> genCountListener) {
         this.genCountListener = genCountListener;
     }
 
-    public void setDeadAnimalListener(WorldMapListener<Animal> deadAnimalListener) {
+    protected void setDeadAnimalListener(WorldMapListener<Animal> deadAnimalListener) {
         this.deadAnimalListener = deadAnimalListener;
     }
 
     public void handleEndOfADay() {
+        for(var animal: getAllAnimals()){
+            animal.increaseNumOfLivedDays();
+        }
         day++;
     }
 }
