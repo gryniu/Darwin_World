@@ -67,9 +67,17 @@ public class Gen implements Iterable<Integer>{
         return genList;
     }
 
-    private void setRandomElementInGenList(){
-        genList.set(ThreadLocalRandom.current().nextInt(lenOfGen), ThreadLocalRandom.current().nextInt(8));
+    private void setRandomElementInGenList() {
+        while (true) {
+            int index = ThreadLocalRandom.current().nextInt(lenOfGen);
+            int value = ThreadLocalRandom.current().nextInt(8);
+            if (genList.get(index) != value) {
+                genList.set(index, value);
+                break;
+            }
+        }
     }
+
 
     public void randomize(int minMutationNum, int maxMutationNum){
         int mutationNum = ThreadLocalRandom.current().nextInt(minMutationNum, maxMutationNum + 1);
