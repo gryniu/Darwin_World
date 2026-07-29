@@ -15,7 +15,7 @@ An evolution simulation — animals roam a map, eat plants, reproduce, and evolv
 
 ### Simulation Demo
 
-<video src="docs/simulation_demo.mp4" controls width="100%"></video>
+docs/simulation_demo.mp4
 
 The video shows a running simulation with multiple windows open simultaneously, the live statistics chart, energy bars on animals, seasonal map coloring (summer/winter), and step-by-step rewind.
 
