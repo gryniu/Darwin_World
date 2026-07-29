@@ -23,6 +23,7 @@ public class Animal extends AbstractAnimal{
                 new AnimalData(new Gen(animalOptions.lenOfGen()),
                         energyStart, dayOfBirth));
     }
+
     public Animal(Vector2d position, AnimalOptions animalOptions, AnimalData animalData) {
         this.lifeComponent = new LifeComponent(animalData.dayOfBirth());
         this.reproductionComponent = new ReproductionComponent();
