@@ -1,7 +1,7 @@
 # Darwin World
 
 **Object-Oriented Programming** course project — AGH University of Science and Technology, 2025.  
-Authors: Bartosz Gryn, Janusz (sr1315)
+Authors: Bartosz Gryn, Janusz 
 
 An evolution simulation — animals roam a map, eat plants, reproduce, and evolve through genome mutations.
 
@@ -84,7 +84,7 @@ The map wraps horizontally (left edge connects to right edge). The top and botto
 
 ---
 
-## Variant B — Seasons
+## Seasons
 
 The simulation can be run in **seasonal mode** (toggle the "pory roku" checkbox in the configuration screen).
 
